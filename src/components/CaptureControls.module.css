@@ -1,0 +1,19 @@
+#capture-playback {
+    width: 64pt;
+    height: 48pt;
+    display: none;
+}
+
+#capture-controls button {
+    height: 2em;
+    border: 1pt solid yellow;
+    z-index: 300;
+    padding: 0.3em 1em;
+    margin: 1em;
+    cursor: pointer;
+    background-color: blue;
+    color: white;
+    border: none;
+    border-radius: 0.3em;
+    outline: 1pt soild transparent;
+}

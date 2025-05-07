@@ -1,0 +1,30 @@
+/* VideoDropPlayer.css */
+
+iframe {
+    border: none;
+}
+
+.video-thumbs {
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.video-thumbs nav li {
+    overflow: none;
+    max-width: 120px;
+    margin: 0.5em;
+    cursor: pointer;
+}
+
+.large-video {
+    margin-bottom: 1em;
+    position: relative;
+}
+
+.large-video-overlay {
+    position: absolute;
+    width: 100%;
+    height: auto;
+    bottom: 0;
+}

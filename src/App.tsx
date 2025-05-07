@@ -1,38 +1,29 @@
-import './App.css'
-
-// import { setupVideoControls } from './videoControls.js';
-import { Ticker } from "./scrollingText.js";
-// import { setupVideoDropArea } from "./videoDropHandler.js";
+import { createSignal } from 'solid-js';
+import './App.css';
+import CaptureControls from './components/CaptureControls';
+import Ticker from './components/Ticker';
+import VideoDropPlayer from './components/VideoDropPlayer';
 
 function App() {
-
-  document.addEventListener('DOMContentLoaded', () => {
-    // setupVideoControls({
-    //     startCaptureButton: document.getElementById('start-capture'),
-    //     toggleCaptureButton: document.getElementById('toggle-capture'),
-    //     screenVideoElement: document.getElementById('capture-playback'),
-    // });
-
-    // setupVideoDropArea("body", "#video-thumbs", "#large-video");
-  });
+  const [screenVideoRef, setScreenVideoRef] = createSignal<HTMLVideoElement>();
 
   return (
     <>
-      <div id="large-video"></div>
+      <VideoDropPlayer>
+        <CaptureControls screenVideoRef={screenVideoRef()} />
+        <Ticker />
+      </VideoDropPlayer>
 
-      <aside id="control-layer">
-        <div id="capture-controls">
-          <button id="start-capture">Start Capture Broadcast</button>
-          <button id="toggle-capture" style="display:none;">Hide Video Capture</button>
-        </div>
-        <div id="video-thumbs"></div>
-        <video id="capture-playback" muted></video>
-        <Ticker id="ticker">
-          This text will smoothly scroll across the screen whilst you choose a video to play.
-        </Ticker>
+
+      <aside>
+        <video
+          ref={setScreenVideoRef}
+          class="capture-playback-video"
+          muted
+        ></video>
       </aside>
     </>
-  )
+  );
 }
 
-export default App
+export default App;

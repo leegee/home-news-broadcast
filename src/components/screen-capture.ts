@@ -1,4 +1,3 @@
-// screenCapture.js
 export async function startScreenCapture(streamElement, mediaRecorderCallback) {
     try {
         const stream = await navigator.mediaDevices.getDisplayMedia({

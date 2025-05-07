@@ -1,5 +1,5 @@
 // rtmpStream.js
-export function sendToRTMP(blob) {
+export function sendToRTMP(blob: any) {
     console.log('Sending video to RTMP server...');
     const reader = new FileReader();
 
