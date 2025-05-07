@@ -8,7 +8,7 @@ const STORAGE_KEY = "droppedVideoUrls";
 function isValidUrl(str: string): boolean {
     try {
         const url = new URL(str);
-        return ["youtube.com", "youtu.be", "rumble.com"].some(host =>
+        return ["youtube.com", "youtu.be"].some(host =>
             url.hostname.includes(host)
         );
     } catch {
@@ -22,11 +22,6 @@ function getEmbedUrl(url: string): string | null {
         if (parsed.hostname.includes("youtube.com") || parsed.hostname.includes("youtu.be")) {
             const videoId = parsed.searchParams.get("v") || parsed.pathname.split("/").pop();
             return `https://www.youtube.com/embed/${videoId}`;
-        }
-        else if (parsed.hostname.includes("rumble.com")) {
-            const parts = parsed.pathname.split("/");
-            const id = parts.find(p => p && p.startsWith("v"));
-            return id ? `https://rumble.com/embed/${id}` : null;
         }
     } catch {
         return null;
@@ -51,8 +46,6 @@ function getThumbnail(url: string): string {
     if (url.includes("youtube.com") || url.includes("youtu.be")) {
         const videoId = embedUrl.split("/").pop();
         return `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`;
-    } else if (url.includes("rumble.com")) {
-        return "https://via.placeholder.com/120x90.png?text=Rumble";
     }
     return "https://via.placeholder.com/120x90.png?text=Unknown";
 }
