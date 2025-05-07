@@ -1,5 +1,5 @@
 // VideoDropPlayer.tsx
-import { createSignal, onMount, For, JSX } from 'solid-js';
+import { createSignal, onMount, For, JSX, Show } from 'solid-js';
 import styles from './VideoDropPlayer.module.css';
 
 const MAX_HISTORY = 10;
@@ -119,7 +119,7 @@ export default function VideoDropPlayer(props: IVideoDropPlayerProps) {
     });
 
     return (
-        <div>
+        <section>
             <div class={styles["large-video"]}>
                 {currentUrl() && (
                     <iframe
@@ -136,6 +136,9 @@ export default function VideoDropPlayer(props: IVideoDropPlayerProps) {
             </div>
 
             <nav class={styles["video-thumbs"]}>
+                <Show when={history().length === 0}>
+                    Drop video page URLs into this window.
+                </Show>
                 <For each={history()}>
                     {(url) => (
                         <li
@@ -147,6 +150,6 @@ export default function VideoDropPlayer(props: IVideoDropPlayerProps) {
                     )}
                 </For>
             </nav>
-        </div>
+        </section>
     );
 }
