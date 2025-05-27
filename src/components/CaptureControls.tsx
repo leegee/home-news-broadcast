@@ -2,7 +2,7 @@
 import { createSignal, createEffect, onCleanup } from 'solid-js';
 import { startScreenCapture, stopScreenCapture } from './screen-capture';
 import { sendToRTMP } from './rtmp-stream';
-import './CaptureControls.module.css';
+import styles from './CaptureControls.module.scss';
 
 type Props = {
     screenVideoRef: HTMLVideoElement | undefined;
@@ -38,7 +38,7 @@ export default function VideoControls(props: Props) {
     });
 
     return (
-        <div class="capture-controls">
+        <div class={styles["capture-controls"]}>
             {!isCapturing() && (
                 <button onClick={startCapture}>Start Capture Broadcast</button>
             )}

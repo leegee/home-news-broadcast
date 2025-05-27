@@ -1,6 +1,6 @@
 // VideoDropPlayer.tsx
 import { createSignal, onMount, For, JSX, Show } from 'solid-js';
-import styles from './VideoDropPlayer.module.css';
+import styles from './VideoDropPlayer.module.scss';
 
 const MAX_HISTORY = 10;
 const STORAGE_KEY = "droppedVideoUrls";
@@ -12,6 +12,7 @@ function isValidUrl(str: string): boolean {
             url.hostname.includes(host)
         );
     } catch {
+        console.log("Don't know what to do with your dropped URL", str)
         return false;
     }
 }
@@ -119,7 +120,7 @@ export default function VideoDropPlayer(props: IVideoDropPlayerProps) {
     });
 
     return (
-        <section>
+        <section class={styles['video-drop-player-component']}>
             <div class={styles["large-video"]}>
                 {currentUrl() && (
                     <iframe
