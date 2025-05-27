@@ -1,6 +1,5 @@
 .ticker {
     position: relative;
-    bottom: 0;
     background-color: navy;
     color: white;
     border-top: 1pt solid white;
@@ -12,11 +11,10 @@
     overflow: hidden;
     z-index: 300;
     width: 100%;
-    --size: 2em;
-    font-size: var(--size);
-    min-height: var(--size);
-    height: var(--size);
-    line-height: var(--size);
+    font-size: 18pt;
+    min-height: 24pt;
+    height: 24pt;
+    line-height: 24pt;
 }
 
 .ticker-item {

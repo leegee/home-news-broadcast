@@ -1,0 +1,22 @@
+h1 {
+    position: relative;
+    bottom: 0;
+    background-color: rgb(2, 2, 88);
+    color: white;
+    border-top: 1pt solid white;
+    border-bottom: 0;
+    display: flex;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    font-weight: 600;
+    letter-spacing: 0.3pt;
+    overflow: hidden;
+    z-index: 300;
+    width: 100%;
+    --size: 2em;
+    font-size: var(--size);
+    min-height: var(--size);
+    height: var(--size);
+    line-height: var(--size);
+    margin: 0;
+    padding: 0 0.5em;
+}

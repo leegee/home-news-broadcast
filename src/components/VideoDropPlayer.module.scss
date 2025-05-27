@@ -1,7 +1,7 @@
 .video-drop-player-component {
     --video-thumb-height: 120px;
     display: flex;
-    flex-direction: column;
+    flex-direction: column-reverse;
     align-items: center;
     z-index: 1000;
     position: absolute;
@@ -45,13 +45,6 @@
 
     .video-thumbs.closed {
         bottom: calc(-1 * var(--video-thumb-height) - 1em);
-    }
-
-    .video-thumbs:before {
-        content: 'OPEN/CLOSE';
-        position: absolute;
-        z-index: 1200;
-        cursor: pointer;
     }
 
     .large-video-overlay {
