@@ -1,15 +1,18 @@
-import { createSignal, createEffect, onCleanup } from 'solid-js';
 import './Ticker.css';
+import { createSignal, createEffect, onCleanup } from 'solid-js';
+import { selectContent } from '../lib/select-content';
 
+const STORE_KEY = 'cap-ticker';
 const speed = 100;
 const padding = 20;
 
 const Ticker = () => {
     let containerRef: HTMLDivElement | null = null;
 
-    const [text, setText] = createSignal<string>('Click to edit');
-
-    let stopAnimation = false;
+    const [text, setText] = createSignal<string>(
+        localStorage.getItem(STORE_KEY) || 'Click to edit'
+    );
+    let runAnimation = true;
     let preEditTextContent = '';
     let width = 0;
     let x1 = 0;
@@ -17,17 +20,18 @@ const Ticker = () => {
     let lastTime = performance.now();
 
     const startEdit = (e: Event) => {
-        console.log('edit', e);
         const target = e.target as HTMLElement;
+        selectContent(e.target as HTMLElement);
         preEditTextContent = target.textContent || '';
-        stopAnimation = true;
+        runAnimation = false;
     };
 
     const saveText = (e: Event) => {
         const target = e.target as HTMLElement;
         const newText = target.textContent || preEditTextContent;
         setText(newText);
-        stopAnimation = false;
+        localStorage.setItem(STORE_KEY, newText);
+        runAnimation = true;
         requestAnimationFrame(step);
     };
 
@@ -58,7 +62,7 @@ const Ticker = () => {
     );
 
     const step = (now: number) => {
-        if (stopAnimation) return;
+        if (!runAnimation) return;
 
         const deltaT = (now - lastTime) / 1000;
         lastTime = now;
@@ -104,7 +108,7 @@ const Ticker = () => {
     });
 
     onCleanup(() => {
-        stopAnimation = true;
+        runAnimation = false;
     });
 
     return (

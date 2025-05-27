@@ -1,15 +1,20 @@
-import { createSignal, createEffect } from 'solid-js';
 import './Banner.css';
+import { createSignal, createEffect } from 'solid-js';
+import { selectContent } from '../lib/select-content';
+
+const STORE_KEY = 'cap-banner';
 
 const Banner = () => {
     let containerRef: HTMLDivElement | null = null;
-    const [text, setText] = createSignal<string>('Click to edit');
+    const [text, setText] = createSignal<string>(
+        localStorage.getItem(STORE_KEY) || 'Click to edit'
+    );
 
     let preEditTextContent = '';
 
     const startEdit = (e: Event) => {
-        console.log('edit', e);
         const target = e.target as HTMLElement;
+        selectContent(e.target as HTMLElement);
         preEditTextContent = target.textContent || '';
     };
 
@@ -17,6 +22,7 @@ const Banner = () => {
         const target = e.target as HTMLElement;
         const newText = target.textContent || preEditTextContent;
         setText(newText);
+        localStorage.setItem(STORE_KEY, newText);
     };
 
     const onKeyDown = (e: KeyboardEvent) => {
