@@ -33,18 +33,17 @@
         display: flex;
         flex-wrap: wrap;
         flex-direction: row;
+        background-color: black;
 
         li {
             overflow: hidden;
             max-width: 120px;
             max-height: var(--video-thumb-height);
             margin: 0.5em;
+            border: 1pt solid white;
             cursor: pointer;
+            display: inline-block;
         }
-    }
-
-    .video-thumbs.closed {
-        bottom: calc(-1 * var(--video-thumb-height) - 1em);
     }
 
     .large-video-overlay {

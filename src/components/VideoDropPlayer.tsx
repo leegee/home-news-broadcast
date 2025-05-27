@@ -58,6 +58,7 @@ interface IVideoDropPlayerProps {
 export default function VideoDropPlayer(props: IVideoDropPlayerProps) {
     const [history, setHistory] = createSignal<string[]>([]);
     const [currentUrl, setCurrentUrl] = createSignal<string | null>(null);
+    const [showThumbs, setShowThumbs] = createSignal<boolean>(true);
 
     const showVideo = (url: string) => {
         const embed = getEmbedUrl(url);
@@ -106,10 +107,15 @@ export default function VideoDropPlayer(props: IVideoDropPlayerProps) {
             if (text) handleUrlDrop(text);
         };
 
+        const keydownHandler = (e: KeyboardEvent) => {
+            setShowThumbs(!showThumbs());
+        };
+
         document.body.addEventListener("drop", dropHandler);
         document.body.addEventListener("dragover", dragOverHandler);
         document.body.addEventListener("dragleave", dragLeaveHandler);
         document.body.addEventListener("paste", pasteHandler);
+        document.body.addEventListener("keydown", keydownHandler);
 
         return () => {
             document.body.removeEventListener("drop", dropHandler);
@@ -138,18 +144,20 @@ export default function VideoDropPlayer(props: IVideoDropPlayerProps) {
 
             <nav class={styles["video-thumbs"]}>
                 <Show when={history().length === 0}>
-                    Drop video page URLs into this window.
+                    Drop video page URLs into this window. Press ESCAPE to toggle the thumbnail display.
                 </Show>
-                <For each={history()}>
-                    {(url) => (
-                        <li
-                            classList={{ [styles.activeThumb]: currentUrl() === getEmbedUrl(url) }}
-                            onClick={() => showVideo(url)}
-                        >
-                            <img src={getThumbnail(url)} alt={url} style={{ width: "100%" }} />
-                        </li>
-                    )}
-                </For>
+                <Show when={showThumbs()}>
+                    <For each={history()}>
+                        {(url) => (
+                            <li
+                                classList={{ [styles.activeThumb]: currentUrl() === getEmbedUrl(url) }}
+                                onClick={() => showVideo(url)}
+                            >
+                                <img src={getThumbnail(url)} alt={url} style={{ width: "100%" }} />
+                            </li>
+                        )}
+                    </For>
+                </Show>
             </nav>
         </section>
     );
