@@ -107,8 +107,10 @@ export default function VideoDropPlayer(props: IVideoDropPlayerProps) {
             if (text) handleUrlDrop(text);
         };
 
-        const keydownHandler = () => {
-            setShowThumbs(!showThumbs());
+        const keydownHandler = (e: KeyboardEvent) => {
+            if (e.key === 'Escape') {
+                setShowThumbs(!showThumbs());
+            }
         };
 
         document.body.addEventListener("drop", dropHandler);
