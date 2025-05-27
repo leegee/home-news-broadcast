@@ -1,10 +1,19 @@
-#capture-playback {
-    width: 64pt;
-    height: 48pt;
-    display: none;
+.capture-controls {
+    position: absolute;
+    z-index: 200;
+    height: 20vh;
+    bottom: 0;
+    width: 100%;
+    left: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    justify-content: space-between;
+    background-color: transparent;
 }
 
-#capture-controls button {
+
+.capture-controls button {
     height: 2em;
     border: 1pt solid yellow;
     z-index: 300;
