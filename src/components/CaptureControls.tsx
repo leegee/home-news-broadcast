@@ -1,22 +1,18 @@
-// CaptureControls.tsx
+import styles from './CaptureControls.module.scss';
 import { createSignal, createEffect, onCleanup } from 'solid-js';
 import { startScreenCapture, stopScreenCapture } from './screen-capture';
 import { sendToRTMP } from './rtmp-stream';
-import styles from './CaptureControls.module.scss';
 
-type Props = {
-    screenVideoRef: HTMLVideoElement | undefined;
-};
-
-export default function VideoControls(props: Props) {
+export default function VideoControls() {
+    const [screenVideoRef, setScreenVideoRef] = createSignal<HTMLVideoElement>();
     const [isCapturing, setIsCapturing] = createSignal(false);
     const [isVideoVisible, setIsVideoVisible] = createSignal(true);
     let mediaRecorder: MediaRecorder | undefined = undefined;
 
     const startCapture = async () => {
-        if (!props.screenVideoRef) return;
+        if (!screenVideoRef) return;
 
-        mediaRecorder = await startScreenCapture(props.screenVideoRef, (videoBlob: any) => {
+        mediaRecorder = await startScreenCapture(screenVideoRef, (videoBlob: any) => {
             sendToRTMP(videoBlob);
         });
 
@@ -28,8 +24,8 @@ export default function VideoControls(props: Props) {
     };
 
     createEffect(() => {
-        if (props.screenVideoRef) {
-            props.screenVideoRef.style.display = isVideoVisible() ? 'block' : 'none';
+        if (screenVideoRef()) {
+            screenVideoRef()!.style.display = isVideoVisible() ? 'block' : 'none';
         }
     });
 
@@ -38,15 +34,23 @@ export default function VideoControls(props: Props) {
     });
 
     return (
-        <div class={styles["capture-controls"]}>
-            {!isCapturing() && (
-                <button onClick={startCapture}>Start Capture Broadcast</button>
-            )}
-            {isCapturing() && (
-                <button onClick={toggleVideoVisibility}>
-                    {isVideoVisible() ? 'Hide Video Capture' : 'Show Video Capture'}
-                </button>
-            )}
-        </div>
+        <>
+            <div class={styles["capture-controls"]}>
+                {!isCapturing() && (
+                    <button onClick={startCapture}>Start Capture Broadcast</button>
+                )}
+                {isCapturing() && (
+                    <button onClick={toggleVideoVisibility}>
+                        {isVideoVisible() ? 'Hide Video Capture' : 'Show Video Capture'}
+                    </button>
+                )}
+            </div>
+
+            <video
+                ref={setScreenVideoRef}
+                class="capture-playback-video"
+                muted
+            />
+        </>
     );
 }

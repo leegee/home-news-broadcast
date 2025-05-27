@@ -1,6 +1,6 @@
-// VideoDropPlayer.tsx
-import { createSignal, onMount, For, JSX, Show } from 'solid-js';
 import styles from './VideoDropPlayer.module.scss';
+import { createSignal, onMount, For, JSX, Show } from 'solid-js';
+import CaptureControls from './CaptureControls';
 
 const MAX_HISTORY = 10;
 const STORAGE_KEY = "droppedVideoUrls";
@@ -107,7 +107,7 @@ export default function VideoDropPlayer(props: IVideoDropPlayerProps) {
             if (text) handleUrlDrop(text);
         };
 
-        const keydownHandler = (e: KeyboardEvent) => {
+        const keydownHandler = () => {
             setShowThumbs(!showThumbs());
         };
 
@@ -146,6 +146,7 @@ export default function VideoDropPlayer(props: IVideoDropPlayerProps) {
                 <Show when={history().length === 0}>
                     Drop video page URLs into this window. Press ESCAPE to toggle the thumbnail display.
                 </Show>
+                <CaptureControls />
                 <Show when={showThumbs()}>
                     <For each={history()}>
                         {(url) => (
