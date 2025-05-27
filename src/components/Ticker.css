@@ -2,12 +2,11 @@
     position: relative;
     background-color: navy;
     color: white;
-    border-top: 1pt solid white;
-    border-bottom: 1pt solid white;
+    border-top: 1pt solid rgba(255, 255, 255, 0.87);
+    border-bottom: 1pt solid rgba(255, 255, 255, 0.87);
     display: flex;
     font-family: Verdana, Geneva, Tahoma, sans-serif;
-    font-weight: 600;
-    letter-spacing: 0.3pt;
+    font-weight: normal;
     overflow: hidden;
     z-index: 300;
     width: 100%;

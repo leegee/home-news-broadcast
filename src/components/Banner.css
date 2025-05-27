@@ -3,8 +3,7 @@ h1 {
     bottom: 0;
     background-color: rgb(2, 2, 88);
     color: white;
-    border-top: 1pt solid white;
-    border-bottom: 0;
+    opacity: 0.9;
     display: flex;
     font-family: Verdana, Geneva, Tahoma, sans-serif;
     font-weight: 600;
