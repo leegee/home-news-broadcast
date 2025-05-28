@@ -1,32 +1,29 @@
-export async function startScreenCapture(streamElement, mediaRecorderCallback) {
+export function stopScreenCapture(mediaRecorder: MediaRecorder) {
+    mediaRecorder.stop();
+}
+
+export async function startScreenCapture(mediaRecorderCallback: Function) {
     try {
         const stream = await navigator.mediaDevices.getDisplayMedia({
             video: true,
             audio: true,
         });
 
-        // Show the screen capture in the video element
-        streamElement.srcObject = stream;
+        const mediaRecorder = new MediaRecorder(stream, {
+            mimeType: 'video/webm; codecs=vp8,opus'
+        });
 
-        const mediaRecorder = new MediaRecorder(stream);
-        let chunks = [];
-
-        mediaRecorder.ondataavailable = (event) => {
-            chunks.push(event.data);
+        mediaRecorder.ondataavailable = (event: BlobEvent) => {
+            if (event.data && event.data.size > 0) {
+                mediaRecorderCallback(event.data);
+            }
         };
 
-        mediaRecorder.onstop = () => {
-            const videoBlob = new Blob(chunks, { type: 'video/webm' });
-            mediaRecorderCallback(videoBlob);
-        };
+        // Emit data every 250ms — experiment with this
+        mediaRecorder.start(250);
 
-        mediaRecorder.start();
         return mediaRecorder;
     } catch (err) {
         console.error('Error during screen capture:', err);
     }
-}
-
-export function stopScreenCapture(mediaRecorder) {
-    mediaRecorder.stop();
 }

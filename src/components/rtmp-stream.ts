@@ -1,24 +1,29 @@
-// rtmpStream.js
-export function sendToRTMP(blob: any) {
-    console.log('Sending video to RTMP server...');
-    const reader = new FileReader();
+let ws: WebSocket | null = null;
 
-    reader.onload = async () => {
-        const videoData = reader.result;
+export function initRTMPConnection(serverUrl: string) {
+    if (ws && ws.readyState === WebSocket.OPEN) return;
 
-        const ffmpeg = createFFmpeg({ log: true });
-        await ffmpeg.load();
+    ws = new WebSocket(serverUrl);
+    ws.binaryType = 'arraybuffer';
 
-        // Input the video data
-        ffmpeg.FS('writeFile', 'input.webm', new Uint8Array(videoData));
-
-        // Run ffmpeg to transcode the video
-        await ffmpeg.run('-i', 'input.webm', '-f', 'flv', 'output.flv');
-
-        // Get the transcoded output (placeholder for actual RTMP push logic)
-        const output = ffmpeg.FS('readFile', 'output.flv');
-        console.log('RTMP Stream would now be sent (replace with actual RTMP push logic)');
+    ws.onopen = () => {
+        console.log('WebSocket connected to RTMP backend');
     };
 
-    reader.readAsArrayBuffer(blob);
+    ws.onerror = (err) => {
+        console.error('WebSocket error:', err);
+    };
+
+    ws.onclose = () => {
+        console.log('WebSocket closed');
+    };
+}
+
+export function sendToRTMP(blob: Blob) {
+    if (!ws || ws.readyState !== WebSocket.OPEN) {
+        console.warn('WebSocket not connected, skipping blob');
+        return;
+    }
+
+    ws.send(blob);
 }

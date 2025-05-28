@@ -1,28 +1,25 @@
-## Usage
+## Installation
 
-```bash
-$ npm install # or pnpm install or yarn install
-```
+    bun install
 
-### Learn more on the [Solid Website](https://solidjs.com) and come chat with us on our [Discord](https://discord.com/invite/solidjs)
+    choco install ffmpeg-full # For libx264
+    
+    brew reinstall ffmpeg --with-libx264
 
-## Available Scripts
+    sudo add-apt-repository ppa:savoury1/ffmpeg4
+    sudo apt update
+    sudo apt install ffmpeg
 
-In the project directory, you can run:
+    # Test the ffmpeg setup
 
-### `npm run dev`
+    export KEY="..."
+    ffmpeg -re \
+    -f lavfi -i testsrc=size=1280x720:rate=30 \
+    -f lavfi -i anullsrc=channel_layout=stereo:sample_rate=44100 \
+    -c:v libx264 -preset veryfast -tune zerolatency \
+    -c:a aac -b:a 128k -ar 44100 -pix_fmt yuv420p \
+    -shortest -f flv rtmp://a.rtmp.youtube.com/live2/$KEY
 
-Runs the app in the development mode.<br>
-Open [http://localhost:5173](http://localhost:5173) to view it in the browser.
-
-### `npm run build`
-
-Builds the app for production to the `dist` folder.<br>
-It correctly bundles Solid in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.<br>
-Your app is ready to be deployed!
-
-## Deployment
-
-Learn more about deploying your application with the [documentations](https://vite.dev/guide/static-deploy.html)
+    # Run this package
+    bun run dev
+    node node/server.js

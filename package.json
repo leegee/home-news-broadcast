@@ -9,7 +9,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "solid-js": "^1.9.5"
+    "solid-js": "^1.9.5",
+    "ws": "^8.18.2"
   },
   "devDependencies": {
     "sass-embedded": "^1.89.0",
