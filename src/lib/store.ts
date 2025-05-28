@@ -1,5 +1,6 @@
 import { createSignal } from 'solid-js';
 import { makePersisted } from '@solid-primitives/storage'; // sync doesn't work
+import defatulCatimage from './default-banner-image';
 
 function createSyncedPersistedSignal<T>(key: string, initial: T): [() => T, (v: T) => void] {
     const [value, setValue] = makePersisted(createSignal<T>(initial), {
@@ -22,7 +23,7 @@ function createSyncedPersistedSignal<T>(key: string, initial: T): [() => T, (v: 
 }
 
 export const [ticker, setTicker] = createSyncedPersistedSignal('cap-ticker', 'Click to edit');
-export const [banner, setBanner] = createSyncedPersistedSignal('cap-banner', 'Click to edit');
+export const [banner, setBanner] = createSyncedPersistedSignal('cap-banner', 'Cat News');
 export const [videoUrl, setVideoUrl] = createSyncedPersistedSignal('cap-video-url', '');
 export const [history, setHistory] = createSyncedPersistedSignal<string[]>('cap-history', []);
-export const [bannerImage, setBannerImage] = createSyncedPersistedSignal<string>('', '');
+export const [bannerImage, setBannerImage] = createSyncedPersistedSignal<string>('cap-banner-image', defatulCatimage);
