@@ -10,13 +10,16 @@ export default function VideoControls() {
     let mediaRecorder: MediaRecorder | undefined = undefined;
 
     const startCapture = async () => {
-        if (!screenVideoRef) return;
+        if (!screenVideoRef()) return;
 
-        mediaRecorder = await startScreenCapture(screenVideoRef, (videoBlob: any) => {
-            sendToRTMP(videoBlob);
-        });
-
-        setIsCapturing(true);
+        try {
+            mediaRecorder = await startScreenCapture(screenVideoRef(), (videoBlob: any) => {
+                sendToRTMP(videoBlob);
+            });
+            setIsCapturing(true);
+        } catch (err) {
+            console.error("Failed to start screen capture:", err);
+        }
     };
 
     const toggleVideoVisibility = () => {
@@ -50,6 +53,8 @@ export default function VideoControls() {
                 ref={setScreenVideoRef}
                 class="capture-playback-video"
                 muted
+                autoplay
+                playsinline
             />
         </>
     );
