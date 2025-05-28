@@ -1,4 +1,4 @@
-import { createSignal, onCleanup } from 'solid-js';
+import { createSignal, onCleanup, Show } from 'solid-js';
 import { startScreenCapture, stopScreenCapture } from '../lib/screen-capture';
 import { initRTMPConnection, sendToRTMP } from '../lib/rtmp-stream';
 
@@ -23,13 +23,19 @@ export default function CaptureControls() {
         }
     };
 
-    onCleanup(() => {
+    const stopCapture = () => {
         if (mediaRecorderRef) {
             stopScreenCapture(mediaRecorderRef);
+            mediaRecorderRef = undefined;
+            setIsCapturing(false);
         }
-    });
+    };
 
-    return !isCapturing() ? (
-        <button class="start-capture" onClick={startCapture}>Start Capture Broadcast</button>
-    ) : null;
+    onCleanup(stopCapture);
+
+    return (
+        <Show when={!isCapturing()}>
+            <button class="start-capture" onClick={startCapture}>Start Capture Broadcast</button>
+        </Show>
+    );
 }

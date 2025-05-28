@@ -25,3 +25,4 @@ export const [ticker, setTicker] = createSyncedPersistedSignal('cap-ticker', 'Cl
 export const [banner, setBanner] = createSyncedPersistedSignal('cap-banner', 'Click to edit');
 export const [videoUrl, setVideoUrl] = createSyncedPersistedSignal('cap-video-url', '');
 export const [history, setHistory] = createSyncedPersistedSignal<string[]>('cap-history', []);
+export const [bannerImage, setBannerImage] = createSyncedPersistedSignal<string>('', '');

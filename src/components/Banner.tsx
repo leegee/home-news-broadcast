@@ -1,7 +1,8 @@
-import './Banner.css';
+import styles from './Banner.module.scss';
 import { createEffect } from 'solid-js';
 import { selectContent } from '../lib/select-content';
 import { banner, setBanner } from '../lib/store';
+import BannerImage from './BannerImage';
 
 const Banner = () => {
     let containerRef: HTMLDivElement | null = null;
@@ -40,15 +41,18 @@ const Banner = () => {
     });
 
     return (
-        <h1 ref={(el) => (containerRef = el)}
-            contentEditable
-            tabIndex={0}
-            onClick={startEdit}
-            onBlur={saveText}
-            onKeyDown={onKeyDown}
-        >
-            {banner() || 'Click to edit'}
-        </h1>
+        <section class={styles['banner-image-component']}>
+            <BannerImage />
+            <h1 ref={(el) => (containerRef = el)}
+                contentEditable
+                tabIndex={0}
+                onClick={startEdit}
+                onBlur={saveText}
+                onKeyDown={onKeyDown}
+            >
+                {banner() || 'Click to edit'}
+            </h1>
+        </section>
     );
 }
 
