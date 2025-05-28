@@ -124,6 +124,7 @@ export default function VideoDropPlayer(props: IVideoDropPlayerProps) {
             document.body.removeEventListener("dragover", dragOverHandler);
             document.body.removeEventListener("dragleave", dragLeaveHandler);
             document.body.removeEventListener("paste", pasteHandler);
+            document.body.removeEventListener("keydown", keydownHandler);
         };
     });
 
@@ -146,10 +147,10 @@ export default function VideoDropPlayer(props: IVideoDropPlayerProps) {
 
             <nav class={styles["video-thumbs"]}>
                 <Show when={history().length === 0}>
-                    Drop video page URLs into this window. Press ESCAPE to toggle the thumbnail display.
+                    <li>Drop video page URLs into this window. Press ESCAPE to toggle the thumbnail display.</li>
                 </Show>
-                <CaptureControls />
                 <Show when={showThumbs()}>
+                    <CaptureControls />
                     <For each={history()}>
                         {(url) => (
                             <li

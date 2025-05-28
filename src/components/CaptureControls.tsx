@@ -35,7 +35,7 @@ export default function VideoControls() {
 
     return (
         <>
-            <div class={styles["capture-controls"]}>
+            <li class={styles["capture-controls"]}>
                 {!isCapturing() && (
                     <button onClick={startCapture}>Start Capture Broadcast</button>
                 )}
@@ -44,7 +44,7 @@ export default function VideoControls() {
                         {isVideoVisible() ? 'Hide Video Capture' : 'Show Video Capture'}
                     </button>
                 )}
-            </div>
+            </li>
 
             <video
                 ref={setScreenVideoRef}
