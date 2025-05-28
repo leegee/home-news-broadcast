@@ -1,14 +1,14 @@
 import './App.css';
-import Ticker from './components/Ticker';
-import Banner from './components/Banner.tsx';
+import { HashRouter, Route } from "@solidjs/router";
+import BroadcastScreen from './views/BroadcastScreen.tsx';
 import ControlScreen from './views/ControlScreen.tsx';
 
 function App() {
   return (
-    <ControlScreen>
-      <Banner />
-      <Ticker />
-    </ControlScreen>
+    <HashRouter>
+      <Route path="/" component={ControlScreen} />
+      <Route path="/output" component={BroadcastScreen} />
+    </HashRouter>
   );
 }
 

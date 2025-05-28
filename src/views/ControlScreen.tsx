@@ -1,18 +1,20 @@
 import styles from './ControlScreen.module.scss';
-import { createSignal, onMount, For, JSX, Show } from 'solid-js';
+import { onMount, For, Show } from 'solid-js';
+import { history, setHistory, setVideoUrl, videoUrl } from '../lib/store';
 import CaptureControls from '../components/CaptureControls';
 
 const MAX_HISTORY = 10;
-const STORAGE_KEY = "droppedVideoUrls";
+
+function openOutputTab() {
+    window.open('/#output', '_blank');
+}
 
 function isValidUrl(str: string): boolean {
     try {
         const url = new URL(str);
-        return ["youtube.com", "youtu.be"].some(host =>
-            url.hostname.includes(host)
-        );
+        return ["youtube.com", "youtu.be"].some(host => url.hostname.includes(host));
     } catch {
-        console.log("Don't know what to do with your dropped URL", str)
+        console.log("Don't know what to do with your dropped URL", str);
         return false;
     }
 }
@@ -30,15 +32,11 @@ function getEmbedUrl(url: string): string | null {
     return null;
 }
 
-function getHistory(): string[] {
-    return JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
-}
-
 function saveUrlToHistory(url: string) {
-    let history = getHistory();
-    history.unshift(url);
-    history = history.filter((v, i, a) => a.indexOf(v) === i).slice(0, MAX_HISTORY);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(history));
+    let h = history();
+    h = [url, ...h.filter(v => v !== url)]; // prepend new URL, remove duplicates
+    if (h.length > MAX_HISTORY) h = h.slice(0, MAX_HISTORY);
+    setHistory(h);
 }
 
 function getThumbnail(url: string): string {
@@ -51,46 +49,30 @@ function getThumbnail(url: string): string {
     return "https://via.placeholder.com/120x90.png?text=Unknown";
 }
 
-interface IControlScreenProps {
-    children: JSX.Element;
-}
-
-export default function ControlScreen(props: IControlScreenProps) {
-    const [history, setHistory] = createSignal<string[]>([]);
-    const [currentUrl, setCurrentUrl] = createSignal<string | null>(null);
-    const [showThumbs, setShowThumbs] = createSignal<boolean>(true);
-
+export default function ControlScreen() {
     const showVideo = (url: string) => {
         const embed = getEmbedUrl(url);
         if (embed) {
-            setCurrentUrl(embed);
-        }
-    };
-
-    const renderThumbnails = () => {
-        const h = getHistory();
-        setHistory(h);
-        if (h.length > 0) {
-            showVideo(h[0]);
-        }
-    };
-
-    const handleUrlDrop = (text: string) => {
-        if (isValidUrl(text)) {
-            saveUrlToHistory(text);
-            setHistory(getHistory());
-            showVideo(text);
+            setVideoUrl(embed)
+            console.log('set')
+        } else {
+            console.log('did not set')
         }
     };
 
     onMount(() => {
-        renderThumbnails();
+        if (history().length > 0) {
+            showVideo(history()[0]);
+        }
 
         const dropHandler = (e: DragEvent) => {
             e.preventDefault();
             (e.currentTarget as HTMLElement).style.outline = '';
             const text = e.dataTransfer?.getData("text/plain");
-            if (text) handleUrlDrop(text);
+            if (text && isValidUrl(text)) {
+                saveUrlToHistory(text);
+                showVideo(text);
+            }
         };
 
         const dragOverHandler = (e: DragEvent) => {
@@ -104,12 +86,9 @@ export default function ControlScreen(props: IControlScreenProps) {
 
         const pasteHandler = (e: ClipboardEvent) => {
             const text = (e.clipboardData || (window as any).clipboardData).getData("text");
-            if (text) handleUrlDrop(text);
-        };
-
-        const keydownHandler = (e: KeyboardEvent) => {
-            if (e.key === 'Escape') {
-                setShowThumbs(!showThumbs());
+            if (text && isValidUrl(text)) {
+                saveUrlToHistory(text);
+                showVideo(text);
             }
         };
 
@@ -117,52 +96,40 @@ export default function ControlScreen(props: IControlScreenProps) {
         document.body.addEventListener("dragover", dragOverHandler);
         document.body.addEventListener("dragleave", dragLeaveHandler);
         document.body.addEventListener("paste", pasteHandler);
-        document.body.addEventListener("keydown", keydownHandler);
 
         return () => {
             document.body.removeEventListener("drop", dropHandler);
             document.body.removeEventListener("dragover", dragOverHandler);
             document.body.removeEventListener("dragleave", dragLeaveHandler);
             document.body.removeEventListener("paste", pasteHandler);
-            document.body.removeEventListener("keydown", keydownHandler);
         };
     });
 
     return (
-        <section class={styles['video-drop-player-component']}>
-            <div class={styles["large-video"]}>
-                {currentUrl() && (
-                    <iframe
-                        src={currentUrl()!}
-                        width="100%"
-                        height="360"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                        allowfullscreen
-                    ></iframe>
-                )}
-                <div class={styles["large-video-overlay"]}>
-                    {props.children}
-                </div>
-            </div>
+        <main class={styles['control-screen-component']}>
 
             <nav class={styles["video-thumbs"]}>
                 <Show when={history().length === 0}>
-                    <li>Drop video page URLs into this window. Press ESCAPE to toggle the thumbnail display.</li>
+                    <p>Drop video page URLs into this window. Press ESCAPE to toggle the thumbnail display.</p>
                 </Show>
-                <Show when={showThumbs()}>
-                    <CaptureControls />
-                    <For each={history()}>
-                        {(url) => (
-                            <li
-                                classList={{ [styles.activeThumb]: currentUrl() === getEmbedUrl(url) }}
-                                onClick={() => showVideo(url)}
-                            >
-                                <img src={getThumbnail(url)} alt={url} style={{ width: "100%" }} />
-                            </li>
-                        )}
-                    </For>
-                </Show>
+
+                <For each={history()}>
+                    {(url) => (
+                        <li
+                            classList={{ [styles["active-thumb"]]: videoUrl() === getEmbedUrl(url) }}
+                            onClick={() => showVideo(url)}
+                        >
+                            <img src={getThumbnail(url)} alt={url} style={{ width: "100%" }} />
+                        </li>
+                    )}
+                </For>
             </nav>
-        </section>
+
+            <nav>
+                <button class={styles['open-output']} onClick={openOutputTab}>Open Output Display</button>
+                <CaptureControls />
+            </nav>
+
+        </main>
     );
 }

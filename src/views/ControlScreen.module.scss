@@ -1,4 +1,4 @@
-.video-drop-player-component {
+.control-screen-component {
     --video-thumb-height: 120px;
     display: flex;
     flex-direction: column-reverse;
@@ -9,21 +9,6 @@
     left: 0;
     height: 100vh;
     width: 100vw;
-
-    .large-video {
-        z-index: 1000;
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        height: 100vh;
-        width: 100vw;
-        overflow: hidden;
-
-        iframe {
-            min-width: 100%;
-            min-height: 100%;
-        }
-    }
 
     .video-thumbs {
         z-index: 1100;
@@ -40,16 +25,17 @@
             max-width: 120px;
             max-height: var(--video-thumb-height);
             margin: 0.5em;
-            border: 1pt solid white;
+            border: 1pt dotted silver;
             cursor: pointer;
             display: inline-block;
         }
+
+        li.active-thumb {
+            border: 1pt solid white;
+        }
     }
 
-    .large-video-overlay {
-        position: absolute;
-        width: 100%;
-        height: auto;
-        bottom: 0;
+    .open-output {
+        border: 1pt solid white;
     }
 }

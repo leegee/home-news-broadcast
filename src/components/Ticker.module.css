@@ -14,16 +14,16 @@
     min-height: 24pt;
     height: 24pt;
     line-height: 24pt;
-}
 
-.ticker-item {
-    position: absolute;
-    top: 0;
-    left: 0;
-    white-space: nowrap;
-    will-change: transform;
-}
+    .ticker-item {
+        position: absolute;
+        top: 0;
+        left: 0;
+        white-space: nowrap;
+        will-change: transform;
+    }
 
-.ticker-item:after {
-    content: ' ';
+    .ticker-item:after {
+        content: ' ';
+    }
 }

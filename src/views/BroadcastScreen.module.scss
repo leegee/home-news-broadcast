@@ -1,0 +1,50 @@
+.broadcast-screen-component {
+    display: flex;
+    flex-direction: column-reverse;
+    align-items: center;
+    z-index: 1;
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 100vw;
+
+    .large-video {
+        background: #333;
+        z-index: 10;
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        height: 100vh;
+        width: 100vw;
+        overflow: hidden;
+
+        iframe {
+            min-width: 100%;
+            min-height: 100%;
+        }
+    }
+
+    .large-video-overlay {
+        position: absolute;
+        width: 100%;
+        height: auto;
+        bottom: 0;
+    }
+
+    button {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 1000;
+        padding: 4em;
+        font-size: x-large;
+        border: 2pt solid gray;
+    }
+
+    button:hover,
+    button:focus {
+        border: 2pt solid white;
+    }
+}

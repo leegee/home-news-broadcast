@@ -1,22 +1,21 @@
-import styles from './CaptureControls.module.scss';
 import { createSignal, onCleanup } from 'solid-js';
 import { startScreenCapture, stopScreenCapture } from '../lib/screen-capture';
 import { initRTMPConnection, sendToRTMP } from '../lib/rtmp-stream';
 
-export default function VideoControls() {
+export default function CaptureControls() {
     const [isCapturing, setIsCapturing] = createSignal(false);
-    const [isVideoVisible, setIsVideoVisible] = createSignal(true);
-    let mediaRecorder: MediaRecorder | undefined = undefined;
+    let mediaRecorderRef: MediaRecorder | undefined;
 
     const startCapture = async () => {
         try {
-            initRTMPConnection('ws://localhost:3000'); // todo switch to env var
+            initRTMPConnection('ws://localhost:3000'); // TODO: move to env var
 
-            mediaRecorder = await startScreenCapture((videoBlob: any) => {
+            const recorder = await startScreenCapture((videoBlob: Blob) => {
                 sendToRTMP(videoBlob);
             });
 
-            if (mediaRecorder) {
+            if (recorder) {
+                mediaRecorderRef = recorder;
                 setIsCapturing(true);
             }
         } catch (err: any) {
@@ -24,27 +23,13 @@ export default function VideoControls() {
         }
     };
 
-    const toggleVideoVisibility = () => {
-        setIsVideoVisible(prev => !prev);
-    };
-
     onCleanup(() => {
-        if (mediaRecorder) stopScreenCapture(mediaRecorder);
+        if (mediaRecorderRef) {
+            stopScreenCapture(mediaRecorderRef);
+        }
     });
 
-    return (
-        <>
-            <li class={styles["capture-controls"]}>
-                {!isCapturing() && (
-                    <button onClick={startCapture}>Start Capture Broadcast</button>
-                )}
-                {isCapturing() && (
-                    <button onClick={toggleVideoVisibility}>
-                        {isVideoVisible() ? 'Hide Video Capture' : 'Show Video Capture'}
-                    </button>
-                )}
-            </li>
-        </>
-    );
+    return !isCapturing() ? (
+        <button class="start-capture" onClick={startCapture}>Start Capture Broadcast</button>
+    ) : null;
 }
-
