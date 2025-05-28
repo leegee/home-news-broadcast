@@ -1,8 +1,14 @@
 import { WebSocketServer } from 'ws';
 import { spawn } from 'node:child_process';
 
+if (!process.env.KEY) {
+    console.info('\nEnvironment variable KEY is not set.\n');
+    console.info('KEY=your-key-herey node ' + import.meta.url + '\n');
+    process.exit(-9);
+}
+
 // TODO
-const STREAM_URL = 'rtmp://a.rtmp.youtube.com/live2/' + '31bb-bt22-spgb-0bjm-8dd4';
+const STREAM_URL = 'rtmp://a.rtmp.youtube.com/live2/' + process.env.KEY;
 
 console.info('STREAM_URL', STREAM_URL);
 
