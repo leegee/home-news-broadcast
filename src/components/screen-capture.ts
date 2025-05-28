@@ -1,8 +1,6 @@
-export function stopScreenCapture(mediaRecorder: MediaRecorder) {
-    mediaRecorder.stop();
-}
+const DEFAULT_EMIT_RATE = 250;
 
-export async function startScreenCapture(mediaRecorderCallback: Function) {
+export async function startScreenCapture(mediaRecorderCallback: Function, emitRate: number = DEFAULT_EMIT_RATE) {
     try {
         const stream = await navigator.mediaDevices.getDisplayMedia({
             video: true,
@@ -19,11 +17,14 @@ export async function startScreenCapture(mediaRecorderCallback: Function) {
             }
         };
 
-        // Emit data every 250ms — experiment with this
-        mediaRecorder.start(250);
+        mediaRecorder.start(emitRate);
 
         return mediaRecorder;
     } catch (err) {
         console.error('Error during screen capture:', err);
     }
+}
+
+export function stopScreenCapture(mediaRecorder: MediaRecorder) {
+    mediaRecorder.stop();
 }
