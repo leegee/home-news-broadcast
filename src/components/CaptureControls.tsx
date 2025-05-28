@@ -15,9 +15,12 @@ export default function VideoControls() {
             mediaRecorder = await startScreenCapture((videoBlob: any) => {
                 sendToRTMP(videoBlob);
             });
-            setIsCapturing(true);
-        } catch (err) {
-            console.error("Failed to start screen capture:", err);
+
+            if (mediaRecorder) {
+                setIsCapturing(true);
+            }
+        } catch (err: any) {
+            console.error("Screen capture cancelled or failed:", err?.message || err);
         }
     };
 
