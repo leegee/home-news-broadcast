@@ -1,7 +1,7 @@
 import styles from './CaptureControls.module.scss';
 import { createSignal, onCleanup } from 'solid-js';
-import { startScreenCapture, stopScreenCapture } from './screen-capture';
-import { initRTMPConnection, sendToRTMP } from './rtmp-stream';
+import { startScreenCapture, stopScreenCapture } from '../lib/screen-capture';
+import { initRTMPConnection, sendToRTMP } from '../lib/rtmp-stream';
 
 export default function VideoControls() {
     const [isCapturing, setIsCapturing] = createSignal(false);

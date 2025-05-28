@@ -1,6 +1,6 @@
-import styles from './VideoDropPlayer.module.scss';
+import styles from './ControlScreen.module.scss';
 import { createSignal, onMount, For, JSX, Show } from 'solid-js';
-import CaptureControls from './CaptureControls';
+import CaptureControls from '../components/CaptureControls';
 
 const MAX_HISTORY = 10;
 const STORAGE_KEY = "droppedVideoUrls";
@@ -51,11 +51,11 @@ function getThumbnail(url: string): string {
     return "https://via.placeholder.com/120x90.png?text=Unknown";
 }
 
-interface IVideoDropPlayerProps {
+interface IControlScreenProps {
     children: JSX.Element;
 }
 
-export default function VideoDropPlayer(props: IVideoDropPlayerProps) {
+export default function ControlScreen(props: IControlScreenProps) {
     const [history, setHistory] = createSignal<string[]>([]);
     const [currentUrl, setCurrentUrl] = createSignal<string | null>(null);
     const [showThumbs, setShowThumbs] = createSignal<boolean>(true);
