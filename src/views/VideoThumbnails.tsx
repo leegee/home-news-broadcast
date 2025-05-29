@@ -15,7 +15,6 @@ export default function VideoThumbnails(props: { onSelect: (url: string) => void
         await Promise.all(
             urls.map(async (key) => {
                 if (key.startsWith('local:')) {
-                    console.log('loading', key);
                     const blob = await loadVideo(key);
                     if (blob) {
                         newLocalUrls[key] = URL.createObjectURL(blob);
@@ -43,7 +42,7 @@ export default function VideoThumbnails(props: { onSelect: (url: string) => void
     return (
         <nav class={styles['thumbnails-component']}>
             <Show when={history().length === 0}>
-                <p>Drop video page URLs or local videos into this window.</p>
+                <p>Drop YouTube URLs or local videos into this window.</p>
             </Show>
 
             <For each={history()}>
@@ -54,7 +53,7 @@ export default function VideoThumbnails(props: { onSelect: (url: string) => void
                         return (
                             <li
                                 classList={{ [styles['active-thumb']]: videoUrl() === objectUrl() }}
-                                onClick={() => props.onSelect(objectUrl())}
+                                onClick={() => props.onSelect(item)}
                             >
                                 <Show when={objectUrl} fallback={<span>Loading…</span>}>
                                     <video
