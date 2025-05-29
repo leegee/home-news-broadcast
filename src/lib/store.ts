@@ -27,3 +27,7 @@ export const [banner, setBanner] = createSyncedPersistedSignal('cap-banner', 'Ca
 export const [videoUrl, setVideoUrl] = createSyncedPersistedSignal('cap-video-url', '');
 export const [history, setHistory] = createSyncedPersistedSignal<string[]>('cap-history', []);
 export const [bannerImage, setBannerImage] = createSyncedPersistedSignal<string>('cap-banner-image', defatulCatimage);
+
+export function removeFromHistory(item: string) {
+    setHistory(history().filter(entry => entry !== item));
+}

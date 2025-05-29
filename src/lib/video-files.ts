@@ -56,3 +56,14 @@ export async function loadVideo(key: string): Promise<Blob | undefined> {
         request.onerror = () => resolve(undefined);
     });
 }
+
+export async function deleteVideo(key: string): Promise<void> {
+    const db = await ready;
+    return new Promise((resolve, reject) => {
+        const tx = db.transaction("videos", "readwrite");
+        const store = tx.objectStore("videos");
+        const request = store.delete(key);
+        request.onsuccess = () => resolve();
+        request.onerror = () => reject(request.error);
+    });
+}

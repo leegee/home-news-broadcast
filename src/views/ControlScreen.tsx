@@ -1,14 +1,14 @@
 import styles from './ControlScreen.module.scss';
 import { onMount } from 'solid-js';
-import { history, setVideoUrl } from '../lib/store';
+import { history, removeFromHistory, setVideoUrl } from '../lib/store';
 import Gallery from '../components/Gallery';
 import CaptureControls from '../components/CaptureControls';
 import { getEmbedUrl, isValidUrl, saveUrlToHistory } from '../lib/hosted-video-utils';
-import { saveVideo, loadVideo } from '../lib/video-files';
+import { saveVideo, loadVideo, deleteVideo } from '../lib/video-files';
 import OpenOutputScreen from '../components/OpenOutputScreen';
 
 export default function ControlScreen() {
-    const showVideo = async (keyOrUrl: string) => {
+    const showItem = async (keyOrUrl: string) => {
         if (keyOrUrl.startsWith('local:')) {
             const blob = await loadVideo(keyOrUrl);
             if (blob) {
@@ -23,6 +23,16 @@ export default function ControlScreen() {
         }
     };
 
+    const deleteItem = (keyOrUrl: string) => {
+        if (keyOrUrl.startsWith('local:')) {
+            deleteVideo(keyOrUrl);
+            removeFromHistory(keyOrUrl);
+        }
+        else if (isValidUrl(keyOrUrl)) {
+            removeFromHistory(keyOrUrl);
+        }
+    }
+
     const handleFile = async (file: File) => {
         console.log('file.type', file.type);
         if (!file.type.startsWith("video/")) return;
@@ -30,19 +40,19 @@ export default function ControlScreen() {
         const key = `local:${file.name}:${Date.now()}`;
         await saveVideo(key, file);
         saveUrlToHistory(key);
-        showVideo(key);
+        showItem(key);
     };
 
     onMount(() => {
         // todo move to broadcast screen?
         if (history().length > 0) {
-            showVideo(history()[0]);
+            showItem(history()[0]);
         }
 
         const processUserSuppliedText = (text: string) => {
             if (text && isValidUrl(text)) {
                 saveUrlToHistory(text);
-                showVideo(text);
+                showItem(text);
             }
         };
 
@@ -99,7 +109,10 @@ export default function ControlScreen() {
     return (
         <main class={styles['control-screen-component']}>
 
-            <Gallery onSelect={showVideo} />
+            <Gallery
+                onSelect={showItem}
+                onDelete={deleteItem}
+            />
 
             <nav class={styles['button-strip']}>
                 <OpenOutputScreen />

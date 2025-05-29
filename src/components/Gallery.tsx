@@ -3,8 +3,14 @@ import { For, Show, createEffect, createSignal, onCleanup } from 'solid-js';
 import { history, videoUrl } from '../lib/store.ts';
 import { getEmbedUrl, getThumbnail } from '../lib/hosted-video-utils.ts';
 import { loadVideo } from '../lib/video-files.ts';
+import ThumbnailControl from './ThumbnailControl.tsx';
 
-export default function Gallery(props: { onSelect: (url: string) => void }) {
+type GalleryProps = {
+    onSelect: (url: string) => void;
+    onDelete: (url: string) => void;
+};
+
+export default function Gallery(props: GalleryProps) {
     const [localVideoUrls, setLocalVideoUrls] = createSignal<Record<string, string>>({});
 
     createEffect(async () => {
@@ -18,7 +24,7 @@ export default function Gallery(props: { onSelect: (url: string) => void }) {
                     if (blob) {
                         newLocalUrls[key] = URL.createObjectURL(blob);
                     } else {
-                        console.error('could not retrieve local video', key);
+                        console.error('Could not retrieve local video', key);
                     }
                 }
             })
@@ -41,22 +47,19 @@ export default function Gallery(props: { onSelect: (url: string) => void }) {
             </Show>
 
             <For each={history()}>
-                {(item) => {
-                    const isLocal = item.startsWith('local:');
-                    const src = () => isLocal ? localVideoUrls()[item] : getThumbnail(item);
+                {(historyKey) => {
+                    const isLocal = historyKey.startsWith('local:');
+                    const src = () => isLocal ? localVideoUrls()[historyKey] : getThumbnail(historyKey);
                     const isActive = () => {
                         const current = videoUrl();
                         return isLocal
-                            ? current === localVideoUrls()[item]
-                            : current === getEmbedUrl(item);
+                            ? current === localVideoUrls()[historyKey]
+                            : current === getEmbedUrl(historyKey);
                     };
 
                     return (
-                        <li
-                            classList={{ [styles['active-thumb']]: isActive() }}
-                            onClick={() => props.onSelect(item)}
-                        >
-                            <Show when={isLocal} fallback={<img src={src()} />}>
+                        <li classList={{ [styles['active-thumb']]: isActive() }}>
+                            {isLocal ? (
                                 <Show when={src()} fallback={<span>Loading…</span>}>
                                     <video
                                         src={src()}
@@ -65,7 +68,14 @@ export default function Gallery(props: { onSelect: (url: string) => void }) {
                                         preload="metadata"
                                     />
                                 </Show>
-                            </Show>
+                            ) : (
+                                <img src={src()} />
+                            )}
+
+                            <ThumbnailControl
+                                toDelete={() => props.onDelete(historyKey)}
+                                toSelect={() => props.onSelect(historyKey)}
+                            />
                         </li>
                     );
                 }}
