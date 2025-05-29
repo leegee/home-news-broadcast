@@ -37,7 +37,7 @@ export default function VideoThumbnails(props: { onSelect: (url: string) => void
     return (
         <nav class={styles['thumbnails-component']}>
             <Show when={history().length === 0}>
-                <p>Drop YouTube URLs or local videos into this window.</p>
+                <p>Drop or paste YouTube URLs or local videos into this window.</p>
             </Show>
 
             <For each={history()}>
