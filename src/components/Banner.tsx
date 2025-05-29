@@ -3,6 +3,7 @@ import { createEffect } from 'solid-js';
 import { selectContent } from '../lib/select-content';
 import { banner, setBanner } from '../lib/store';
 import BannerImage from './BannerImage';
+import BannerClock from './BannerClock';
 
 const Banner = () => {
     let containerRef: HTMLDivElement | null = null;
@@ -52,6 +53,7 @@ const Banner = () => {
             >
                 {banner() || 'Click to edit'}
             </h1>
+            <BannerClock />
         </section>
     );
 }

@@ -1,19 +1,17 @@
 .ticker {
     position: relative;
-    background-color: navy;
+    background-color: rgb(9, 9, 194);
     color: white;
-    border-top: 1px solid rgba(255, 255, 255, 0.87);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.87);
     display: flex;
-    font-family: Verdana, Geneva, Tahoma, sans-serif;
     overflow: hidden;
     z-index: 300;
     width: 100%;
-    font-size: 18pt;
     will-change: transform;
     font-variant: small-caps;
     text-transform: lowercase;
-    font-weight: 100;
+    font-size: 16pt;
+    font-weight: 400;
+    opacity: 0.9;
     min-height: 24pt;
     height: 24pt;
     line-height: 24pt;

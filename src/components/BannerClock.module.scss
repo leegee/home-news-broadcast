@@ -1,0 +1,29 @@
+// BannerClock.module.scss
+.banner-clock-component {
+    background: white;
+    color: black;
+    opacity: 0.8;
+    height: 100%;
+    padding: 0 1em;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    h2,
+    h3 {
+        padding: 0;
+        margin: 0;
+    }
+
+    h2 {
+        font-weight: 700;
+        line-height: 140%;
+    }
+
+    h3 {
+        line-height: 100%;
+        font-weight: 300;
+        font-size: small;
+    }
+}
