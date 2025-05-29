@@ -2,15 +2,18 @@
     position: relative;
     background-color: navy;
     color: white;
-    border-top: 1pt solid rgba(255, 255, 255, 0.87);
-    border-bottom: 1pt solid rgba(255, 255, 255, 0.87);
+    border-top: 1px solid rgba(255, 255, 255, 0.87);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.87);
     display: flex;
     font-family: Verdana, Geneva, Tahoma, sans-serif;
-    font-weight: normal;
     overflow: hidden;
     z-index: 300;
     width: 100%;
     font-size: 18pt;
+    will-change: transform;
+    font-variant: small-caps;
+    text-transform: lowercase;
+    font-weight: 100;
     min-height: 24pt;
     height: 24pt;
     line-height: 24pt;
@@ -20,7 +23,6 @@
         top: 0;
         left: 0;
         white-space: nowrap;
-        will-change: transform;
     }
 
     .ticker-item:after {

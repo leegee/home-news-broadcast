@@ -21,13 +21,14 @@
         background-color: black;
 
         li {
+            display: inline-block;
             overflow: hidden;
-            max-width: 120px;
+            max-width: 120pt;
             max-height: var(--video-thumb-height);
             margin: 0.5em;
             border: 1pt dotted silver;
             cursor: pointer;
-            display: inline-block;
+            padding: 1em;
         }
 
         li.active-thumb {
@@ -35,7 +36,8 @@
         }
     }
 
-    .open-output {
-        border: 1pt solid white;
+    .button-strip {
+        display: flex;
+        gap: 1em;
     }
 }
