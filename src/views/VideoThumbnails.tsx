@@ -5,7 +5,6 @@ import { getEmbedUrl, getThumbnail } from '../lib/hosted-video-utils.ts';
 import { loadVideo } from '../lib/video-files';
 
 export default function VideoThumbnails(props: { onSelect: (url: string) => void }) {
-    // Map of local keys to object URLs
     const [localVideoUrls, setLocalVideoUrls] = createSignal<Record<string, string>>({});
 
     createEffect(async () => {
@@ -35,10 +34,6 @@ export default function VideoThumbnails(props: { onSelect: (url: string) => void
         Object.values(localVideoUrls()).forEach(URL.revokeObjectURL);
     });
 
-    function isLocalVideo(item: string) {
-        return item.startsWith('local:');
-    }
-
     return (
         <nav class={styles['thumbnails-component']}>
             <Show when={history().length === 0}>
@@ -47,35 +42,32 @@ export default function VideoThumbnails(props: { onSelect: (url: string) => void
 
             <For each={history()}>
                 {(item) => {
-                    if (isLocalVideo(item)) {
-                        // Local video
-                        const objectUrl = () => localVideoUrls()[item];
-                        return (
-                            <li
-                                classList={{ [styles['active-thumb']]: videoUrl() === objectUrl() }}
-                                onClick={() => props.onSelect(item)}
-                            >
-                                <Show when={objectUrl} fallback={<span>Loading…</span>}>
+                    const isLocal = item.startsWith('local:');
+                    const src = () => isLocal ? localVideoUrls()[item] : getThumbnail(item);
+                    const isActive = () => {
+                        const current = videoUrl();
+                        return isLocal
+                            ? current === localVideoUrls()[item]
+                            : current === getEmbedUrl(item);
+                    };
+
+                    return (
+                        <li
+                            classList={{ [styles['active-thumb']]: isActive() }}
+                            onClick={() => props.onSelect(item)}
+                        >
+                            <Show when={isLocal} fallback={<img src={src()} />}>
+                                <Show when={src()} fallback={<span>Loading…</span>}>
                                     <video
-                                        src={objectUrl()}
+                                        src={src()}
                                         muted
-                                        playsinline
+                                        playsInline
                                         preload="metadata"
                                     />
                                 </Show>
-                            </li>
-                        );
-                    } else {
-                        // Remote video URL
-                        return (
-                            <li
-                                classList={{ [styles['active-thumb']]: videoUrl() === getEmbedUrl(item) }}
-                                onClick={() => props.onSelect(item)}
-                            >
-                                <img src={getThumbnail(item)} />
-                            </li>
-                        );
-                    }
+                            </Show>
+                        </li>
+                    );
                 }}
             </For>
         </nav>
