@@ -61,7 +61,7 @@ export default function VideoThumbnails(props: { onSelect: (url: string) => void
                                     <video
                                         src={src()}
                                         muted
-                                        playsInline
+                                        playsinline
                                         preload="metadata"
                                     />
                                 </Show>
