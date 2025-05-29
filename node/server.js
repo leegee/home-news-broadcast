@@ -3,7 +3,7 @@ import { spawn } from 'node:child_process';
 
 if (!process.env.YOUTUBE_KEY) {
     console.info('\nEnvironment variable KEY is not set.\n');
-    console.info('KEY=your-key-herey node ' + import.meta.url + '\n');
+    console.info('KEY=your-key-here node ' + import.meta.url + '\n');
     process.exit(-9);
 }
 
