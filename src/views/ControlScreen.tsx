@@ -1,14 +1,11 @@
 import styles from './ControlScreen.module.scss';
 import { onMount } from 'solid-js';
 import { history, setVideoUrl } from '../lib/store';
+import Gallery from '../components/Gallery';
 import CaptureControls from '../components/CaptureControls';
 import { getEmbedUrl, isValidUrl, saveUrlToHistory } from '../lib/hosted-video-utils';
-import VideoThumbnails from './VideoThumbnails';
 import { saveVideo, loadVideo } from '../lib/video-files';
-
-function openOutputTab() {
-    window.open('/#output', '_blank');
-}
+import OpenOutputScreen from '../components/OpenOutputScreen';
 
 export default function ControlScreen() {
     const showVideo = async (keyOrUrl: string) => {
@@ -102,10 +99,10 @@ export default function ControlScreen() {
     return (
         <main class={styles['control-screen-component']}>
 
-            <VideoThumbnails onSelect={showVideo} />
+            <Gallery onSelect={showVideo} />
 
             <nav class={styles['button-strip']}>
-                <button onClick={openOutputTab}>Open Output Display</button>
+                <OpenOutputScreen />
                 <CaptureControls />
             </nav>
 

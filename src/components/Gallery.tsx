@@ -1,10 +1,10 @@
-import styles from './VideoThumbnails.module.scss';
+import styles from './Gallery.module.scss';
 import { For, Show, createEffect, createSignal, onCleanup } from 'solid-js';
-import { history, videoUrl } from '../lib/store';
+import { history, videoUrl } from '../lib/store.ts';
 import { getEmbedUrl, getThumbnail } from '../lib/hosted-video-utils.ts';
-import { loadVideo } from '../lib/video-files';
+import { loadVideo } from '../lib/video-files.ts';
 
-export default function VideoThumbnails(props: { onSelect: (url: string) => void }) {
+export default function Gallery(props: { onSelect: (url: string) => void }) {
     const [localVideoUrls, setLocalVideoUrls] = createSignal<Record<string, string>>({});
 
     createEffect(async () => {
