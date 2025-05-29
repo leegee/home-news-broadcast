@@ -4,6 +4,7 @@ import { history, videoUrl } from '../lib/store.ts';
 import { getEmbedUrl, getThumbnail } from '../lib/hosted-video-utils.ts';
 import { loadVideo } from '../lib/video-files.ts';
 import ThumbnailControl from './ThumbnailControl.tsx';
+import { LIVE_VIDEO_FLAG } from '../views/BroadcastScreen.tsx';
 
 type GalleryProps = {
     onSelect: (url: string) => void;
@@ -12,6 +13,18 @@ type GalleryProps = {
 
 export default function Gallery(props: GalleryProps) {
     const [localVideoUrls, setLocalVideoUrls] = createSignal<Record<string, string>>({});
+    const [canAccessCamera, setCanAccessCamera] = createSignal(false);
+    const [canAccessMic, setCanAccessMic] = createSignal(false);
+
+    createEffect(() => {
+        navigator.permissions?.query({ name: 'camera' as PermissionName }).then((status) => {
+            setCanAccessCamera(status.state === 'granted' || status.state === 'prompt');
+        }).catch(() => setCanAccessCamera(false));
+
+        navigator.permissions?.query({ name: 'microphone' as PermissionName }).then((status) => {
+            setCanAccessMic(status.state === 'granted' || status.state === 'prompt');
+        }).catch(() => setCanAccessMic(false));
+    });
 
     createEffect(async () => {
         const urls = history();
@@ -42,6 +55,15 @@ export default function Gallery(props: GalleryProps) {
 
     return (
         <nav class={styles['thumbnails-component']}>
+
+            <Show when={canAccessCamera() && canAccessMic()}>
+                <li>
+                    <button onClick={() => props.onSelect(LIVE_VIDEO_FLAG)}>
+                        🎥 Camera
+                    </button>
+                </li>
+            </Show>
+
             <Show when={history().length === 0}>
                 <p>Drop or paste YouTube URLs or local videos into this window.</p>
             </Show>

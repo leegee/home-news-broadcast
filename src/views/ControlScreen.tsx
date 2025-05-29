@@ -6,10 +6,14 @@ import CaptureControls from '../components/CaptureControls';
 import { getEmbedUrl, isValidUrl, saveUrlToHistory } from '../lib/hosted-video-utils';
 import { saveVideo, loadVideo, deleteVideo } from '../lib/video-files';
 import OpenOutputScreen from '../components/OpenOutputScreen';
+import { LIVE_VIDEO_FLAG } from './BroadcastScreen';
 
 export default function ControlScreen() {
     const showItem = async (keyOrUrl: string) => {
-        if (keyOrUrl.startsWith('local:')) {
+        if (keyOrUrl === LIVE_VIDEO_FLAG) {
+            setVideoUrl(LIVE_VIDEO_FLAG);
+        }
+        else if (keyOrUrl.startsWith('local:')) {
             const blob = await loadVideo(keyOrUrl);
             if (blob) {
                 setVideoUrl(URL.createObjectURL(blob));

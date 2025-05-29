@@ -30,7 +30,7 @@ export function isValidUrl(str: string): boolean {
         const url = new URL(str);
         return ["youtube.com", "youtu.be"].some(host => url.hostname.includes(host));
     } catch {
-        console.log("Don't know what to do with the supplied URL", str);
+        console.error("Don't know what to do with the supplied URL", str);
         return false;
     }
 }
