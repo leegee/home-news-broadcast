@@ -2,6 +2,8 @@
 
     bun install
 
+    bun run make-certs # Or put yours in ./certs/
+
     choco install ffmpeg-full # For libx264
     
     brew reinstall ffmpeg --with-libx264
@@ -22,7 +24,13 @@
 
     # Run this package
     bun run dev
-    node node/server.js
+    node node/streamer.js
+
+## Certs
+
+To use the camera/mic from an external device, you will need to
+either used a trusted CA or use `mkcert -CAROOT` to locate the
+root CA and install it on the device with a `crt` extension.
 
 ## Use
 

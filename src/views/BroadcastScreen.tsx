@@ -5,7 +5,8 @@ import Ticker from '../components/Ticker';
 import Banner from '../components/Banner.tsx';
 import CaptureControls from '../components/CaptureControls.tsx';
 
-export const LIVE_VIDEO_FLAG = 'LIVE';
+export const LOCAL_LIVE_VIDEO_FLAG = 'LIVE';
+export const EXT_LIVE_VIDEO_FLAG = 'EXT';
 
 export default function BroadcastScreen() {
     let videoRef: HTMLVideoElement | undefined;
@@ -15,7 +16,7 @@ export default function BroadcastScreen() {
         const url = videoUrl();
         console.log('video url changed', url);
 
-        if (url === 'LIVE') {
+        if (url === LOCAL_LIVE_VIDEO_FLAG) {
             navigator.mediaDevices.getUserMedia({ video: true, audio: true })
                 .then((mediaStream) => {
                     stream = mediaStream;
@@ -46,7 +47,7 @@ export default function BroadcastScreen() {
             <CaptureControls />
 
             <div class={styles["large-video"]}>
-                {videoUrl() === LIVE_VIDEO_FLAG ? (
+                {videoUrl() === LOCAL_LIVE_VIDEO_FLAG ? (
                     <video
                         ref={el => (videoRef = el)}
                         autoplay

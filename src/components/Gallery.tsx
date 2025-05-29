@@ -4,7 +4,7 @@ import { history, videoUrl } from '../lib/store.ts';
 import { getEmbedUrl, getThumbnail } from '../lib/hosted-video-utils.ts';
 import { loadVideo } from '../lib/video-files.ts';
 import ThumbnailControl from './ThumbnailControl.tsx';
-import { LIVE_VIDEO_FLAG } from '../views/BroadcastScreen.tsx';
+import { LOCAL_LIVE_VIDEO_FLAG } from '../views/BroadcastScreen.tsx';
 
 type GalleryProps = {
     onSelect: (url: string) => void;
@@ -58,8 +58,8 @@ export default function Gallery(props: GalleryProps) {
 
             <Show when={canAccessCamera() && canAccessMic()}>
                 <li>
-                    <button onClick={() => props.onSelect(LIVE_VIDEO_FLAG)}>
-                        🎥 Camera
+                    <button onClick={() => props.onSelect(LOCAL_LIVE_VIDEO_FLAG)}>
+                        Local Camera
                     </button>
                 </li>
             </Show>
