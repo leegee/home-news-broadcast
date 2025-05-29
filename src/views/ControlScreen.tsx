@@ -4,17 +4,36 @@ import { history, setVideoUrl } from '../lib/store';
 import CaptureControls from '../components/CaptureControls';
 import { getEmbedUrl, isValidUrl, saveUrlToHistory } from '../lib/hosted-video-utils';
 import VideoThumbnails from './VideoThumbnails';
+import { saveVideo, loadVideo } from '../lib/video-files';
 
 function openOutputTab() {
     window.open('/#output', '_blank');
 }
 
 export default function ControlScreen() {
-    const showVideo = (url: string) => {
-        const embed = getEmbedUrl(url);
-        if (embed) {
-            setVideoUrl(embed)
+    const showVideo = async (keyOrUrl: string) => {
+        if (keyOrUrl.startsWith('local:')) {
+            const blob = await loadVideo(keyOrUrl);
+            if (blob) {
+                setVideoUrl(URL.createObjectURL(blob));
+            }
         }
+        else if (isValidUrl(keyOrUrl)) {
+            const url = getEmbedUrl(keyOrUrl);
+            if (url) {
+                setVideoUrl(url);
+            }
+        }
+    };
+
+    const handleFile = async (file: File) => {
+        console.log('file.type', file.type);
+        if (!file.type.startsWith("video/")) return;
+
+        const key = `local:${file.name}:${Date.now()}`;
+        await saveVideo(key, file);
+        saveUrlToHistory(key);
+        showVideo(key);
     };
 
     onMount(() => {
@@ -32,14 +51,30 @@ export default function ControlScreen() {
 
         const pasteHandler = (e: ClipboardEvent) => {
             const text = (e.clipboardData || (window as any).clipboardData).getData("text");
-            if (text) processUserSuppliedText(text);
+            if (text) {
+                processUserSuppliedText(text);
+                return;
+            }
+
+            for (const item of e.clipboardData?.items || []) {
+                const file = item.getAsFile?.();
+                if (file) handleFile(file);
+            }
         };
 
-        const dropHandler = (e: DragEvent) => {
+        const dropHandler = async (e: DragEvent) => {
             e.preventDefault();
             (e.currentTarget as HTMLElement).style.outline = '';
+
             const text = e.dataTransfer?.getData("text/plain");
-            if (text) processUserSuppliedText(text);
+            if (text) {
+                processUserSuppliedText(text);
+                return;
+            }
+
+            for (const file of e.dataTransfer?.files || []) {
+                handleFile(file);
+            }
         };
 
         const dragOverHandler = (e: DragEvent) => {

@@ -1,0 +1,34 @@
+.thumbnails-component {
+    z-index: 1100;
+    position: absolute;
+    top: 0;
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
+    background-color: black;
+
+    li {
+        display: inline-flex;
+        justify-content: center;
+        overflow: hidden;
+        max-width: 120pt;
+        max-height: var(--video-thumb-height);
+        margin: 0.5em;
+        border: 1pt dotted silver;
+        cursor: pointer;
+        padding: 1em;
+
+        video {
+            width: 100%;
+            height: auto;
+            display: block;
+            object-fit: cover;
+        }
+    }
+
+    li.active-thumb {
+        border: 1pt solid white;
+    }
+
+}
