@@ -2,7 +2,7 @@ import styles from './Gallery.module.scss';
 import { For, Show, createEffect, createSignal, onCleanup } from 'solid-js';
 import { history, videoOrImageUrl } from '../lib/store.ts';
 import { getEmbedUrl, getThumbnail } from '../lib/hosted-video-utils.ts';
-import { loadVideo } from '../lib/video-files.ts';
+import { loadVideo } from '../lib/file-store.ts';
 import ThumbnailControl from './ThumbnailControl.tsx';
 import { DISPLAY_FLAGS } from '../views/BroadcastScreen.tsx';
 

@@ -3,7 +3,7 @@ import { onMount } from 'solid-js';
 import { history, removeFromHistory, setVideoOrImageUrl } from '../lib/store';
 import CaptureControls from '../components/CaptureControls';
 import { getEmbedUrl, isValidUrl, saveUrlToHistory } from '../lib/hosted-video-utils';
-import { saveVideo, loadVideo, deleteVideo } from '../lib/video-files';
+import { saveVideo, loadVideo, deleteVideo } from '../lib/file-store';
 import OpenOutputScreen from '../components/OpenOutputScreen';
 import { DISPLAY_FLAGS } from './BroadcastScreen';
 import { ErrorDisplay } from '../components/ErrorDisplay';
