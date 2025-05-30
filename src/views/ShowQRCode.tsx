@@ -3,6 +3,7 @@ import QRCode from 'qrcode';
 import { createOffer, createPeerConnection } from '../lib/webrtc';
 import { compressOffer } from '../lib/compress';
 import { reportError } from "../components/ErrorDisplay";
+import { setQrCode } from "../lib/store";
 
 export default function ShowQRCode() {
     const [showQR, setShowQR] = createSignal(false);
@@ -18,6 +19,7 @@ export default function ShowQRCode() {
 
         const canvas = document.getElementById("qr") as HTMLCanvasElement;
         await QRCode.toCanvas(canvas, qrData, { width: 400, errorCorrectionLevel: 'L' });
+        setQrCode(canvas.toDataURL());
 
         const answer = await waitForAnswer();
         console.log('QR answer', answer);
