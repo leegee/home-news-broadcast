@@ -1,18 +1,16 @@
 import styles from './ControlScreen.module.scss';
-import { createSignal, onMount, Show } from 'solid-js';
-import QRCode from 'qrcode';
+import { onMount } from 'solid-js';
 import { history, removeFromHistory, setVideoUrl } from '../lib/store';
-import { createOffer, createPeerConnection } from '../lib/webrtc';
-import { compressOffer } from '../lib/compress';
-import Gallery from '../components/Gallery';
 import CaptureControls from '../components/CaptureControls';
 import { getEmbedUrl, isValidUrl, saveUrlToHistory } from '../lib/hosted-video-utils';
 import { saveVideo, loadVideo, deleteVideo } from '../lib/video-files';
 import OpenOutputScreen from '../components/OpenOutputScreen';
 import { LOCAL_LIVE_VIDEO_FLAG } from './BroadcastScreen';
-import { ErrorDisplay, reportError } from '../components/ErrorDisplay';
+import { ErrorDisplay } from '../components/ErrorDisplay';
+import ShowQRCode from './ShowQRCode';
+import Gallery from '../components/Gallery';
 
-const showItem = async (keyOrUrl: string) => {
+export const showItem = async (keyOrUrl: string) => {
     if (keyOrUrl === LOCAL_LIVE_VIDEO_FLAG) {
         setVideoUrl(LOCAL_LIVE_VIDEO_FLAG);
     }
@@ -57,7 +55,7 @@ const processUserSuppliedText = (text: string) => {
     }
 };
 
-const pasteHandler = (e: ClipboardEvent) => {
+export const pasteHandler = (e: ClipboardEvent) => {
     const text = (e.clipboardData || (window as any).clipboardData).getData("text");
     if (text) {
         processUserSuppliedText(text);
@@ -70,7 +68,7 @@ const pasteHandler = (e: ClipboardEvent) => {
     }
 };
 
-const dropHandler = async (e: DragEvent) => {
+export const dropHandler = async (e: DragEvent) => {
     e.preventDefault();
     (e.currentTarget as HTMLElement).style.outline = '';
 
@@ -85,73 +83,22 @@ const dropHandler = async (e: DragEvent) => {
     }
 };
 
-const dragOverHandler = (e: DragEvent) => {
+export const dragOverHandler = (e: DragEvent) => {
     e.preventDefault();
     (e.currentTarget as HTMLElement).style.outline = "2px dashed yellow";
 };
 
-const dragLeaveHandler = (e: DragEvent) => {
+export const dragLeaveHandler = (e: DragEvent) => {
     (e.currentTarget as HTMLElement).style.outline = "";
 };
 
 
 export default function ControlScreen() {
-    const [showQR, setShowQR] = createSignal(false);
-    let peer: RTCPeerConnection;
-
-    async function handleShowQR() {
-        setShowQR(true);
-        const offer = await createOffer(peer);
-        const compressed = compressOffer(offer);
-        const qrData = `${__LOCAL_ADDRESS__}/#/phone?offer=${compressed}`;
-
-        console.log('QR data:', qrData);
-
-        const canvas = document.getElementById("qr") as HTMLCanvasElement;
-        await QRCode.toCanvas(canvas, qrData, { width: 400, errorCorrectionLevel: 'L' });
-
-        const answer = await waitForAnswer();
-        console.log('QR answer', answer);
-        await peer.setRemoteDescription(answer);
-    }
-
-    async function waitForAnswer(): Promise<RTCSessionDescriptionInit> {
-        while (true) {
-            const res = await fetch(`${__LOCAL_ADDRESS__}/answer`);
-            console.log('fetched answer', res);
-            if (res.ok) {
-                const data = await res.json();
-                if (data.answer) {
-                    return data.answer;
-                }
-            }
-            // wait 1 sec before retry
-            await new Promise(r => setTimeout(r, 1000));
-        }
-    }
 
     onMount(async () => {
         // todo move to broadcast screen?
         if (history().length > 0) {
             showItem(history()[0]);
-        }
-
-        try {
-            peer = createPeerConnection();
-
-            peer.oniceconnectionstatechange = () => {
-                console.log('ICE connection state:', peer.iceConnectionState);
-            };
-
-            peer.onconnectionstatechange = () => {
-                console.log('Connection state:', peer.connectionState);
-                if (peer.connectionState === 'connected') {
-                    console.log("Phone connected!");
-                    setShowQR(false);
-                }
-            };
-        } catch (e) {
-            reportError(e);
         }
 
         document.body.addEventListener("paste", pasteHandler);
@@ -178,13 +125,8 @@ export default function ControlScreen() {
             <nav class={styles['button-strip']}>
                 <OpenOutputScreen />
                 <CaptureControls />
-                <button onClick={handleShowQR}>Phone</button>
+                <ShowQRCode />
             </nav>
-
-
-            <Show when={showQR()}>
-                <canvas id="qr" />
-            </Show>
 
             <ErrorDisplay />
         </main>
