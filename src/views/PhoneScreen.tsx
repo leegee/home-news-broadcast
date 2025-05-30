@@ -20,9 +20,24 @@ function createSilentAudioStream(): MediaStream {
     return dst.stream;
 }
 
+async function getMediaStream(facing: 'user' | 'environment'): Promise<MediaStream> {
+    try {
+        return await navigator.mediaDevices.getUserMedia({
+            video: { facingMode: { ideal: facing } },
+            audio: true
+        });
+    } catch (e) {
+        try {
+            return await navigator.mediaDevices.getUserMedia({ video: false, audio: true });
+        } catch (e) {
+            return createSilentAudioStream();
+        }
+    }
+}
+
 export default function PhoneScreen() {
     const location = useLocation();
-
+    const [facingMode, setFacingMode] = createSignal<'user' | 'environment'>('user');
     const [connected, setConnected] = createSignal(false);
     const [stream, setStream] = createSignal<MediaStream>();
     const [localLog, setLocalLog] = createSignal<string | null>(null);
@@ -45,7 +60,8 @@ export default function PhoneScreen() {
             let localStream: MediaStream | undefined;
 
             try {
-                localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                // localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                localStream = await getMediaStream(facingMode());
             } catch (e) {
                 setLocalLog('No video');
                 try {
@@ -124,13 +140,39 @@ export default function PhoneScreen() {
             }>
                 <Show when={stream()} fallback={<h2>Waiting for media stream...</h2>}>
                     {/* <video autoplay playsinline muted ref={el => el && (el.srcObject = stream()!)} /> */}
-                    <div>Call active — OK</div>
+                    <div>Call active</div>
+
+                    <button
+                        onClick={async () => {
+                            const newFacing = facingMode() === 'user' ? 'environment' : 'user';
+                            setFacingMode(newFacing);
+
+                            const newStream = await getMediaStream(newFacing);
+                            setStream(newStream);
+
+                            // Replace tracks in call
+                            if (call) {
+                                const sender = (call as any)._pc?.getSenders?.().find((s: any) => s.track?.kind === 'video');
+                                if (sender && sender.replaceTrack) {
+                                    const newVideoTrack = newStream.getVideoTracks()[0];
+                                    sender.replaceTrack(newVideoTrack);
+                                } else {
+                                    // If replaceTrack is not supported or fails, restart call
+                                    call.close();
+                                    startCall();
+                                }
+                            }
+                        }}
+                    >
+                        Switch Camera
+                    </button>
+
                 </Show>
                 <Show when={localLog()}>
                     <div style={{ color: 'green' }}>{localLog()}</div>
                 </Show>
             </Show>
             <ErrorDisplay />
-        </section>
+        </section >
     );
 }
