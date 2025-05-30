@@ -65,7 +65,9 @@ export default function Gallery(props: GalleryProps) {
             </Show>
 
             <Show when={history().length === 0}>
-                <p>Drop or paste YouTube URLs or local videos into this window.</p>
+                <li>
+                    <p>Drop or paste YouTube URLs or local videos into this window.</p>
+                </li>
             </Show>
 
             <For each={history()}>
