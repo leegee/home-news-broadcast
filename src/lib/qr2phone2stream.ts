@@ -1,10 +1,25 @@
 import Peer, { MediaConnection } from 'peerjs';
 import QRCode from 'qrcode';
-import { setQrCode, setMediaStream } from './store';
+import { setQrCode, setMediaStream, setStreamSource } from './store';
+
+let peer: Peer | null = null;
+const peerId = 'desktop-' + 'ok'; // Math.floor(Math.random() * 10000);
+
+function createEmptyStream(): MediaStream {
+    const ctx = new AudioContext();
+    const oscillator = ctx.createOscillator();
+    const destination: MediaStreamAudioDestinationNode = ctx.createMediaStreamDestination();
+    oscillator.connect(destination);
+    oscillator.start();
+    return destination.stream;
+}
 
 export async function setupQRCodeFlow() {
-    const peerId = 'desktop-' + 'ok'; // Math.floor(Math.random() * 10000);
-    const peer = new Peer(peerId, {
+    if (peer && !peer.destroyed) {
+        peer.destroy();
+    };
+
+    peer = new Peer(peerId, {
         host: __LOCAL_IP__,
         port: 9000,
         path: '/',
@@ -38,17 +53,19 @@ export async function setupQRCodeFlow() {
 
         // Answer the call without sending a stream (desktop is receiver only)
         // but may need to send something to meet non-spec'd expectations
-        call.answer();
+        call.answer(createEmptyStream());
 
         call.on('stream', (remoteStream) => {
             console.log('Received remote media stream from phone', remoteStream);
             setMediaStream(remoteStream);
+            setStreamSource('peer');
             setQrCode('');
         });
 
         call.on('close', () => {
             console.log('Call closed');
             setMediaStream(null);
+            setStreamSource(null);
         });
 
         call.on('error', (err) => {

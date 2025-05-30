@@ -20,7 +20,7 @@ function createSilentAudioStream(): MediaStream {
     return dst.stream;
 }
 
-export default function PhoneJoin() {
+export default function PhoneScreen() {
     const location = useLocation();
 
     const [connected, setConnected] = createSignal(false);
@@ -62,7 +62,11 @@ export default function PhoneJoin() {
             setLocalLog('Got local media stream');
             console.log('Got local media stream');
 
-            peer = new Peer('phone-ok', { host: '192.168.0.108', port: 9000, path: '/' });
+            if (peer && !peer.destroyed) {
+                peer?.destroy();
+            }
+
+            peer = new Peer('phone-ok', { host: __LOCAL_IP__, port: 9000, path: '/' });
 
             if (!peer) {
                 throw new Error('no peer')
@@ -106,7 +110,9 @@ export default function PhoneJoin() {
     onCleanup(() => {
         stream()?.getTracks().forEach((track) => track.stop());
         call?.close();
-        peer?.destroy();
+        if (peer && !peer.destroyed) {
+            peer?.destroy();
+        }
     });
 
     return (

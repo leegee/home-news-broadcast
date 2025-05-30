@@ -29,6 +29,7 @@ export const [history, setHistory] = createSyncedPersistedSignal<string[]>('cap-
 export const [bannerImage, setBannerImage] = createSyncedPersistedSignal<string>('cap-banner-image', defatulCatimage);
 export const [qrCode, setQrCode] = createSyncedPersistedSignal<string>('cap-qr-code', '');
 
+export const [streamSource, setStreamSource] = createSignal<string | null>(null);
 export const [mediaStream, setMediaStream] = createSignal<MediaStream | null>(null);
 
 export function removeFromHistory(item: string) {
