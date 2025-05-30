@@ -2,7 +2,7 @@ import { bannerImage, setBannerImage } from '../lib/store';
 import styles from './BannerImage.module.scss';
 import { onMount, Show } from 'solid-js';
 
-export default function ControlScreen() {
+export default function BannerImage() {
     const processInput = (items: DataTransferItemList) => {
         for (let i = 0; i < items.length; i++) {
             const item = items[i];
