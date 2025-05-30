@@ -47,12 +47,10 @@ export default function PhoneScreen() {
             try {
                 localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
             } catch (e) {
-                console.warn('No video');
                 setLocalLog('No video');
                 try {
                     localStream = await navigator.mediaDevices.getUserMedia({ video: false, audio: true });
                 } catch (e) {
-                    console.warn('No audio');
                     setLocalLog('No audio, using silent audio stream');
                     localStream = createSilentAudioStream();
                 }
@@ -60,7 +58,6 @@ export default function PhoneScreen() {
 
             setStream(localStream);
             setLocalLog('Got local media stream');
-            console.log('Got local media stream');
 
             if (peer && !peer.destroyed) {
                 peer?.destroy();
@@ -74,7 +71,6 @@ export default function PhoneScreen() {
 
             peer.on('open', (id) => {
                 setLocalLog(`Phone peer ID: ${id}`);
-                console.log('id', id);
 
                 if (!localStream) {
                     setLocalLog('Nothing to stream');
