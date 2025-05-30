@@ -15,11 +15,13 @@
     "@types/qrcode": "^1.5.5",
     "html5-qrcode": "^2.3.8",
     "lz-string": "^1.5.0",
+    "peer": "^1.0.2",
     "qrcode": "^1.5.4",
     "solid-js": "^1.9.5",
     "ws": "^8.18.2"
   },
   "devDependencies": {
+    "@types/peerjs": "^1.1.0",
     "sass-embedded": "^1.89.0",
     "typescript": "~5.7.2",
     "vite": "^6.3.0",

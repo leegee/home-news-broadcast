@@ -1,69 +1,132 @@
+import Peer, { MediaConnection } from 'peerjs';
 import { useLocation } from '@solidjs/router';
-import { createSignal, Show, onMount } from 'solid-js';
-import { decompressOffer } from '../lib/compress';
-import { createAnswer, createPeerConnection } from '../lib/webrtc';
+import { createSignal, onCleanup, Show } from 'solid-js';
 import { ErrorDisplay, reportError } from '../components/ErrorDisplay';
+
+let audioCtx: AudioContext | null = null;
+
+function createSilentAudioStream(): MediaStream {
+    if (!audioCtx) {
+        audioCtx = new AudioContext();
+    }
+    if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+    }
+    const oscillator = audioCtx.createOscillator();
+    const dst = audioCtx.createMediaStreamDestination();
+    oscillator.connect(dst);
+    oscillator.start();
+    oscillator.stop(audioCtx.currentTime + 0.01);
+    return dst.stream;
+}
 
 export default function PhoneJoin() {
     const location = useLocation();
+
     const [connected, setConnected] = createSignal(false);
     const [stream, setStream] = createSignal<MediaStream>();
     const [localLog, setLocalLog] = createSignal<string | null>(null);
 
-    onMount(async () => {
-        setLocalLog('Hi from local error');
+    let peer: Peer | null = null;
+    let call: MediaConnection | null = null;
 
+    async function startCall() {
         try {
-            const offerEncodedRaw = location.query.offer;
-
-            if (!offerEncodedRaw) {
-                setLocalLog('Missing "offer" in URL query:' + JSON.stringify(location.query));
-                reportError('Missing "offer" in URL query.');
+            const desktopPeerIdRaw = location.query.peerId;
+            if (!desktopPeerIdRaw) {
+                setLocalLog('Missing "peerId" (desktop peer ID) in URL query.');
+                reportError('Missing "peerId" (desktop peer ID) in URL query.');
                 return;
             }
 
-            setLocalLog('offerEncodedRaw ' + String(offerEncodedRaw));
-            const offerEncoded = Array.isArray(offerEncodedRaw) ? offerEncodedRaw[0] : offerEncodedRaw;
-            setLocalLog('offerencoded ' + String(offerEncoded) + ' ' + String(location.query.offer));
-            const offer = decompressOffer(offerEncoded);
-            setLocalLog('offer ' + String(offer));
-            const peer = createPeerConnection();
-            setLocalLog('peer' + String(peer));
+            const desktopPeerId = Array.isArray(desktopPeerIdRaw) ? desktopPeerIdRaw[0] : desktopPeerIdRaw;
+            setLocalLog(`Desktop Peer ID from peerId param: ${desktopPeerId}`);
 
-            const localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-            setLocalLog(String('localStream ' + localStream));
-            localStream.getTracks().forEach(track => peer.addTrack(track, localStream));
+            let localStream: MediaStream | undefined;
+
+            try {
+                localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+            } catch (e) {
+                console.warn('No video');
+                setLocalLog('No video');
+                try {
+                    localStream = await navigator.mediaDevices.getUserMedia({ video: false, audio: true });
+                } catch (e) {
+                    console.warn('No audio');
+                    setLocalLog('No audio, using silent audio stream');
+                    localStream = createSilentAudioStream();
+                }
+            }
+
             setStream(localStream);
-            setLocalLog(String('create answer..'));
+            setLocalLog('Got local media stream');
+            console.log('Got local media stream');
 
-            await createAnswer(peer, offer);
+            peer = new Peer('phone-ok', { host: '192.168.0.108', port: 9000, path: '/' });
 
-            await fetch(__LOCAL_ADDRESS__ + '/answer', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ answer: peer.localDescription }),
+            if (!peer) {
+                throw new Error('no peer')
+            }
+
+            peer.on('open', (id) => {
+                setLocalLog(`Phone peer ID: ${id}`);
+                console.log('id', id);
+
+                if (!localStream) {
+                    setLocalLog('Nothing to stream');
+                    throw new Error('Nothing to stream');
+                }
+
+                call = peer!.call(desktopPeerId, localStream);
+
+                call.on('close', () => {
+                    setLocalLog('Call closed');
+                    setConnected(false);
+                    setStream(undefined);
+                });
+
+                call.on('error', (err) => {
+                    setLocalLog('Call error: ' + err);
+                    reportError(err);
+                });
             });
-            reportError('OK');
-            setConnected(true);
-        }
-        catch (e) {
-            reportError(e);
-        }
 
-        return () => {
-            stream()?.getTracks().forEach(track => track.stop());
-        };
+            peer.on('error', (err) => {
+                setLocalLog('Peer error: ' + err);
+                reportError(err);
+            });
+
+            setConnected(true);
+        } catch (e) {
+            reportError(e);
+            setLocalLog(`Error: ${String(e)}`);
+        }
+    }
+
+    onCleanup(() => {
+        stream()?.getTracks().forEach((track) => track.stop());
+        call?.close();
+        peer?.destroy();
     });
 
     return (
         <section>
-            <Show when={connected()} fallback={<h2>Connecting...</h2>}>
-                <Show when={stream()} fallback={<h2>Waiting for stream...</h2>}>
-                    <video autoplay playsinline muted ref={el => el && (el.srcObject = stream()!)} />
+            <Show when={connected()} fallback={
+                <>
+                    <h2>Not connected</h2>
+                    <button onClick={startCall}>Start Call</button>
+                    <Show when={localLog()}>
+                        <div style={{ color: 'green' }}>{localLog()}</div>
+                    </Show>
+                </>
+            }>
+                <Show when={stream()} fallback={<h2>Waiting for media stream...</h2>}>
+                    {/* <video autoplay playsinline muted ref={el => el && (el.srcObject = stream()!)} /> */}
+                    <div>Call active — OK</div>
                 </Show>
-            </Show>
-            <Show when={localLog()}>
-                <div style={{ color: 'green' }}>{localLog()}</div>
+                <Show when={localLog()}>
+                    <div style={{ color: 'green' }}>{localLog()}</div>
+                </Show>
             </Show>
             <ErrorDisplay />
         </section>

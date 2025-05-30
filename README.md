@@ -23,8 +23,9 @@
     -shortest -f flv rtmp://a.rtmp.youtube.com/live2/$YOUTUBE_KEY
 
     # Run this package
-    bun run dev
-    node node/streamer.js
+    bun run dev           # The UI, eventually in server.js
+    bun node/server.js    # WebRTC exchange
+    bun node/streamer.js  # Streams to YT
 
 ## Certs
 

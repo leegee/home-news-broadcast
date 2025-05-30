@@ -76,8 +76,9 @@ export default defineConfig({
       cert: fs.readFileSync(path.resolve(__dirname, 'certs/cert.pem')),
     },
   },
-  plugins: [solid(), mySignalingPlugin(),],
+  plugins: [solid(),],
   define: {
     __LOCAL_ADDRESS__: JSON.stringify(`https://${localIp}:${port}`),
+    __LOCAL_IP__: JSON.stringify(localIp),
   },
 })
