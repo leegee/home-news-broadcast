@@ -9,6 +9,7 @@ import { LOCAL_LIVE_VIDEO_FLAG } from './BroadcastScreen';
 import { ErrorDisplay } from '../components/ErrorDisplay';
 import ShowQRCode from './ShowQRCode';
 import Gallery from '../components/Gallery';
+import ShowRemoteCamera from './ShowRemoteCamera';
 
 export const showItem = async (keyOrUrl: string) => {
     if (keyOrUrl === LOCAL_LIVE_VIDEO_FLAG) {
@@ -125,9 +126,10 @@ export default function ControlScreen() {
             <nav class={styles['button-strip']}>
                 <OpenOutputScreen />
                 <CaptureControls />
-                <ShowQRCode />
+                <ShowRemoteCamera />
             </nav>
 
+            <ShowQRCode />
             <ErrorDisplay />
         </main>
     );
