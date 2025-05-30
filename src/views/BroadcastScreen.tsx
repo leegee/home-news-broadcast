@@ -1,45 +1,51 @@
 import styles from './BroadcastScreen.module.scss';
-import { createEffect, onCleanup } from 'solid-js';
-import { videoUrl } from '../lib/store.ts';
+import { createEffect, createSignal, onCleanup, Show } from 'solid-js';
+import { setMediaStream, setQrCode, setVideoUrl, videoUrl } from '../lib/store.ts';
 import Ticker from '../components/Ticker';
 import Banner from '../components/Banner.tsx';
 import CaptureControls from '../components/CaptureControls.tsx';
+import { setupQRCodeFlow } from '../lib/generate-qr.ts';
 
 export const LOCAL_LIVE_VIDEO_FLAG = 'LIVE';
 export const EXT_LIVE_VIDEO_FLAG = 'EXT';
 
 export default function BroadcastScreen() {
+    const [stream, setStream] = createSignal<MediaStream | null>(null);
     let videoRef: HTMLVideoElement | undefined;
-    let stream: MediaStream | null = null;
 
     createEffect(() => {
         const url = videoUrl();
         console.log('video url changed', url);
 
-        if (url === LOCAL_LIVE_VIDEO_FLAG) {
+        if (url === EXT_LIVE_VIDEO_FLAG) {
+            setupQRCodeFlow();
+        }
+        else if (url === LOCAL_LIVE_VIDEO_FLAG) {
             navigator.mediaDevices.getUserMedia({ video: true, audio: true })
                 .then((mediaStream) => {
-                    stream = mediaStream;
+                    setStream(mediaStream);
                     if (videoRef) {
-                        videoRef.srcObject = stream;
+                        videoRef.srcObject = mediaStream;
                         videoRef.play();
                     }
                 })
                 .catch((e) => {
                     console.error('Error accessing webcam/mic:', e);
                 });
-        } else {
-            if (stream) {
-                stream.getTracks().forEach(track => track.stop());
-                stream = null;
+        }
+        else {
+            if (stream() !== null) {
+                stream()!.getTracks().forEach(track => track.stop());
+                setStream(null);
             }
         }
     });
 
     onCleanup(() => {
-        if (stream) {
-            stream.getTracks().forEach(track => track.stop());
-        }
+        // setVideoUrl('');
+        setQrCode('');
+        setMediaStream(null);
+        stream()?.getTracks().forEach(t => t.stop());
     });
 
     return (
@@ -47,24 +53,19 @@ export default function BroadcastScreen() {
             <CaptureControls />
 
             <div class={styles["large-video"]}>
-                {videoUrl() === LOCAL_LIVE_VIDEO_FLAG ? (
-                    <video
-                        ref={el => (videoRef = el)}
-                        autoplay
-                        playsinline
-                    // controls 
-                    />
-                ) : (
-                    videoUrl() && (
-                        <iframe
-                            src={videoUrl()!}
-                            width="100%"
-                            height="100%"
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                            allowfullscreen
-                        ></iframe>
+                {videoUrl() === LOCAL_LIVE_VIDEO_FLAG || EXT_LIVE_VIDEO_FLAG
+                    ? (<video ref={el => (videoRef = el)} autoplay playsinline />)
+                    : (
+                        <Show when={videoUrl() !== ''}>
+                            <iframe
+                                src={videoUrl()!}
+                                width="100%"
+                                height="100%"
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            ></iframe>
+                        </Show>
                     )
-                )}
+                }
 
                 <div class={styles["large-video-overlay"]}>
                     <Banner />
