@@ -1,13 +1,15 @@
 import styles from './BroadcastScreen.module.scss';
 import { createEffect, createSignal, onCleanup, Show } from 'solid-js';
-import { mediaStream, setMediaStream, setQrCode, setStreamSource, setVideoUrl, streamSource, videoUrl } from '../lib/store.ts';
+import { mediaStream, setMediaStream, setQrCode, setStreamSource, setVideoOrImageUrl, streamSource, videoOrImageUrl } from '../lib/store.ts';
 import Ticker from '../components/Ticker';
 import Banner from '../components/Banner.tsx';
 import CaptureControls from '../components/CaptureControls.tsx';
 import { setupQRCodeFlow } from '../lib/qr2phone2stream.ts';
 
-export const LOCAL_LIVE_VIDEO_FLAG = 'LIVE';
-export const EXT_LIVE_VIDEO_FLAG = 'EXT';
+export const DISPLAY_FLAGS = {
+    external_live_video: 'EXT',
+    local_live_video: 'LIVE',
+};
 
 let peerSetup = false;
 
@@ -31,13 +33,13 @@ export default function BroadcastScreen() {
     });
 
     createEffect(async () => {
-        const url = videoUrl();
+        const url = videoOrImageUrl();
         console.log('URL change', url, ' - peerSetup =', peerSetup);
-        if (url === EXT_LIVE_VIDEO_FLAG && !peerSetup) {
+        if (url === DISPLAY_FLAGS.local_live_video && !peerSetup) {
             peerSetup = true;
             setupQRCodeFlow();
         }
-        else if (url === LOCAL_LIVE_VIDEO_FLAG && !mediaStream()) {
+        else if (url === DISPLAY_FLAGS.external_live_video && !mediaStream()) {
             const localMediaStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
             setMediaStream(localMediaStream);
             setStreamSource('local');
@@ -50,7 +52,7 @@ export default function BroadcastScreen() {
     });
 
     onCleanup(() => {
-        setVideoUrl('');
+        setVideoOrImageUrl('');
         setQrCode('');
         mediaStream()?.getTracks().forEach(t => t.stop());
         setMediaStream(null);
@@ -69,7 +71,7 @@ export default function BroadcastScreen() {
             <CaptureControls />
 
             <div class={styles["large-video"]}>
-                {(videoUrl() === LOCAL_LIVE_VIDEO_FLAG || videoUrl() === EXT_LIVE_VIDEO_FLAG)
+                {(videoOrImageUrl() === DISPLAY_FLAGS.external_live_video || videoOrImageUrl() === DISPLAY_FLAGS.local_live_video)
                     ? (
                         <>
                             <video ref={el => (videoRef = el)} autoplay playsinline />
@@ -85,9 +87,9 @@ export default function BroadcastScreen() {
                         </>
                     )
                     : (
-                        <Show when={videoUrl() !== ''}>
+                        <Show when={videoOrImageUrl() !== ''}>
                             <iframe
-                                src={videoUrl()!}
+                                src={videoOrImageUrl()!}
                                 width="100%"
                                 height="100%"
                                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"

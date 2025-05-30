@@ -1,10 +1,10 @@
 import styles from './Gallery.module.scss';
 import { For, Show, createEffect, createSignal, onCleanup } from 'solid-js';
-import { history, videoUrl } from '../lib/store.ts';
+import { history, videoOrImageUrl } from '../lib/store.ts';
 import { getEmbedUrl, getThumbnail } from '../lib/hosted-video-utils.ts';
 import { loadVideo } from '../lib/video-files.ts';
 import ThumbnailControl from './ThumbnailControl.tsx';
-import { LOCAL_LIVE_VIDEO_FLAG } from '../views/BroadcastScreen.tsx';
+import { DISPLAY_FLAGS } from '../views/BroadcastScreen.tsx';
 
 type GalleryProps = {
     onSelect: (url: string) => void;
@@ -58,7 +58,7 @@ export default function Gallery(props: GalleryProps) {
 
             <Show when={canAccessCamera() && canAccessMic()}>
                 <li>
-                    <button onClick={() => props.onSelect(LOCAL_LIVE_VIDEO_FLAG)}>
+                    <button onClick={() => props.onSelect(DISPLAY_FLAGS.local_live_video)}>
                         Local Camera
                     </button>
                 </li>
@@ -75,7 +75,7 @@ export default function Gallery(props: GalleryProps) {
                     const isLocal = historyKey.startsWith('local:');
                     const src = () => isLocal ? localVideoUrls()[historyKey] : getThumbnail(historyKey);
                     const isActive = () => {
-                        const current = videoUrl();
+                        const current = videoOrImageUrl();
                         return isLocal
                             ? current === localVideoUrls()[historyKey]
                             : current === getEmbedUrl(historyKey);

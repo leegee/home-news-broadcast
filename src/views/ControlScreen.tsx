@@ -1,30 +1,30 @@
 import styles from './ControlScreen.module.scss';
 import { onMount } from 'solid-js';
-import { history, removeFromHistory, setVideoUrl } from '../lib/store';
+import { history, removeFromHistory, setVideoOrImageUrl } from '../lib/store';
 import CaptureControls from '../components/CaptureControls';
 import { getEmbedUrl, isValidUrl, saveUrlToHistory } from '../lib/hosted-video-utils';
 import { saveVideo, loadVideo, deleteVideo } from '../lib/video-files';
 import OpenOutputScreen from '../components/OpenOutputScreen';
-import { LOCAL_LIVE_VIDEO_FLAG } from './BroadcastScreen';
+import { DISPLAY_FLAGS } from './BroadcastScreen';
 import { ErrorDisplay } from '../components/ErrorDisplay';
 import ShowQRCode from './ShowQRCode';
 import Gallery from '../components/Gallery';
 import ShowRemoteCamera from './ShowRemoteCamera';
 
 export const showItem = async (keyOrUrl: string) => {
-    if (keyOrUrl === LOCAL_LIVE_VIDEO_FLAG) {
-        setVideoUrl(LOCAL_LIVE_VIDEO_FLAG);
+    if (keyOrUrl === DISPLAY_FLAGS.local_live_video) {
+        setVideoOrImageUrl(DISPLAY_FLAGS.local_live_video);
     }
     else if (keyOrUrl.startsWith('local:')) {
         const blob = await loadVideo(keyOrUrl);
         if (blob) {
-            setVideoUrl(URL.createObjectURL(blob));
+            setVideoOrImageUrl(URL.createObjectURL(blob));
         }
     }
     else if (isValidUrl(keyOrUrl)) {
         const url = getEmbedUrl(keyOrUrl);
         if (url) {
-            setVideoUrl(url);
+            setVideoOrImageUrl(url);
         }
     }
 };

@@ -24,7 +24,7 @@ function createSyncedPersistedSignal<T>(key: string, initial: T): [() => T, (v: 
 
 export const [ticker, setTicker] = createSyncedPersistedSignal('cap-ticker', 'Click to edit');
 export const [banner, setBanner] = createSyncedPersistedSignal('cap-banner', 'Cat News');
-export const [videoUrl, setVideoUrl] = createSyncedPersistedSignal('cap-video-url', '');
+export const [videoOrImageUrl, setVideoOrImageUrl] = createSyncedPersistedSignal('cap-video-url', '');
 export const [history, setHistory] = createSyncedPersistedSignal<string[]>('cap-history', []);
 export const [bannerImage, setBannerImage] = createSyncedPersistedSignal<string>('cap-banner-image', defatulCatimage);
 export const [qrCode, setQrCode] = createSyncedPersistedSignal<string>('cap-qr-code', '');
