@@ -35,3 +35,10 @@ export const [mediaStream, setMediaStream] = createSignal<MediaStream | null>(nu
 export function removeFromHistory(item: string) {
     setHistory(history().filter(entry => entry !== item));
 }
+
+export function initLocalStorage() {
+    setVideoOrImageUrl('');
+    setQrCode('');
+    setStreamSource(null);
+    setMediaStream(null);
+}
