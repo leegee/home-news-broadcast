@@ -2,6 +2,8 @@ import { createSignal } from 'solid-js';
 import { makePersisted } from '@solid-primitives/storage'; // sync doesn't work
 import defatulCatimage from './default-banner-image';
 
+const MAX_HISTORY = 30;
+
 function createSyncedPersistedSignal<T>(key: string, initial: T): [() => T, (v: T) => void] {
     const [value, setValue] = makePersisted(createSignal<T>(initial), {
         name: key,
@@ -36,9 +38,17 @@ export function removeFromHistory(item: string) {
     setHistory(history().filter(entry => entry !== item));
 }
 
+export function saveUrlToHistory(url: string) {
+    let h = history();
+    h = [url, ...h.filter(v => v !== url)]; // prepend new URL, remove duplicates
+    if (h.length > MAX_HISTORY) h = h.slice(0, MAX_HISTORY);
+    setHistory(h);
+}
+
 export function initLocalStorage() {
     setVideoOrImageUrl('');
     setQrCode('');
     setStreamSource(null);
     setMediaStream(null);
 }
+

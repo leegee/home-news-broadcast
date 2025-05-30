@@ -1,8 +1,8 @@
 import styles from './ControlScreen.module.scss';
 import { onMount } from 'solid-js';
-import { history, removeFromHistory, setVideoOrImageUrl } from '../lib/store';
+import { history, removeFromHistory, setVideoOrImageUrl, saveUrlToHistory } from '../lib/store';
 import CaptureControls from '../components/CaptureControls';
-import { getEmbedUrl, isValidUrl, saveUrlToHistory } from '../lib/hosted-video-utils';
+import { getYoutubeEmbedUrl, isYoutubeUrl } from '../lib/youtube';
 import { saveFile, loadFile, deleteFile } from '../lib/file-store';
 import OpenOutputScreen from '../components/OpenOutputScreen';
 import { DISPLAY_FLAGS } from './BroadcastScreen';
@@ -21,8 +21,8 @@ export const showItem = async (keyOrUrl: string) => {
             setVideoOrImageUrl(URL.createObjectURL(blob));
         }
     }
-    else if (isValidUrl(keyOrUrl)) {
-        const url = getEmbedUrl(keyOrUrl);
+    else if (isYoutubeUrl(keyOrUrl)) {
+        const url = getYoutubeEmbedUrl(keyOrUrl);
         if (url) {
             setVideoOrImageUrl(url);
         }
@@ -34,7 +34,7 @@ const deleteItem = (keyOrUrl: string) => {
         deleteFile(keyOrUrl);
         removeFromHistory(keyOrUrl);
     }
-    else if (isValidUrl(keyOrUrl)) {
+    else if (isYoutubeUrl(keyOrUrl)) {
         removeFromHistory(keyOrUrl);
     }
 }
@@ -50,7 +50,7 @@ const handleFile = async (file: File) => {
 };
 
 const processUserSuppliedText = (text: string) => {
-    if (text && isValidUrl(text)) {
+    if (text && isYoutubeUrl(text)) {
         saveUrlToHistory(text);
         showItem(text);
     }

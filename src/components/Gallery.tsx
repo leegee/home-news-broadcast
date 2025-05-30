@@ -1,7 +1,7 @@
 import styles from './Gallery.module.scss';
 import { For, Show, createEffect, createSignal, onCleanup } from 'solid-js';
 import { history, videoOrImageUrl } from '../lib/store.ts';
-import { getEmbedUrl, getThumbnail } from '../lib/hosted-video-utils.ts';
+import { getYoutubeEmbedUrl, getYoutubeThumbnail } from '../lib/youtube.ts';
 import { loadFile } from '../lib/file-store.ts';
 import ThumbnailControl from './ThumbnailControl.tsx';
 import { DISPLAY_FLAGS } from '../views/BroadcastScreen.tsx';
@@ -73,12 +73,12 @@ export default function Gallery(props: GalleryProps) {
             <For each={history()}>
                 {(historyKey) => {
                     const isLocal = historyKey.startsWith('local:');
-                    const src = () => isLocal ? localVideoUrls()[historyKey] : getThumbnail(historyKey);
+                    const src = () => isLocal ? localVideoUrls()[historyKey] : getYoutubeThumbnail(historyKey);
                     const isActive = () => {
                         const current = videoOrImageUrl();
                         return isLocal
                             ? current === localVideoUrls()[historyKey]
-                            : current === getEmbedUrl(historyKey);
+                            : current === getYoutubeEmbedUrl(historyKey);
                     };
 
                     return (
