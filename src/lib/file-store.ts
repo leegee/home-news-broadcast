@@ -1,14 +1,12 @@
-// src/lib/video-files.ts
-
 let db: IDBDatabase;
 
 // Singleton promise to ensure the database is ready before use
 const ready = new Promise<IDBDatabase>((resolve, reject) => {
-    const dbRequest = indexedDB.open("videoStore", 1);
+    const dbRequest = indexedDB.open("fileStore", 1);
 
     dbRequest.onupgradeneeded = () => {
         db = dbRequest.result;
-        db.createObjectStore("videos");
+        db.createObjectStore("files");
     };
 
     dbRequest.onsuccess = () => {
@@ -21,11 +19,11 @@ const ready = new Promise<IDBDatabase>((resolve, reject) => {
     };
 });
 
-export async function listVideoKeys(): Promise<string[]> {
+export async function listKeys(): Promise<string[]> {
     const db = await ready;
     return new Promise((resolve, reject) => {
-        const tx = db.transaction("videos", "readonly");
-        const store = tx.objectStore("videos");
+        const tx = db.transaction("files", "readonly");
+        const store = tx.objectStore("files");
 
         const request = store.getAllKeys();
 
@@ -34,11 +32,11 @@ export async function listVideoKeys(): Promise<string[]> {
     });
 }
 
-export async function saveVideo(key: string, file: File): Promise<void> {
+export async function saveFile(key: string, file: File): Promise<void> {
     const db = await ready;
     return new Promise((resolve, reject) => {
-        const tx = db.transaction("videos", "readwrite");
-        const store = tx.objectStore("videos");
+        const tx = db.transaction("files", "readwrite");
+        const store = tx.objectStore("files");
         store.put(file, key);
         tx.oncomplete = () => resolve();
         tx.onerror = () => reject(tx.error);
@@ -46,22 +44,22 @@ export async function saveVideo(key: string, file: File): Promise<void> {
     });
 }
 
-export async function loadVideo(key: string): Promise<Blob | undefined> {
+export async function loadFile(key: string): Promise<Blob | undefined> {
     const db = await ready;
     return new Promise((resolve) => {
-        const tx = db.transaction("videos", "readonly");
-        const store = tx.objectStore("videos");
+        const tx = db.transaction("files", "readonly");
+        const store = tx.objectStore("files");
         const request = store.get(key);
         request.onsuccess = () => resolve(request.result);
         request.onerror = () => resolve(undefined);
     });
 }
 
-export async function deleteVideo(key: string): Promise<void> {
+export async function deleteFile(key: string): Promise<void> {
     const db = await ready;
     return new Promise((resolve, reject) => {
-        const tx = db.transaction("videos", "readwrite");
-        const store = tx.objectStore("videos");
+        const tx = db.transaction("files", "readwrite");
+        const store = tx.objectStore("files");
         const request = store.delete(key);
         request.onsuccess = () => resolve();
         request.onerror = () => reject(request.error);

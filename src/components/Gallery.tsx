@@ -2,7 +2,7 @@ import styles from './Gallery.module.scss';
 import { For, Show, createEffect, createSignal, onCleanup } from 'solid-js';
 import { history, videoOrImageUrl } from '../lib/store.ts';
 import { getEmbedUrl, getThumbnail } from '../lib/hosted-video-utils.ts';
-import { loadVideo } from '../lib/file-store.ts';
+import { loadFile } from '../lib/file-store.ts';
 import ThumbnailControl from './ThumbnailControl.tsx';
 import { DISPLAY_FLAGS } from '../views/BroadcastScreen.tsx';
 
@@ -33,7 +33,7 @@ export default function Gallery(props: GalleryProps) {
         await Promise.all(
             urls.map(async (key) => {
                 if (key.startsWith('local:')) {
-                    const blob = await loadVideo(key);
+                    const blob = await loadFile(key);
                     if (blob) {
                         newLocalUrls[key] = URL.createObjectURL(blob);
                     } else {

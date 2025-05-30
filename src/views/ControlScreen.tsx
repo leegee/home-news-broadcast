@@ -3,7 +3,7 @@ import { onMount } from 'solid-js';
 import { history, removeFromHistory, setVideoOrImageUrl } from '../lib/store';
 import CaptureControls from '../components/CaptureControls';
 import { getEmbedUrl, isValidUrl, saveUrlToHistory } from '../lib/hosted-video-utils';
-import { saveVideo, loadVideo, deleteVideo } from '../lib/file-store';
+import { saveFile, loadFile, deleteFile } from '../lib/file-store';
 import OpenOutputScreen from '../components/OpenOutputScreen';
 import { DISPLAY_FLAGS } from './BroadcastScreen';
 import { ErrorDisplay } from '../components/ErrorDisplay';
@@ -16,7 +16,7 @@ export const showItem = async (keyOrUrl: string) => {
         setVideoOrImageUrl(DISPLAY_FLAGS.local_live_video);
     }
     else if (keyOrUrl.startsWith('local:')) {
-        const blob = await loadVideo(keyOrUrl);
+        const blob = await loadFile(keyOrUrl);
         if (blob) {
             setVideoOrImageUrl(URL.createObjectURL(blob));
         }
@@ -31,7 +31,7 @@ export const showItem = async (keyOrUrl: string) => {
 
 const deleteItem = (keyOrUrl: string) => {
     if (keyOrUrl.startsWith('local:')) {
-        deleteVideo(keyOrUrl);
+        deleteFile(keyOrUrl);
         removeFromHistory(keyOrUrl);
     }
     else if (isValidUrl(keyOrUrl)) {
@@ -44,7 +44,7 @@ const handleFile = async (file: File) => {
     if (!file.type.startsWith("video/")) return;
 
     const key = `local:${file.name}:${Date.now()}`;
-    await saveVideo(key, file);
+    await saveFile(key, file);
     saveUrlToHistory(key);
     showItem(key);
 };
