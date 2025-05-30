@@ -40,3 +40,4 @@ root CA and install it on the device with a `crt` extension.
 1. Edit the banner text by clicking it
 1. Edit the news ticker by clicking it
 1. Set the banner image by dragging or pasting an image into the window.
+1. If you connect a remote camera, you may need to click a button on the broadcast screen.
