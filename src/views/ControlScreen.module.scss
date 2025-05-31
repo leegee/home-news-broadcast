@@ -15,3 +15,15 @@
         gap: 1em;
     }
 }
+
+.control-screen-component::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: url('globe.gif');
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: contain;
+    filter: blur(5px) brightness(0.6);
+    z-index: -1;
+}

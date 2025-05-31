@@ -23,19 +23,25 @@ import { loadFile, getMimeType } from '../lib/file-store.ts';
 let peerSetup = false;
 
 export default function BroadcastScreen() {
-    let videoRef: HTMLVideoElement | undefined;
+    const [videoRef, setVideoRef] = createSignal<HTMLVideoElement | null>(null);
     const [showPlayButton, setShowPlayButton] = createSignal(false);
 
     onMount(() => {
         const handleKeyDown = (event: KeyboardEvent) => {
-            switch (event.key) {
+            switch (event.code) {
                 case 'ArrowLeft':
                 case 'ArrowUp':
+                    event.preventDefault();
                     navigateHistory(-1);
                     break;
                 case 'ArrowRight':
                 case 'ArrowDown':
+                    event.preventDefault();
                     navigateHistory(1);
+                    break;
+                case 'Space':
+                    event.preventDefault();
+                    toggleVideoPlayback();
                     break;
             }
         };
@@ -46,13 +52,13 @@ export default function BroadcastScreen() {
 
     createEffect(() => {
         const stream = mediaStream();
-        if (!videoRef || !stream) return;
+        if (!videoRef() || !stream) return;
 
         console.log('Set video as mediaStream changed', stream);
-        videoRef.srcObject = stream;
+        videoRef()!.srcObject = stream;
 
-        videoRef.onloadedmetadata = () => {
-            videoRef?.play().catch((err) => {
+        videoRef()!.onloadedmetadata = () => {
+            videoRef()!.play().catch((err) => {
                 console.warn('Autoplay prevented or failed:', err);
                 setShowPlayButton(true); // Require user interaction
             });
@@ -131,9 +137,21 @@ export default function BroadcastScreen() {
         setSelectedKey(keys[newIndex]);
     };
 
+    const toggleVideoPlayback = () => {
+        if (videoRef() === null) return;
+
+        if (videoRef()!.paused) {
+            videoRef()!.play().catch(err => {
+                console.warn('Play failed:', err);
+            });
+        } else {
+            videoRef()!.pause();
+        }
+    };
+
     const tryPlayManually = () => {
         if (videoRef) {
-            videoRef.play()
+            videoRef()!.play()
                 .then(() => setShowPlayButton(false))
                 .catch(err => console.warn('Manual play still failed:', err));
         }
@@ -148,21 +166,30 @@ export default function BroadcastScreen() {
                 <Show when={videoOrImageSource().url !== ''}>
                     <Switch fallback={<div>No matching stream type for: {videoOrImageSource().type}</div>}>
                         <Match when={videoOrImageSource().type === STREAM_TYPES.LIVE_LOCAL || videoOrImageSource().type === STREAM_TYPES.LIVE_EXTERNAL}>
-                            <video class={styles['broadcast-video']} ref={el => (videoRef = el)} autoplay playsinline />
+                            <video class={styles['broadcast-video']}
+                                ref={el => setVideoRef(el)}
+                                autoplay playsinline
+                            />
                             <Show when={showPlayButton()}>
                                 <button onClick={tryPlayManually} class={styles["play-button"]}>Click to Start Playback</button>
                             </Show>
                         </Match>
 
+                        <Match when={videoOrImageSource().type === STREAM_TYPES.VIDEO}>
+                            <video class={styles['broadcast-video']}
+                                ref={el => setVideoRef(el)}
+                                src={videoOrImageSource().url}
+                                autoplay playsinline controls
+                            />
+                        </Match>
+
                         <Match when={videoOrImageSource().type === STREAM_TYPES.IMAGE}>
                             <div class={styles['broadcast-image-wrapper']}>
-                                <div
-                                    class={styles['broadcast-image-background']}
+                                <div class={styles['broadcast-image-background']}
                                     style={{ 'background-image': `url(${videoOrImageSource().url})` }}
                                 />
                                 <div class={styles['broadcast-image-foreground']}>
-                                    <img
-                                        class={styles['broadcast-image']}
+                                    <img class={styles['broadcast-image']}
                                         src={videoOrImageSource().url}
                                         alt=""
                                     />
@@ -170,7 +197,7 @@ export default function BroadcastScreen() {
                             </div>
                         </Match>
 
-                        <Match when={videoOrImageSource().type === STREAM_TYPES.VIDEO || videoOrImageSource().type === STREAM_TYPES.YOUTUBE}>
+                        <Match when={videoOrImageSource().type === STREAM_TYPES.YOUTUBE}>
                             <iframe
                                 class={styles['broadcast-iframe']}
                                 src={videoOrImageSource().url}

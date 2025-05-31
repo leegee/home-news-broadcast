@@ -26,7 +26,7 @@
         .broadcast-video,
         .broadcast-iframe {
             object-fit: contain;
-            min-height: 100%;
+            min-width: 100%;
         }
 
         .broadcast-image-wrapper {
@@ -66,17 +66,17 @@
         }
     }
 
-    .broadcast-pane::before {
-        content: "";
-        position: absolute;
-        inset: 0;
-        background-image: url('globe.gif');
-        background-position: center;
-        background-repeat: no-repeat;
-        background-size: contain;
-        filter: blur(5px) brightness(0.6);
-        z-index: -1;
-    }
+    // .broadcast-pane::before {
+    //     content: "";
+    //     position: absolute;
+    //     inset: 0;
+    //     background-image: url('globe.gif');
+    //     background-position: center;
+    //     background-repeat: no-repeat;
+    //     background-size: contain;
+    //     filter: blur(5px) brightness(0.6);
+    //     z-index: -1;
+    // }
 
     .lower-third {
         position: absolute;
