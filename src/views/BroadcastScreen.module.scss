@@ -33,17 +33,6 @@
         bottom: 0;
     }
 
-    button {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        z-index: 1000;
-        padding: 4em;
-        font-size: x-large;
-        border: 2pt solid gray;
-    }
-
     button:hover,
     button:focus {
         border: 2pt solid white;

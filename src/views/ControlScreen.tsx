@@ -39,17 +39,17 @@ const deleteItem = (keyOrUrl: string) => {
     }
 }
 
-const handleFile = async (file: File) => {
+const handleDroppedFile = async (file: File) => {
     console.log('file.type', file.type);
-    if (!file.type.startsWith("video/")) return;
-
-    const key = `local:${file.name}:${Date.now()}`;
-    await saveFile(key, file);
-    saveUrlToHistory(key);
-    showItem(key);
+    if (file.type.startsWith("video/") || file.type.startsWith("image/")) {
+        const key = `local:${file.name}:${Date.now()}`;
+        await saveFile(key, file);
+        saveUrlToHistory(key);
+        showItem(key);
+    }
 };
 
-const processUserSuppliedText = (text: string) => {
+const handleDroppedText = (text: string) => {
     if (text && isYoutubeUrl(text)) {
         saveUrlToHistory(text);
         showItem(text);
@@ -59,13 +59,13 @@ const processUserSuppliedText = (text: string) => {
 export const pasteHandler = (e: ClipboardEvent) => {
     const text = (e.clipboardData || (window as any).clipboardData).getData("text");
     if (text) {
-        processUserSuppliedText(text);
+        handleDroppedText(text);
         return;
     }
 
     for (const item of e.clipboardData?.items || []) {
         const file = item.getAsFile?.();
-        if (file) handleFile(file);
+        if (file) handleDroppedFile(file);
     }
 };
 
@@ -75,12 +75,12 @@ export const dropHandler = async (e: DragEvent) => {
 
     const text = e.dataTransfer?.getData("text/plain");
     if (text) {
-        processUserSuppliedText(text);
+        handleDroppedText(text);
         return;
     }
 
     for (const file of e.dataTransfer?.files || []) {
-        handleFile(file);
+        handleDroppedFile(file);
     }
 };
 
@@ -95,7 +95,6 @@ export const dragLeaveHandler = (e: DragEvent) => {
 
 
 export default function ControlScreen() {
-
     onMount(async () => {
         // todo move to broadcast screen?
         if (history().length > 0) {

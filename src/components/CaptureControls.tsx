@@ -1,3 +1,4 @@
+import styles from './CaptureControls.module.scss';
 import { createSignal, onCleanup, Show } from 'solid-js';
 import { startScreenCapture, stopScreenCapture } from '../lib/screen-capture';
 import { initRTMPConnection, sendToRTMP } from '../lib/rtmp-stream';
@@ -35,7 +36,7 @@ export default function CaptureControls() {
 
     return (
         <Show when={!isCapturing()}>
-            <button class="start-capture" onClick={startCapture}>Start Capture Broadcast</button>
+            <button class={styles["start-capture"]} onClick={startCapture}>Start Capture Broadcast</button>
         </Show>
     );
 }
