@@ -9,7 +9,7 @@
     height: 100vh;
     width: 100vw;
 
-    .large-video {
+    .broadcast-pane {
         background: #333;
         z-index: 10;
         position: absolute;
@@ -26,7 +26,7 @@
         }
     }
 
-    .large-video-overlay {
+    .lower-third {
         position: absolute;
         width: 100%;
         height: auto;

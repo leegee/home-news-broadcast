@@ -1,12 +1,11 @@
 import { Show } from "solid-js";
-import { qrCode, setVideoOrImageUrl } from "../lib/store";
-import { DISPLAY_FLAGS } from "./BroadcastScreen";
+import { qrCode, setVideoOrImageSource, STREAM_TYPES } from "../lib/store";
 
 export default function ShowRemoteCamera() {
     return (
         <Show when={!qrCode()}>
             <button onClick={
-                () => setVideoOrImageUrl(DISPLAY_FLAGS.external_live_video)
+                () => setVideoOrImageSource({ url: '', type: STREAM_TYPES.LIVE_EXTERNAL })
             }>Show Phone Camera</button>
         </Show>
     );

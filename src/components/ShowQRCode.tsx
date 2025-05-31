@@ -1,12 +1,6 @@
 import { createEffect, Show } from "solid-js";
 import { qrCode } from "../lib/store";
 
-/**
- * 
- *  import { setupQRCodeFlow } from '../lib/qr';
- *  <button onClick={() => setupQRCodeFlow()}>Generate QR</button>
- * 
- */
 export default function ShowQRCode() {
 
     createEffect(() => {

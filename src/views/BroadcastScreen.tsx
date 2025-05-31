@@ -1,15 +1,23 @@
 import styles from './BroadcastScreen.module.scss';
-import { createEffect, createSignal, onCleanup, Show } from 'solid-js';
-import { mediaStream, setMediaStream, setQrCode, setStreamSource, setVideoOrImageUrl, streamSource, videoOrImageUrl } from '../lib/store.ts';
+import { createEffect, createSignal, Match, onCleanup, Show, Switch } from 'solid-js';
 import Ticker from '../components/Ticker';
 import Banner from '../components/Banner.tsx';
 import CaptureControls from '../components/CaptureControls.tsx';
 import { setupQRCodeFlow } from '../lib/qr2phone2stream.ts';
-
-export const DISPLAY_FLAGS = {
-    external_live_video: 'EXT',
-    local_live_video: 'LIVE',
-};
+import { isYoutubeUrl } from '../lib/youtube.ts';
+import {
+    history,
+    mediaStream,
+    setMediaStream,
+    setQrCode,
+    setStreamSource,
+    streamSource,
+    videoOrImageSource,
+    setVideoOrImageSource,
+    selectedKey,
+    STREAM_TYPES
+} from '../lib/store.ts';
+import { loadFile, getMimeType } from '../lib/file-store.ts';
 
 let peerSetup = false;
 
@@ -32,19 +40,54 @@ export default function BroadcastScreen() {
         };
     });
 
+    createEffect(() => {
+        console.log('History changed:', history());
+    });
+
     createEffect(async () => {
-        const url = videoOrImageUrl();
-        console.log('URL change', url, ' - peerSetup =', peerSetup);
-        if (url === DISPLAY_FLAGS.local_live_video && !peerSetup) {
+        const key = selectedKey();
+        if (!key || !key.startsWith("local:")) return;
+
+        const blob = await loadFile(key);
+        const mime = await getMimeType(key);
+
+        if (blob && mime) {
+            const url = URL.createObjectURL(blob);
+
+            const type = mime.startsWith("image/")
+                ? STREAM_TYPES.IMAGE
+                : mime.startsWith("video/") ? STREAM_TYPES.VIDEO : '';
+
+            if (type) {
+                console.log('Loaded local file from file-store:', key, type);
+                setVideoOrImageSource({ url, type });
+            } else {
+                console.warn('Unrecognized mime type in Broadcast tab:', mime);
+            }
+        } else {
+            console.warn("No blob or mime found for key in Broadcast tab:", key);
+        }
+    });
+
+    createEffect(async () => {
+        const { url, type } = videoOrImageSource();
+
+        console.log('BroadcastScreen URL:', url, 'type:', type, ' - peerSetup =', peerSetup, "isYoutubeUrl", isYoutubeUrl(url));
+
+        if (type !== STREAM_TYPES.LIVE_LOCAL) {
+            peerSetup = false;
+        }
+
+        if (type === STREAM_TYPES.LIVE_LOCAL && !peerSetup) {
             peerSetup = true;
             setupQRCodeFlow();
         }
-        else if (url === DISPLAY_FLAGS.external_live_video && !mediaStream()) {
+        else if (type === STREAM_TYPES.LIVE_EXTERNAL && !mediaStream()) {
             const localMediaStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
             setMediaStream(localMediaStream);
             setStreamSource('local');
         }
-        else if (mediaStream() && streamSource() === 'local') {
+        else if (mediaStream() && streamSource() === STREAM_TYPES.LIVE_LOCAL) {
             mediaStream()!.getTracks().forEach(track => track.stop());
             setMediaStream(null);
             setStreamSource(null);
@@ -52,7 +95,7 @@ export default function BroadcastScreen() {
     });
 
     onCleanup(() => {
-        setVideoOrImageUrl('');
+        setVideoOrImageSource({ url: '', type: '' });
         setQrCode('');
         mediaStream()?.getTracks().forEach(t => t.stop());
         setMediaStream(null);
@@ -70,39 +113,37 @@ export default function BroadcastScreen() {
         <main class={styles['broadcast-screen-component']}>
             <CaptureControls />
 
-            <div class={styles["large-video"]}>
-                {(videoOrImageUrl() === DISPLAY_FLAGS.external_live_video || videoOrImageUrl() === DISPLAY_FLAGS.local_live_video)
-                    ? (
-                        <>
-                            <video ref={el => (videoRef = el)} autoplay playsinline />
+            <div class={styles["broadcast-pane"]}>
 
+                <Show when={videoOrImageSource().url !== ''}>
+                    <Switch fallback={<div>No matching stream type for: {videoOrImageSource().type}</div>}>
+                        <Match when={videoOrImageSource().type === STREAM_TYPES.LIVE_LOCAL || videoOrImageSource().type === STREAM_TYPES.LIVE_EXTERNAL}>
+                            <video ref={el => (videoRef = el)} autoplay playsinline />
                             <Show when={showPlayButton()}>
-                                <button
-                                    onClick={tryPlayManually}
-                                    class={styles["play-button"]}
-                                >
-                                    Click to Start Playback
-                                </button>
+                                <button onClick={tryPlayManually} class={styles["play-button"]}>Click to Start Playback</button>
                             </Show>
-                        </>
-                    )
-                    : (
-                        <Show when={videoOrImageUrl() !== ''}>
+                        </Match>
+
+                        <Match when={videoOrImageSource().type === STREAM_TYPES.IMAGE}>
+                            <img src={videoOrImageSource().url} class={styles["image-display"]} />
+                        </Match>
+
+                        <Match when={videoOrImageSource().type === STREAM_TYPES.VIDEO || videoOrImageSource().type === STREAM_TYPES.YOUTUBE}>
                             <iframe
-                                src={videoOrImageUrl()!}
+                                src={videoOrImageSource().url}
                                 width="100%"
                                 height="100%"
-                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                            ></iframe>
-                        </Show>
-                    )
-                }
+                                allow="autoplay; encrypted-media"
+                            />
+                        </Match>
+                    </Switch>
+                </Show>
 
-                <div class={styles["large-video-overlay"]}>
+                <div class={styles["lower-third"]}>
                     <Banner />
                     <Ticker />
                 </div>
             </div>
-        </main>
+        </main >
     );
 }

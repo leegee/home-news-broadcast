@@ -9,6 +9,9 @@ const ready = new Promise<IDBDatabase>((resolve, reject) => {
         if (!db.objectStoreNames.contains("files")) {
             db.createObjectStore("files");
         }
+        if (!db.objectStoreNames.contains("meta")) {
+            db.createObjectStore("meta");
+        }
     };
 
     dbRequest.onsuccess = () => {
@@ -21,16 +24,24 @@ const ready = new Promise<IDBDatabase>((resolve, reject) => {
     };
 });
 
-
 export async function listKeys(): Promise<string[]> {
     const db = await ready;
     return new Promise((resolve, reject) => {
         const tx = db.transaction("files", "readonly");
         const store = tx.objectStore("files");
-
         const request = store.getAllKeys();
-
         request.onsuccess = () => resolve(request.result as string[]);
+        request.onerror = () => reject(request.error);
+    });
+}
+
+export async function getMimeType(key: string): Promise<string | undefined> {
+    const db = await ready;
+    return new Promise((resolve, reject) => {
+        const tx = db.transaction("meta", "readonly");
+        const store = tx.objectStore("meta");
+        const request = store.get(key);
+        request.onsuccess = () => resolve(request.result as string | undefined);
         request.onerror = () => reject(request.error);
     });
 }
@@ -38,33 +49,36 @@ export async function listKeys(): Promise<string[]> {
 export async function saveFile(key: string, file: File): Promise<void> {
     const db = await ready;
     return new Promise((resolve, reject) => {
-        const tx = db.transaction("files", "readwrite");
-        const store = tx.objectStore("files");
-        store.put(file, key);
+        const tx = db.transaction(["files", "meta"], "readwrite");
+
         tx.oncomplete = () => resolve();
         tx.onerror = () => reject(tx.error);
-        tx.onabort = () => reject(tx.error);
+
+        tx.objectStore("files").put(file, key);
+        tx.objectStore("meta").put(file.type, key);
     });
 }
 
 export async function loadFile(key: string): Promise<Blob | undefined> {
     const db = await ready;
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
         const tx = db.transaction("files", "readonly");
         const store = tx.objectStore("files");
         const request = store.get(key);
-        request.onsuccess = () => resolve(request.result);
-        request.onerror = () => resolve(undefined);
+        request.onsuccess = () => resolve(request.result as Blob);
+        request.onerror = () => reject(request.error);
     });
 }
 
 export async function deleteFile(key: string): Promise<void> {
     const db = await ready;
     return new Promise((resolve, reject) => {
-        const tx = db.transaction("files", "readwrite");
-        const store = tx.objectStore("files");
-        const request = store.delete(key);
-        request.onsuccess = () => resolve();
-        request.onerror = () => reject(request.error);
+        const tx = db.transaction(["files", "meta"], "readwrite");
+
+        tx.oncomplete = () => resolve();
+        tx.onerror = () => reject(tx.error);
+
+        tx.objectStore("files").delete(key);
+        tx.objectStore("meta").delete(key);
     });
 }

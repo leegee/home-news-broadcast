@@ -1,33 +1,64 @@
 import styles from './ControlScreen.module.scss';
 import { onMount } from 'solid-js';
-import { history, removeFromHistory, setVideoOrImageUrl, saveUrlToHistory } from '../lib/store';
+import {
+    removeFromHistory,
+    saveUrlToHistory,
+    selectedKey,
+    setSelectedKey,
+    setVideoOrImageSource,
+    STREAM_TYPES
+} from '../lib/store';
 import CaptureControls from '../components/CaptureControls';
 import { getYoutubeEmbedUrl, isYoutubeUrl } from '../lib/youtube';
 import { saveFile, loadFile, deleteFile } from '../lib/file-store';
 import OpenOutputScreen from '../components/OpenOutputScreen';
-import { DISPLAY_FLAGS } from './BroadcastScreen';
 import { ErrorDisplay } from '../components/ErrorDisplay';
-import ShowQRCode from './ShowQRCode';
+import ShowQRCode from '../components/ShowQRCode';
 import Gallery from '../components/Gallery';
-import ShowRemoteCamera from './ShowRemoteCamera';
+import ShowRemoteCamera from '../components/ShowRemoteCamera';
+
+let lastUrl: string | null = null;
 
 export const showItem = async (keyOrUrl: string) => {
-    if (keyOrUrl === DISPLAY_FLAGS.local_live_video) {
-        setVideoOrImageUrl(DISPLAY_FLAGS.local_live_video);
+    console.log('showItem called with:', keyOrUrl);
+    setSelectedKey(keyOrUrl);
+
+    if (lastUrl) {
+        URL.revokeObjectURL(lastUrl);
+        lastUrl = null;
+    }
+
+    if (keyOrUrl === STREAM_TYPES.LIVE_LOCAL) {
+        setVideoOrImageSource({ url: '', type: 'live_local' });
+        console.log('Set live_local source');
     }
     else if (keyOrUrl.startsWith('local:')) {
         const blob = await loadFile(keyOrUrl);
+        console.log('Loaded blob:', blob);
         if (blob) {
-            setVideoOrImageUrl(URL.createObjectURL(blob));
+            const url = URL.createObjectURL(blob);
+            lastUrl = url;
+            const type = blob.type.startsWith('image/') ? STREAM_TYPES.IMAGE : STREAM_TYPES.VIDEO;
+            setVideoOrImageSource({ url, type });
+            console.log('Set local media source:', url, type);
+        } else {
+            console.warn('Blob load failed for', keyOrUrl);
         }
     }
     else if (isYoutubeUrl(keyOrUrl)) {
-        const url = getYoutubeEmbedUrl(keyOrUrl);
-        if (url) {
-            setVideoOrImageUrl(url);
+        const embed = getYoutubeEmbedUrl(keyOrUrl);
+        if (embed) {
+            setVideoOrImageSource({ url: embed, type: STREAM_TYPES.YOUTUBE });
+            console.log('Set YouTube source:', embed);
         }
     }
+    else {
+        const type = keyOrUrl.endsWith('.jpg') ? STREAM_TYPES.IMAGE : STREAM_TYPES.VIDEO;
+        setVideoOrImageSource({ url: keyOrUrl, type });
+        console.log('Set fallback source:', keyOrUrl, type);
+    }
 };
+
 
 const deleteItem = (keyOrUrl: string) => {
     if (keyOrUrl.startsWith('local:')) {
@@ -37,11 +68,11 @@ const deleteItem = (keyOrUrl: string) => {
     else if (isYoutubeUrl(keyOrUrl)) {
         removeFromHistory(keyOrUrl);
     }
-}
+};
 
 const handleDroppedFile = async (file: File) => {
     console.log('file.type', file.type);
-    if (file.type.startsWith("video/") || file.type.startsWith("image/")) {
+    if (file.type.startsWith('video/') || file.type.startsWith('image/')) {
         const key = `local:${file.name}:${Date.now()}`;
         await saveFile(key, file);
         saveUrlToHistory(key);
@@ -93,13 +124,9 @@ export const dragLeaveHandler = (e: DragEvent) => {
     (e.currentTarget as HTMLElement).style.outline = "";
 };
 
-
 export default function ControlScreen() {
     onMount(async () => {
-        // todo move to broadcast screen?
-        if (history().length > 0) {
-            showItem(history()[0]);
-        }
+        if (selectedKey()) showItem(selectedKey());
 
         document.body.addEventListener("paste", pasteHandler);
         document.body.addEventListener("drop", dropHandler);

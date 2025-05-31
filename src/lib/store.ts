@@ -2,7 +2,22 @@ import { createSignal } from 'solid-js';
 import { makePersisted } from '@solid-primitives/storage'; // sync doesn't work
 import defatulCatimage from './default-banner-image';
 
+export const STREAM_TYPES = {
+    LIVE_LOCAL: 'live_local',
+    LIVE_EXTERNAL: 'live_external',
+    VIDEO: 'video',
+    IMAGE: 'image',
+    YOUTUBE: 'youtube',
+    NONE: '',
+} as const;
+
 const MAX_HISTORY = 30;
+export type StreamType = 'live_local' | 'live_external' | 'video' | 'image' | 'youtube' | '';
+
+export interface MediaSource {
+    url: string;
+    type: StreamType;
+}
 
 function createSyncedPersistedSignal<T>(key: string, initial: T): [() => T, (v: T) => void] {
     const [value, setValue] = makePersisted(createSignal<T>(initial), {
@@ -26,11 +41,12 @@ function createSyncedPersistedSignal<T>(key: string, initial: T): [() => T, (v: 
 
 export const [ticker, setTicker] = createSyncedPersistedSignal('cap-ticker', 'Click to edit');
 export const [banner, setBanner] = createSyncedPersistedSignal('cap-banner', 'Cat News');
-export const [videoOrImageUrl, setVideoOrImageUrl] = createSyncedPersistedSignal('cap-video-url', '');
 export const [history, setHistory] = createSyncedPersistedSignal<string[]>('cap-history', []);
 export const [bannerImage, setBannerImage] = createSyncedPersistedSignal<string>('cap-banner-image', defatulCatimage);
 export const [qrCode, setQrCode] = createSyncedPersistedSignal<string>('cap-qr-code', '');
+export const [selectedKey, setSelectedKey] = createSyncedPersistedSignal('cap-selected-key', '');
 
+export const [videoOrImageSource, setVideoOrImageSource] = createSignal<MediaSource>({ url: '', type: '' });
 export const [streamSource, setStreamSource] = createSignal<string | null>(null);
 export const [mediaStream, setMediaStream] = createSignal<MediaStream | null>(null);
 
@@ -46,7 +62,6 @@ export function saveUrlToHistory(url: string) {
 }
 
 export function initLocalStorage() {
-    setVideoOrImageUrl('');
     setQrCode('');
     setStreamSource(null);
     setMediaStream(null);

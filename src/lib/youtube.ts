@@ -26,7 +26,6 @@ export function isYoutubeUrl(str: string): boolean {
         const url = new URL(str);
         return ["youtube.com", "youtu.be"].some(host => url.hostname.includes(host));
     } catch {
-        console.error("Don't know what to do with the supplied URL", str);
         return false;
     }
 }
