@@ -1,5 +1,5 @@
 import styles from './BroadcastScreen.module.scss';
-import { createEffect, createSignal, Match, onCleanup, Show, Switch } from 'solid-js';
+import { createEffect, createSignal, Match, onCleanup, onMount, Show, Switch } from 'solid-js';
 import Ticker from '../components/Ticker';
 import Banner from '../components/Banner.tsx';
 import CaptureControls from '../components/CaptureControls.tsx';
@@ -15,7 +15,8 @@ import {
     videoOrImageSource,
     setVideoOrImageSource,
     selectedKey,
-    STREAM_TYPES
+    STREAM_TYPES,
+    setSelectedKey
 } from '../lib/store.ts';
 import { loadFile, getMimeType } from '../lib/file-store.ts';
 
@@ -24,6 +25,24 @@ let peerSetup = false;
 export default function BroadcastScreen() {
     let videoRef: HTMLVideoElement | undefined;
     const [showPlayButton, setShowPlayButton] = createSignal(false);
+
+    onMount(() => {
+        const handleKeyDown = (event: KeyboardEvent) => {
+            switch (event.key) {
+                case 'ArrowLeft':
+                case 'ArrowUp':
+                    navigateHistory(-1);
+                    break;
+                case 'ArrowRight':
+                case 'ArrowDown':
+                    navigateHistory(1);
+                    break;
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+        onCleanup(() => window.removeEventListener('keydown', handleKeyDown));
+    })
 
     createEffect(() => {
         const stream = mediaStream();
@@ -38,10 +57,6 @@ export default function BroadcastScreen() {
                 setShowPlayButton(true); // Require user interaction
             });
         };
-    });
-
-    createEffect(() => {
-        console.log('History changed:', history());
     });
 
     createEffect(async () => {
@@ -101,6 +116,21 @@ export default function BroadcastScreen() {
         setMediaStream(null);
     });
 
+    const navigateHistory = (direction: number) => {
+        const keys = history();
+        const current = selectedKey();
+        if (keys.length === 0) return;
+
+        let index = keys.indexOf(current);
+        if (index === -1) {
+            index = direction > 0 ? -1 : 0;
+        }
+
+        const newIndex = (index + direction + keys.length) % keys.length;
+
+        setSelectedKey(keys[newIndex]);
+    };
+
     const tryPlayManually = () => {
         if (videoRef) {
             videoRef.play()
@@ -118,18 +148,31 @@ export default function BroadcastScreen() {
                 <Show when={videoOrImageSource().url !== ''}>
                     <Switch fallback={<div>No matching stream type for: {videoOrImageSource().type}</div>}>
                         <Match when={videoOrImageSource().type === STREAM_TYPES.LIVE_LOCAL || videoOrImageSource().type === STREAM_TYPES.LIVE_EXTERNAL}>
-                            <video ref={el => (videoRef = el)} autoplay playsinline />
+                            <video class={styles['broadcast-video']} ref={el => (videoRef = el)} autoplay playsinline />
                             <Show when={showPlayButton()}>
                                 <button onClick={tryPlayManually} class={styles["play-button"]}>Click to Start Playback</button>
                             </Show>
                         </Match>
 
                         <Match when={videoOrImageSource().type === STREAM_TYPES.IMAGE}>
-                            <img src={videoOrImageSource().url} class={styles["image-display"]} />
+                            <div class={styles['broadcast-image-wrapper']}>
+                                <div
+                                    class={styles['broadcast-image-background']}
+                                    style={{ 'background-image': `url(${videoOrImageSource().url})` }}
+                                />
+                                <div class={styles['broadcast-image-foreground']}>
+                                    <img
+                                        class={styles['broadcast-image']}
+                                        src={videoOrImageSource().url}
+                                        alt=""
+                                    />
+                                </div>
+                            </div>
                         </Match>
 
                         <Match when={videoOrImageSource().type === STREAM_TYPES.VIDEO || videoOrImageSource().type === STREAM_TYPES.YOUTUBE}>
                             <iframe
+                                class={styles['broadcast-iframe']}
                                 src={videoOrImageSource().url}
                                 width="100%"
                                 height="100%"
