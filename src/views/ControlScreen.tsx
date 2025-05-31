@@ -1,5 +1,12 @@
 import styles from './ControlScreen.module.scss';
 import { onMount } from 'solid-js';
+import { getYoutubeEmbedUrl, isYoutubeUrl } from '../lib/youtube';
+import { saveFile, loadFile, deleteFile } from '../lib/file-store';
+import OpenOutputScreen from '../components/OpenOutputScreen';
+import { ErrorDisplay } from '../components/ErrorDisplay';
+import ShowQRCode from '../components/ShowQRCode';
+import Gallery from '../components/Gallery';
+import ShowRemoteCamera from '../components/ShowRemoteCamera';
 import {
     removeFromHistory,
     saveUrlToHistory,
@@ -8,14 +15,6 @@ import {
     setVideoOrImageSource,
     STREAM_TYPES
 } from '../lib/store';
-import CaptureControls from '../components/CaptureControls';
-import { getYoutubeEmbedUrl, isYoutubeUrl } from '../lib/youtube';
-import { saveFile, loadFile, deleteFile } from '../lib/file-store';
-import OpenOutputScreen from '../components/OpenOutputScreen';
-import { ErrorDisplay } from '../components/ErrorDisplay';
-import ShowQRCode from '../components/ShowQRCode';
-import Gallery from '../components/Gallery';
-import ShowRemoteCamera from '../components/ShowRemoteCamera';
 
 let lastUrl: string | null = null;
 
@@ -151,7 +150,6 @@ export default function ControlScreen() {
 
             <nav class={styles['button-strip']}>
                 <OpenOutputScreen />
-                <CaptureControls />
                 <ShowRemoteCamera />
             </nav>
 

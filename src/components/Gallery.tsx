@@ -1,6 +1,6 @@
 import styles from './Gallery.module.scss';
 import { For, Show, createEffect, createSignal, onCleanup } from 'solid-js';
-import { history, selectedKey, STREAM_TYPES } from '../lib/store.ts';
+import { history, selectedKey } from '../lib/store.ts';
 import { getYoutubeThumbnail } from '../lib/youtube.ts';
 import { getMimeType, loadFile } from '../lib/file-store.ts';
 import ThumbnailControl from './ThumbnailControl.tsx';
@@ -10,7 +10,7 @@ type GalleryProps = {
     onDelete: (keyOrUrl: string) => void;
 };
 
-type LocalMediaInfo = {
+export type LocalMediaInfo = {
     url: string;
     type: string;
 };
@@ -18,18 +18,6 @@ type LocalMediaInfo = {
 
 export default function Gallery(props: GalleryProps) {
     const [localMedia, setLocalMedia] = createSignal<Record<string, LocalMediaInfo>>({});
-    const [canAccessCamera, setCanAccessCamera] = createSignal(false);
-    const [canAccessMic, setCanAccessMic] = createSignal(false);
-
-    createEffect(() => {
-        navigator.permissions?.query({ name: 'camera' as PermissionName }).then((status) => {
-            setCanAccessCamera(status.state === 'granted' || status.state === 'prompt');
-        }).catch(() => setCanAccessCamera(false));
-
-        navigator.permissions?.query({ name: 'microphone' as PermissionName }).then((status) => {
-            setCanAccessMic(status.state === 'granted' || status.state === 'prompt');
-        }).catch(() => setCanAccessMic(false));
-    });
 
     createEffect(async () => {
         const keys = history();
@@ -64,7 +52,6 @@ export default function Gallery(props: GalleryProps) {
             })
         );
 
-        // Only update if new keys added
         if (Object.keys(newLocalMedia).length > Object.keys(previous).length) {
             console.log('Updating localMedia signal');
             setLocalMedia(newLocalMedia);
@@ -77,15 +64,6 @@ export default function Gallery(props: GalleryProps) {
 
     return (
         <nav class={styles['thumbnails-component']}>
-
-            <Show when={canAccessCamera() && canAccessMic()}>
-                <li>
-                    <button onClick={() => props.onSelect(STREAM_TYPES.LIVE_LOCAL)}>
-                        Local Camera
-                    </button>
-                </li>
-            </Show>
-
             <Show when={history().length === 0}>
                 <li>
                     <p>Drop or paste YouTube URLs or local videos into this window.</p>
