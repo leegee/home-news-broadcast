@@ -2,11 +2,13 @@ let db: IDBDatabase;
 
 // Singleton promise to ensure the database is ready before use
 const ready = new Promise<IDBDatabase>((resolve, reject) => {
-    const dbRequest = indexedDB.open("fileStore", 1);
+    const dbRequest = indexedDB.open("fileStore", 2);
 
     dbRequest.onupgradeneeded = () => {
-        db = dbRequest.result;
-        db.createObjectStore("files");
+        const db = dbRequest.result;
+        if (!db.objectStoreNames.contains("files")) {
+            db.createObjectStore("files");
+        }
     };
 
     dbRequest.onsuccess = () => {
@@ -18,6 +20,7 @@ const ready = new Promise<IDBDatabase>((resolve, reject) => {
         reject(dbRequest.error);
     };
 });
+
 
 export async function listKeys(): Promise<string[]> {
     const db = await ready;
