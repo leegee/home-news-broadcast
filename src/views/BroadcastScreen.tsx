@@ -98,11 +98,11 @@ export default function BroadcastScreen() {
                 peerSetup = false;
             }
 
-            if (type === STREAM_TYPES.LIVE_LOCAL && !peerSetup) {
+            if (type === STREAM_TYPES.LIVE_EXTERNAL && !peerSetup) {
                 peerSetup = true;
                 setupQRCodeFlow();
             }
-            else if (type === STREAM_TYPES.LIVE_EXTERNAL && !mediaStream()) {
+            else if (type === STREAM_TYPES.LIVE_LOCAL && !mediaStream()) {
                 const localMediaStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
                 setMediaStream(localMediaStream);
                 setStreamSource('local');
