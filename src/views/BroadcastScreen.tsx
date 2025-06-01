@@ -7,7 +7,6 @@ import { loadFile, getMimeType } from '../lib/file-store';
 import CaptureControls from '../components/CaptureControls';
 import { setupQRCodeFlow } from '../lib/qr2phone2stream';
 import { isYoutubeUrl } from '../lib/youtube';
-import { reportError } from '../components/ErrorDisplay';
 import { changeMedia, onMediaChange } from '../lib/broadcast-media';
 import {
     history,
@@ -28,19 +27,32 @@ export default function BroadcastScreen() {
     const [showPlayButton, setShowPlayButton] = createSignal(false);
     const [mediaSource, setMediaSource] = createSignal<{ url: string; type: string }>({ url: '', type: STREAM_TYPES.NONE });
 
+    let triedAutoPlay = false;
+
     createEffect(() => {
         const stream = mediaStream();
-        if (!videoRef() || !stream) return;
+        const video = videoRef();
+        if (!video || !stream) return;
 
         console.log('Set video as mediaStream changed', stream);
-        videoRef()!.srcObject = stream;
+        video.srcObject = stream;
 
-        videoRef()!.onloadedmetadata = () => {
-            videoRef()!.play().catch((err) => {
-                console.warn('Autoplay prevented or failed:', err);
-                setShowPlayButton(true);
-            });
+        video.onloadedmetadata = () => {
+            if (!triedAutoPlay) {
+                triedAutoPlay = true;
+                video.play().catch((err) => {
+                    console.warn('Autoplay prevented or failed:', err);
+                    setShowPlayButton(true);
+                });
+            }
         };
+    });
+
+    createEffect(() => {
+        const stream = mediaStream();
+        if (stream) {
+            console.log('Stream tracks:', stream.getTracks().map(t => `${t.kind}:${t.readyState}`));
+        }
     });
 
     createEffect(async () => {
@@ -66,6 +78,11 @@ export default function BroadcastScreen() {
         } else {
             console.warn("No blob or mime found for key in Broadcast tab:", key);
         }
+    });
+
+    createEffect(() => {
+        console.log('[DEBUG] mediaSource:', mediaSource());
+        console.log('[DEBUG] mediaStream:', mediaStream());
     });
 
     onMount(() => {
@@ -95,6 +112,8 @@ export default function BroadcastScreen() {
             console.log('BroadcastScreen Media changed: url =', url, ', type =', type, ', peerSetup =', peerSetup, ", isYoutubeUrl =", isYoutubeUrl(url));
 
             setMediaSource({ url, type });
+            triedAutoPlay = false;
+            setShowPlayButton(false);
 
             if (type !== STREAM_TYPES.LIVE_EXTERNAL) {
                 peerSetup = false;
@@ -103,13 +122,11 @@ export default function BroadcastScreen() {
             if (type === STREAM_TYPES.LIVE_EXTERNAL && !peerSetup) {
                 peerSetup = true;
                 setupQRCodeFlow();
-            }
-            else if (type === STREAM_TYPES.LIVE_LOCAL && !mediaStream()) {
+            } else if (type === STREAM_TYPES.LIVE_LOCAL && !mediaStream()) {
                 const localMediaStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
                 setMediaStream(localMediaStream);
                 setStreamSource('local');
-            }
-            else if (mediaStream() && streamSource() === STREAM_TYPES.LIVE_LOCAL) {
+            } else if (mediaStream() && streamSource() === STREAM_TYPES.LIVE_LOCAL) {
                 mediaStream()!.getTracks().forEach(track => track.stop());
                 setMediaStream(null);
                 setStreamSource(null);
@@ -139,28 +156,29 @@ export default function BroadcastScreen() {
         }
 
         const newIndex = (index + direction + keys.length) % keys.length;
-
         setSelectedKey(keys[newIndex]);
     };
 
     const toggleVideoPlayback = () => {
-        if (videoRef() === null) return;
+        const video = videoRef();
+        if (!video) return;
 
-        if (videoRef()!.paused) {
-            videoRef()!.play().catch(err => {
+        if (video.paused) {
+            video.play().catch(err => {
                 console.warn('Play failed:', err);
             });
         } else {
-            videoRef()!.pause();
+            video.pause();
         }
     };
 
     const tryPlayManually = () => {
-        if (videoRef) {
-            videoRef()!.play()
-                .then(() => setShowPlayButton(false))
-                .catch(err => console.warn('Manual play still failed:', err));
-        }
+        const video = videoRef();
+        if (!video) return;
+
+        video.play()
+            .then(() => setShowPlayButton(false))
+            .catch(err => console.warn('Manual play still failed:', err));
     };
 
     return (
@@ -169,37 +187,43 @@ export default function BroadcastScreen() {
             <CaptureControls />
 
             <div class={`${styles['broadcast-pane']
-                } ${mediaSource().url === '' ? styles['without-media'] : ''
+                } ${mediaSource().type === STREAM_TYPES.NONE ? styles['without-media'] : ''
                 }`
             }>
-
-                <Show when={mediaSource().url !== ''}>
+                <Show when={mediaSource().type !== STREAM_TYPES.NONE}>
                     <Switch fallback={<div>No matching stream type for: {mediaSource().type}</div>}>
                         <Match when={mediaSource().type === STREAM_TYPES.LIVE_LOCAL || mediaSource().type === STREAM_TYPES.LIVE_EXTERNAL}>
-                            <video class={styles['broadcast-video']}
+                            <video
+                                class={styles['broadcast-video']}
                                 ref={el => setVideoRef(el)}
-                                autoplay playsinline
+                                autoplay
+                                playsinline
                             />
                             <Show when={showPlayButton()}>
-                                <button onClick={tryPlayManually} class={styles["play-button"]}>Click to Start Playback</button>
+                                <button onClick={tryPlayManually} class={styles["play-button"]}>Click To Connect Camera</button>
                             </Show>
                         </Match>
 
                         <Match when={mediaSource().type === STREAM_TYPES.VIDEO}>
-                            <video class={styles['broadcast-video']}
+                            <video
+                                class={styles['broadcast-video']}
                                 ref={el => setVideoRef(el)}
                                 src={mediaSource().url}
-                                autoplay playsinline controls
+                                autoplay
+                                playsinline
+                                controls
                             />
                         </Match>
 
                         <Match when={mediaSource().type === STREAM_TYPES.IMAGE}>
                             <div class={styles['broadcast-image-wrapper']}>
-                                <div class={styles['broadcast-image-background']}
+                                <div
+                                    class={styles['broadcast-image-background']}
                                     style={{ 'background-image': `url(${mediaSource().url})` }}
                                 />
                                 <div class={styles['broadcast-image-foreground']}>
-                                    <img class={styles['broadcast-image']}
+                                    <img
+                                        class={styles['broadcast-image']}
                                         src={mediaSource().url}
                                         alt=""
                                     />

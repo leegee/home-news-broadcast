@@ -1,10 +1,16 @@
 import Peer, { MediaConnection } from 'peerjs';
 import QRCode from 'qrcode';
-import { setQrCode, setMediaStream, setStreamSource } from './store';
+import { setQrCode, setMediaStream, setStreamSource, STREAM_TYPES } from './store';
 import { reportError } from '../components/ErrorDisplay';
+import { changeMedia } from './broadcast-media';
 
 let peer: Peer | null = null;
-const peerId = 'desktop-' + 'ok'; // Math.floor(Math.random() * 10000);
+let reconnectAttempts = 0;
+
+const MAX_RETRIES = 5;
+const BASE_DELAY_MS = 1000; // 1 second
+
+const peerId = 'desktop-ok';
 
 function createEmptyStream(): MediaStream {
     const ctx = new AudioContext();
@@ -17,32 +23,30 @@ function createEmptyStream(): MediaStream {
 
 export async function setupQRCodeFlow() {
     console.log('setupQRCodeFlow enter');
-    if (peer && !peer.destroyed) {
-        peer.destroy();
-        console.log('setupQRCodeFlow remove prev');
-    };
 
-    peer = new Peer(peerId, {
-        host: __LOCAL_IP__,
-        port: 9000,
-        path: '/',
-        config: {
-            iceServers: [
-                { urls: 'stun:stun.l.google.com:19302' },
-            ]
-        }
-    });
-
-    console.log('setupQRCodeFlow set peer');
-
+    // Clean up previous peer
     if (peer) {
+        peer.destroy();
+        peer = null;
+    }
+
+    try {
+        peer = new Peer(peerId, {
+            host: __LOCAL_IP__,
+            port: 9000,
+            path: '/',
+            config: {
+                iceServers: [{ urls: 'stun:stun.l.google.com:19302' }],
+            },
+        });
+
+        console.log('setupQRCodeFlow set peer');
+
         peer.on('open', (id) => {
             console.log('Desktop peer ID:', id);
+            reconnectAttempts = 0; // reset on success
 
             const url = `${__LOCAL_ADDRESS__}/#/phone?peerId=${id}`;
-
-            console.log('QR Code is for', url);
-
             const canvas = document.createElement('canvas');
             QRCode.toCanvas(canvas, url, { width: 400, errorCorrectionLevel: 'L' })
                 .then(() => setQrCode(canvas.toDataURL()))
@@ -51,24 +55,40 @@ export async function setupQRCodeFlow() {
 
         peer.on('error', (error) => {
             console.error('PeerJS error:', error);
-            if (error.message.includes('Lost connection')) {
+
+            if (error.type === 'unavailable-id') {
+                reportError(`Peer ID "${peerId}" is already in use.`);
+            } else if (error.message.includes('Lost connection')) {
                 reportError('Please check the local server is running!');
             } else {
                 reportError(error);
             }
+
+            if (reconnectAttempts < MAX_RETRIES) {
+                const delay = BASE_DELAY_MS * Math.pow(2, reconnectAttempts);
+                console.log(`Retrying peer connection in ${delay}ms...`);
+                setTimeout(() => {
+                    reconnectAttempts++;
+                    setupQRCodeFlow();
+                }, delay);
+            } else {
+                reportError('Unable to connect after several attempts.');
+            }
+        });
+
+        peer.on('close', () => {
+            console.log('PeerJS connection closed');
         });
 
         peer.on('call', (call: MediaConnection) => {
             console.log('Incoming call from phone:', call.peer);
-
-            // Answer the call without sending a stream (desktop is receiver only)
-            // but may need to send something to meet non-spec'd expectations
             call.answer(createEmptyStream());
 
             call.on('stream', (remoteStream) => {
-                console.log('Received remote media stream from phone', remoteStream);
+                console.log('Received remote media stream from phone');
                 setMediaStream(remoteStream);
                 setStreamSource('peer');
+                changeMedia({ url: '', type: STREAM_TYPES.LIVE_EXTERNAL });
                 setQrCode('');
             });
 
@@ -82,5 +102,8 @@ export async function setupQRCodeFlow() {
                 console.error('Call error:', err);
             });
         });
+
+    } catch (e) {
+        reportError(e);
     }
 }
