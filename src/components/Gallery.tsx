@@ -40,11 +40,11 @@ export default function Gallery(props: GalleryProps) {
         switch (e.key) {
             case 'ArrowLeft':
             case 'ArrowUp':
-                newIndex = Math.max(0, currentIndex - 1);
+                newIndex = (currentIndex - 1 + keys.length) % keys.length;
                 break;
             case 'ArrowRight':
             case 'ArrowDown':
-                newIndex = Math.min(keys.length - 1, currentIndex + 1);
+                newIndex = (currentIndex + 1) % keys.length;
                 break;
             default:
                 return; // exit early
