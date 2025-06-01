@@ -34,4 +34,12 @@
         border: 1pt solid white;
     }
 
+    .li:focus {
+        outline: 2px solid #007bff;
+    }
+}
+
+
+.gallery-component:focus {
+    outline: 2px solid #007bff;
 }

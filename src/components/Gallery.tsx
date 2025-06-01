@@ -1,6 +1,6 @@
 import styles from './Gallery.module.scss';
 import { For, Show, createEffect, createSignal, onCleanup } from 'solid-js';
-import { history, selectedKey } from '../lib/store.ts';
+import { setHistory, history, setSelectedKey, selectedKey, } from '../lib/store.ts';
 import { getYoutubeThumbnail } from '../lib/youtube.ts';
 import { getMimeType, loadFile } from '../lib/file-store.ts';
 import ThumbnailControl from './ThumbnailControl.tsx';
@@ -18,6 +18,40 @@ export type LocalMediaInfo = {
 
 export default function Gallery(props: GalleryProps) {
     const [localMedia, setLocalMedia] = createSignal<Record<string, LocalMediaInfo>>({});
+
+    function handleKeyDown(e: KeyboardEvent) {
+        const keys = [...history()];
+
+        if (keys.length === 0) return;
+
+        const current = selectedKey();
+        const currentIndex = keys.indexOf(current);
+
+        if (currentIndex === -1) return;
+
+        let newIndex = currentIndex;
+
+        switch (e.key) {
+            case 'ArrowLeft':
+            case 'ArrowUp':
+                newIndex = Math.max(0, currentIndex - 1);
+                break;
+            case 'ArrowRight':
+            case 'ArrowDown':
+                newIndex = Math.min(keys.length - 1, currentIndex + 1);
+                break;
+            default:
+                return; // exit early
+        }
+
+        if (newIndex !== currentIndex) {
+            const updated = [...keys];
+            [updated[currentIndex], updated[newIndex]] = [updated[newIndex], updated[currentIndex]];
+            setHistory(updated);
+            setSelectedKey(updated[newIndex]);
+            e.preventDefault();
+        }
+    }
 
     createEffect(async () => {
         const keys = history();
@@ -63,7 +97,7 @@ export default function Gallery(props: GalleryProps) {
     });
 
     return (
-        <nav class={styles['gallery-component']}>
+        <nav class={styles['gallery-component']} tabindex={0} onKeyDown={handleKeyDown}>
             <Show when={history().length === 0}>
                 <li>
                     <p>Drop or paste YouTube URLs or local videos into this window.</p>
@@ -71,7 +105,7 @@ export default function Gallery(props: GalleryProps) {
             </Show>
 
             <For each={history()}>
-                {(historyKey) => {
+                {(historyKey, index) => {
                     const isLocal = historyKey.startsWith('local:');
                     const mediaInfo = () => isLocal ? localMedia()[historyKey] : null;
                     const isActive = () => selectedKey() === historyKey;
@@ -80,7 +114,7 @@ export default function Gallery(props: GalleryProps) {
                     console.log('localMedia', localMedia());
 
                     return (
-                        <li classList={{ [styles['active-thumb']]: isActive() }}>
+                        <li classList={{ [styles['active-thumb']]: isActive() }} tabIndex={index() + 1}>
                             {isLocal ? (
                                 <Show when={mediaInfo()} fallback={<span>Loading…</span>}>
                                     {mediaInfo()?.type.startsWith('video/') ? (
