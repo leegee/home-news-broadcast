@@ -18,6 +18,7 @@ export type LocalMediaInfo = {
 
 export default function Gallery(props: GalleryProps) {
     const [localMedia, setLocalMedia] = createSignal<Record<string, LocalMediaInfo>>({});
+    const itemRefs = new Map<string, HTMLLIElement>();
 
     function handleKeyDown(e: KeyboardEvent) {
         const keys = [...history()];
@@ -49,8 +50,17 @@ export default function Gallery(props: GalleryProps) {
             [updated[currentIndex], updated[newIndex]] = [updated[newIndex], updated[currentIndex]];
             setHistory(updated);
             setSelectedKey(updated[newIndex]);
+
             e.preventDefault();
+
+            // After DOM is updated:
+            queueMicrotask(() => {
+                const newKey = updated[newIndex];
+                const el = itemRefs.get(newKey);
+                el?.focus();
+            });
         }
+
     }
 
     createEffect(async () => {
@@ -94,6 +104,7 @@ export default function Gallery(props: GalleryProps) {
 
     onCleanup(() => {
         Object.values(localMedia()).forEach(({ url }) => URL.revokeObjectURL(url));
+        itemRefs.clear();
     });
 
     return (
@@ -114,7 +125,10 @@ export default function Gallery(props: GalleryProps) {
                     console.log('localMedia', localMedia());
 
                     return (
-                        <li classList={{ [styles['active-thumb']]: isActive() }} tabIndex={index() + 1}>
+                        <li tabIndex={index() + 1}
+                            classList={{ [styles['active-thumb']]: isActive() }}
+                            ref={(el) => itemRefs.set(historyKey, el)}
+                        >
                             {isLocal ? (
                                 <Show when={mediaInfo()} fallback={<span>Loading…</span>}>
                                     {mediaInfo()?.type.startsWith('video/') ? (
