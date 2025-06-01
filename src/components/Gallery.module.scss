@@ -1,9 +1,12 @@
-.thumbnails-component {
+.gallery-component {
     z-index: 1100;
     width: 100%;
+    flex: 1;
     display: flex;
     flex-wrap: wrap;
     flex-direction: row;
+    justify-content: center;
+    align-items: center;
     background-color: rgba(0, 0, 0, 0.664);
 
     li {
@@ -12,7 +15,7 @@
         justify-content: center;
         overflow: hidden;
         max-width: 120pt;
-        max-height: var(--video-thumb-height);
+        max-height: 120pt;
         margin: 0.5em;
         border: 1pt dotted silver;
         cursor: pointer;
@@ -23,7 +26,7 @@
             width: 100%;
             height: auto;
             display: block;
-            object-fit: cover;
+            object-fit: contain;
         }
     }
 

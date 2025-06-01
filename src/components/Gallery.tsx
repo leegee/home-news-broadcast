@@ -63,7 +63,7 @@ export default function Gallery(props: GalleryProps) {
     });
 
     return (
-        <nav class={styles['thumbnails-component']}>
+        <nav class={styles['gallery-component']}>
             <Show when={history().length === 0}>
                 <li>
                     <p>Drop or paste YouTube URLs or local videos into this window.</p>
