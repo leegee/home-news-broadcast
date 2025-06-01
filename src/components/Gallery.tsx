@@ -79,7 +79,7 @@ export default function Gallery(props: GalleryProps) {
 
         await Promise.all(
             keys.map(async (key) => {
-                const hasKey = !!previous[key];
+                const hasKey = previous.hasOwnProperty(key);
                 console.log(`Checking key ${key}, already loaded? ${hasKey}`);
 
                 if (key.startsWith('local:') && !hasKey) {
