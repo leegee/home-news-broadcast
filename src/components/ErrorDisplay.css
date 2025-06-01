@@ -1,0 +1,12 @@
+.error {
+    background: rgba(255, 0, 0, 0.8);
+    color: white;
+    padding: 1em;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    z-index: 999999;
+    font-size: 0.9em;
+    text-align: center;
+    cursor: pointer;
+}

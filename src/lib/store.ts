@@ -49,6 +49,7 @@ export const [selectedKey, setSelectedKey] = createSyncedPersistedSignal('cap-se
 
 export const [streamSource, setStreamSource] = createSignal<string | null>(null);
 export const [mediaStream, setMediaStream] = createSignal<MediaStream | null>(null);
+export const [error, setError] = createSignal<string | null>(null);
 
 export function removeFromHistory(item: string) {
     setHistory(history().filter(entry => entry !== item));

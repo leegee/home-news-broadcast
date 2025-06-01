@@ -1,10 +1,13 @@
 import styles from './BroadcastScreen.module.scss';
 import { createEffect, createSignal, Match, onCleanup, onMount, Show, Switch } from 'solid-js';
 import Ticker from '../components/Ticker';
-import Banner from '../components/Banner.tsx';
-import CaptureControls from '../components/CaptureControls.tsx';
-import { setupQRCodeFlow } from '../lib/qr2phone2stream.ts';
-import { isYoutubeUrl } from '../lib/youtube.ts';
+import Banner from '../components/Banner';
+import { ErrorDisplay } from '../components/ErrorDisplay';
+import { loadFile, getMimeType } from '../lib/file-store';
+import CaptureControls from '../components/CaptureControls';
+import { setupQRCodeFlow } from '../lib/qr2phone2stream';
+import { isYoutubeUrl } from '../lib/youtube';
+import { reportError } from '../components/ErrorDisplay';
 import { changeMedia, onMediaChange } from '../lib/broadcast-media';
 import {
     history,
@@ -17,7 +20,6 @@ import {
     STREAM_TYPES,
     setSelectedKey
 } from '../lib/store.ts';
-import { loadFile, getMimeType } from '../lib/file-store.ts';
 
 let peerSetup = false;
 
@@ -94,7 +96,7 @@ export default function BroadcastScreen() {
 
             setMediaSource({ url, type });
 
-            if (type !== STREAM_TYPES.LIVE_LOCAL) {
+            if (type !== STREAM_TYPES.LIVE_EXTERNAL) {
                 peerSetup = false;
             }
 
@@ -163,6 +165,7 @@ export default function BroadcastScreen() {
 
     return (
         <main class={styles['broadcast-screen-component']} >
+            <ErrorDisplay />
             <CaptureControls />
 
             <div class={`${styles['broadcast-pane']
