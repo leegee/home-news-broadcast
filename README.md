@@ -1,13 +1,12 @@
-## Installation
 
-    bun install
+## Dependencies
 
     bun run make-certs # Or put yours in ./certs/
 
     choco install ffmpeg-full # For libx264
     
     brew reinstall ffmpeg --with-libx264
-
+    
     sudo add-apt-repository ppa:savoury1/ffmpeg4
     sudo apt update
     sudo apt install ffmpeg
@@ -16,14 +15,20 @@
 
     export YOUTUBE_KEY="your-youtube-broadcast-key"
     ffmpeg -re \
-    -f lavfi -i testsrc=size=1280x720:rate=30 \
-    -f lavfi -i anullsrc=channel_layout=stereo:sample_rate=44100 \
-    -c:v libx264 -preset veryfast -tune zerolatency \
-    -c:a aac -b:a 128k -ar 44100 -pix_fmt yuv420p \
-    -shortest -f flv rtmp://a.rtmp.youtube.com/live2/$YOUTUBE_KEY
+      -f lavfi -i testsrc=size=1280x720:rate=30 \
+      -f lavfi -i anullsrc=channel_layout=stereo:sample_rate=44100 \
+      -c:v libx264 -preset veryfast -tune zerolatency \
+      -c:a aac -b:a 128k -ar 44100 -pix_fmt yuv420p \
+      -shortest -f flv rtmp://a.rtmp.youtube.com/live2/$YOUTUBE_KEY
 
-    # Run this package
-    bun run dev           # The UI, eventually in server.js
+## Installation
+
+    bun install
+
+## Synopsis
+
+    # This will be combined
+    bun dev               # UI
     bun node/server.js    # WebRTC exchange
     bun node/streamer.js  # Streams to YT
 
@@ -35,9 +40,13 @@ root CA and install it on the device with a `crt` extension.
 
 ## Use
 
-1. Drag and drop or paste videos into the window.
-1. Click the button to open the broadcast widow.
+1. Drag and drop video files or images  into the control window.
+1. Drag and drop or paste YouTube video pages into the control window
+1. Click the button to open the broadcast widow
 1. Edit the banner text by clicking it
 1. Edit the news ticker by clicking it
-1. Set the banner image by dragging or pasting an image into the window.
-1. If you connect a remote camera, you may need to click a button on the broadcast screen.
+1. Set the banner image by dragging or pasting an image into the broadcast window
+1. In the broadcast window, switch between the images in the gallery using the cursor keys
+1. If you connect a remote camera via the QR code in the control window, init streaming by clicking a button on the broadcast screen
+1. Initiate broadcast to YouTube after setting the environment varible `YOUTUBE_KEY` with your stream key
+
