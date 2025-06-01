@@ -11,8 +11,9 @@ export const STREAM_TYPES = {
     NONE: '',
 } as const;
 
+export type StreamType = (typeof STREAM_TYPES)[keyof typeof STREAM_TYPES];
+
 const MAX_HISTORY = 30;
-export type StreamType = 'live_local' | 'live_external' | 'video' | 'image' | 'youtube' | '';
 
 export interface MediaSource {
     url: string;
@@ -46,7 +47,6 @@ export const [bannerImage, setBannerImage] = createSyncedPersistedSignal<string>
 export const [qrCode, setQrCode] = createSyncedPersistedSignal<string>('cap-qr-code', '');
 export const [selectedKey, setSelectedKey] = createSyncedPersistedSignal('cap-selected-key', '');
 
-export const [videoOrImageSource, setVideoOrImageSource] = createSignal<MediaSource>({ url: '', type: '' });
 export const [streamSource, setStreamSource] = createSignal<string | null>(null);
 export const [mediaStream, setMediaStream] = createSignal<MediaStream | null>(null);
 

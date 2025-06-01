@@ -1,12 +1,10 @@
 .thumbnails-component {
     z-index: 1100;
-    position: absolute;
-    top: 0;
     width: 100%;
     display: flex;
     flex-wrap: wrap;
     flex-direction: row;
-    background-color: black;
+    background-color: rgba(0, 0, 0, 0.664);
 
     li {
         position: relative;

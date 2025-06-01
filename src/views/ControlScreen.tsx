@@ -7,12 +7,13 @@ import { ErrorDisplay } from '../components/ErrorDisplay';
 import ShowQRCode from '../components/ShowQRCode';
 import Gallery from '../components/Gallery';
 import ShowRemoteCamera from '../components/ShowRemoteCamera';
+import { changeMedia } from '../lib/broadcast-media';
+
 import {
     removeFromHistory,
     saveUrlToHistory,
     selectedKey,
     setSelectedKey,
-    setVideoOrImageSource,
     STREAM_TYPES
 } from '../lib/store';
 
@@ -28,7 +29,7 @@ export const showItem = async (keyOrUrl: string) => {
     }
 
     if (keyOrUrl === STREAM_TYPES.LIVE_LOCAL) {
-        setVideoOrImageSource({ url: '', type: 'live_local' });
+        changeMedia({ url: '', type: STREAM_TYPES.LIVE_LOCAL });
         console.log('Set live_local source');
     }
     else if (keyOrUrl.startsWith('local:')) {
@@ -38,7 +39,7 @@ export const showItem = async (keyOrUrl: string) => {
             const url = URL.createObjectURL(blob);
             lastUrl = url;
             const type = blob.type.startsWith('image/') ? STREAM_TYPES.IMAGE : STREAM_TYPES.VIDEO;
-            setVideoOrImageSource({ url, type });
+            changeMedia({ url, type });
             console.log('Set local media source:', url, type);
         } else {
             console.warn('Blob load failed for', keyOrUrl);
@@ -47,13 +48,13 @@ export const showItem = async (keyOrUrl: string) => {
     else if (isYoutubeUrl(keyOrUrl)) {
         const embed = getYoutubeEmbedUrl(keyOrUrl);
         if (embed) {
-            setVideoOrImageSource({ url: embed, type: STREAM_TYPES.YOUTUBE });
+            changeMedia({ url: embed, type: STREAM_TYPES.YOUTUBE });
             console.log('Set YouTube source:', embed);
         }
     }
     else {
         const type = keyOrUrl.endsWith('.jpg') ? STREAM_TYPES.IMAGE : STREAM_TYPES.VIDEO;
-        setVideoOrImageSource({ url: keyOrUrl, type });
+        changeMedia({ url: keyOrUrl, type });
         console.log('Set fallback source:', keyOrUrl, type);
     }
 };

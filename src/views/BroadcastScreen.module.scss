@@ -41,7 +41,6 @@
             inset: 0;
             background-size: cover;
             background-position: center;
-            filter: blur(20px) brightness(0.7);
             z-index: 0;
         }
 
@@ -66,17 +65,21 @@
         }
     }
 
-    // .broadcast-pane::before {
-    //     content: "";
-    //     position: absolute;
-    //     inset: 0;
-    //     background-image: url('globe.gif');
-    //     background-position: center;
-    //     background-repeat: no-repeat;
-    //     background-size: contain;
-    //     filter: blur(5px) brightness(0.6);
-    //     z-index: -1;
-    // }
+    .broadcast-pane::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background-image: url('globe.gif');
+        background-position: center;
+        background-repeat: no-repeat;
+        background-size: contain;
+        filter: blur(5px) brightness(0.6);
+        z-index: -1;
+    }
+
+    .broadcast-pane.without-media::before {
+        filter: blur(0);
+    }
 
     .lower-third {
         position: absolute;

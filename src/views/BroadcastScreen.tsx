@@ -5,6 +5,7 @@ import Banner from '../components/Banner.tsx';
 import CaptureControls from '../components/CaptureControls.tsx';
 import { setupQRCodeFlow } from '../lib/qr2phone2stream.ts';
 import { isYoutubeUrl } from '../lib/youtube.ts';
+import { changeMedia, onMediaChange } from '../lib/broadcast-media';
 import {
     history,
     mediaStream,
@@ -12,8 +13,6 @@ import {
     setQrCode,
     setStreamSource,
     streamSource,
-    videoOrImageSource,
-    setVideoOrImageSource,
     selectedKey,
     STREAM_TYPES,
     setSelectedKey
@@ -25,6 +24,47 @@ let peerSetup = false;
 export default function BroadcastScreen() {
     const [videoRef, setVideoRef] = createSignal<HTMLVideoElement | null>(null);
     const [showPlayButton, setShowPlayButton] = createSignal(false);
+    const [mediaSource, setMediaSource] = createSignal<{ url: string; type: string }>({ url: '', type: STREAM_TYPES.NONE });
+
+    createEffect(() => {
+        const stream = mediaStream();
+        if (!videoRef() || !stream) return;
+
+        console.log('Set video as mediaStream changed', stream);
+        videoRef()!.srcObject = stream;
+
+        videoRef()!.onloadedmetadata = () => {
+            videoRef()!.play().catch((err) => {
+                console.warn('Autoplay prevented or failed:', err);
+                setShowPlayButton(true);
+            });
+        };
+    });
+
+    createEffect(async () => {
+        const key = selectedKey();
+        if (!key || !key.startsWith("local:")) return;
+
+        const blob = await loadFile(key);
+        const mime = await getMimeType(key);
+
+        if (blob && mime) {
+            const url = URL.createObjectURL(blob);
+
+            const type = mime.startsWith("image/")
+                ? STREAM_TYPES.IMAGE
+                : mime.startsWith("video/") ? STREAM_TYPES.VIDEO : '';
+
+            if (type) {
+                console.log('Loaded local file from file-store:', key, type);
+                changeMedia({ url, type });
+            } else {
+                console.warn('Unrecognized mime type in Broadcast tab:', mime);
+            }
+        } else {
+            console.warn("No blob or mime found for key in Broadcast tab:", key);
+        }
+    });
 
     onMount(() => {
         const handleKeyDown = (event: KeyboardEvent) => {
@@ -47,76 +87,40 @@ export default function BroadcastScreen() {
         };
 
         window.addEventListener('keydown', handleKeyDown);
-        onCleanup(() => window.removeEventListener('keydown', handleKeyDown));
-    })
 
-    createEffect(() => {
-        const stream = mediaStream();
-        if (!videoRef() || !stream) return;
+        const cleanupBroadcastChannel = onMediaChange(async ({ url, type }) => {
+            console.log('Media changed to:', url, 'with type:', type);
+            console.log('BroadcastScreen Media changed: url =', url, ', type =', type, ', peerSetup =', peerSetup, ", isYoutubeUrl =", isYoutubeUrl(url));
 
-        console.log('Set video as mediaStream changed', stream);
-        videoRef()!.srcObject = stream;
+            setMediaSource({ url, type });
 
-        videoRef()!.onloadedmetadata = () => {
-            videoRef()!.play().catch((err) => {
-                console.warn('Autoplay prevented or failed:', err);
-                setShowPlayButton(true); // Require user interaction
-            });
-        };
-    });
-
-    createEffect(async () => {
-        const key = selectedKey();
-        if (!key || !key.startsWith("local:")) return;
-
-        const blob = await loadFile(key);
-        const mime = await getMimeType(key);
-
-        if (blob && mime) {
-            const url = URL.createObjectURL(blob);
-
-            const type = mime.startsWith("image/")
-                ? STREAM_TYPES.IMAGE
-                : mime.startsWith("video/") ? STREAM_TYPES.VIDEO : '';
-
-            if (type) {
-                console.log('Loaded local file from file-store:', key, type);
-                setVideoOrImageSource({ url, type });
-            } else {
-                console.warn('Unrecognized mime type in Broadcast tab:', mime);
+            if (type !== STREAM_TYPES.LIVE_LOCAL) {
+                peerSetup = false;
             }
-        } else {
-            console.warn("No blob or mime found for key in Broadcast tab:", key);
-        }
-    });
 
-    createEffect(async () => {
-        const { url, type } = videoOrImageSource();
+            if (type === STREAM_TYPES.LIVE_LOCAL && !peerSetup) {
+                peerSetup = true;
+                setupQRCodeFlow();
+            }
+            else if (type === STREAM_TYPES.LIVE_EXTERNAL && !mediaStream()) {
+                const localMediaStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                setMediaStream(localMediaStream);
+                setStreamSource('local');
+            }
+            else if (mediaStream() && streamSource() === STREAM_TYPES.LIVE_LOCAL) {
+                mediaStream()!.getTracks().forEach(track => track.stop());
+                setMediaStream(null);
+                setStreamSource(null);
+            }
+        });
 
-        console.log('BroadcastScreen URL:', url, 'type:', type, ' - peerSetup =', peerSetup, "isYoutubeUrl", isYoutubeUrl(url));
-
-        if (type !== STREAM_TYPES.LIVE_LOCAL) {
-            peerSetup = false;
-        }
-
-        if (type === STREAM_TYPES.LIVE_LOCAL && !peerSetup) {
-            peerSetup = true;
-            setupQRCodeFlow();
-        }
-        else if (type === STREAM_TYPES.LIVE_EXTERNAL && !mediaStream()) {
-            const localMediaStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-            setMediaStream(localMediaStream);
-            setStreamSource('local');
-        }
-        else if (mediaStream() && streamSource() === STREAM_TYPES.LIVE_LOCAL) {
-            mediaStream()!.getTracks().forEach(track => track.stop());
-            setMediaStream(null);
-            setStreamSource(null);
-        }
+        onCleanup(() => {
+            cleanupBroadcastChannel();
+            window.removeEventListener('keydown', handleKeyDown);
+        });
     });
 
     onCleanup(() => {
-        setVideoOrImageSource({ url: '', type: '' });
         setQrCode('');
         mediaStream()?.getTracks().forEach(t => t.stop());
         setMediaStream(null);
@@ -158,14 +162,17 @@ export default function BroadcastScreen() {
     };
 
     return (
-        <main class={styles['broadcast-screen-component']}>
+        <main class={styles['broadcast-screen-component']} >
             <CaptureControls />
 
-            <div class={styles["broadcast-pane"]}>
+            <div class={`${styles['broadcast-pane']
+                } ${mediaSource().url === '' ? styles['without-media'] : ''
+                }`
+            }>
 
-                <Show when={videoOrImageSource().url !== ''}>
-                    <Switch fallback={<div>No matching stream type for: {videoOrImageSource().type}</div>}>
-                        <Match when={videoOrImageSource().type === STREAM_TYPES.LIVE_LOCAL || videoOrImageSource().type === STREAM_TYPES.LIVE_EXTERNAL}>
+                <Show when={mediaSource().url !== ''}>
+                    <Switch fallback={<div>No matching stream type for: {mediaSource().type}</div>}>
+                        <Match when={mediaSource().type === STREAM_TYPES.LIVE_LOCAL || mediaSource().type === STREAM_TYPES.LIVE_EXTERNAL}>
                             <video class={styles['broadcast-video']}
                                 ref={el => setVideoRef(el)}
                                 autoplay playsinline
@@ -175,32 +182,32 @@ export default function BroadcastScreen() {
                             </Show>
                         </Match>
 
-                        <Match when={videoOrImageSource().type === STREAM_TYPES.VIDEO}>
+                        <Match when={mediaSource().type === STREAM_TYPES.VIDEO}>
                             <video class={styles['broadcast-video']}
                                 ref={el => setVideoRef(el)}
-                                src={videoOrImageSource().url}
+                                src={mediaSource().url}
                                 autoplay playsinline controls
                             />
                         </Match>
 
-                        <Match when={videoOrImageSource().type === STREAM_TYPES.IMAGE}>
+                        <Match when={mediaSource().type === STREAM_TYPES.IMAGE}>
                             <div class={styles['broadcast-image-wrapper']}>
                                 <div class={styles['broadcast-image-background']}
-                                    style={{ 'background-image': `url(${videoOrImageSource().url})` }}
+                                    style={{ 'background-image': `url(${mediaSource().url})` }}
                                 />
                                 <div class={styles['broadcast-image-foreground']}>
                                     <img class={styles['broadcast-image']}
-                                        src={videoOrImageSource().url}
+                                        src={mediaSource().url}
                                         alt=""
                                     />
                                 </div>
                             </div>
                         </Match>
 
-                        <Match when={videoOrImageSource().type === STREAM_TYPES.YOUTUBE}>
+                        <Match when={mediaSource().type === STREAM_TYPES.YOUTUBE}>
                             <iframe
                                 class={styles['broadcast-iframe']}
-                                src={videoOrImageSource().url}
+                                src={mediaSource().url}
                                 width="100%"
                                 height="100%"
                                 allow="autoplay; encrypted-media"
