@@ -28,6 +28,11 @@ export default function Gallery(props: GalleryProps) {
         const current = selectedKey();
         const currentIndex = keys.indexOf(current);
 
+        if (currentIndex === -1 && keys.length > 0) {
+            setSelectedKey(keys[0]);
+            return;
+        }
+
         if (currentIndex === -1) return;
 
         let newIndex = currentIndex;
