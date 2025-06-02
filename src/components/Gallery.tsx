@@ -8,6 +8,7 @@ import ThumbnailControl from './ThumbnailControl.tsx';
 type GalleryProps = {
     onSelect: (keyOrUrl: string) => void;
     onDelete: (keyOrUrl: string) => void;
+    onEdit: (keyOrUrl: string) => void;
 };
 
 export type LocalMediaInfo = {
@@ -131,13 +132,14 @@ export default function Gallery(props: GalleryProps) {
                             )}
 
                             <ThumbnailControl
-                                toDelete={() => props.onDelete(historyItem.key)}
-                                toSelect={() => props.onSelect(historyItem.key)}
+                                onDelete={() => props.onDelete(historyItem.key)}
+                                onSelect={() => props.onSelect(historyItem.key)}
+                                onEdit={() => props.onEdit(historyItem.key)}
                                 onLeft={() => moveThumb(selectedKey(), -1)}
                                 onRight={() => moveThumb(selectedKey(), 1)}
                             />
 
-                            <div class={styles.metadata}>
+                            <div class={styles.metadata} onclick={() => alert(1)}>
                                 <p class={styles.headline}>{historyItem.headline || ''}</p>
                                 <p class={styles.standfirst}>{historyItem.standfirst || ''}</p>
                             </div>

@@ -54,7 +54,6 @@ export const showItem = async (keyOrUrl: string) => {
     }
 };
 
-
 const deleteItem = (keyOrUrl: string) => {
     if (keyOrUrl.startsWith('local:')) {
         deleteFile(keyOrUrl);
@@ -77,6 +76,11 @@ export const dragLeaveHandler = (e: DragEvent) => {
 export default function ControlScreen() {
     const [showMetadataModal, setShowMetadataModal] = createSignal(false);
     const [pendingKey, setPendingKey] = createSignal<string | null>(null);
+
+    const editItem = (key: string) => {
+        setPendingKey(key);
+        setShowMetadataModal(true);
+    };
 
     const pasteHandler = (e: ClipboardEvent) => {
         const text = (e.clipboardData || (window as any).clipboardData).getData("text");
@@ -151,6 +155,7 @@ export default function ControlScreen() {
             <Gallery
                 onSelect={showItem}
                 onDelete={deleteItem}
+                onEdit={editItem}
             />
 
             <nav class={styles['button-strip']}>
