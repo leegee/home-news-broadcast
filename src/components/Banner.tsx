@@ -42,19 +42,22 @@ const Banner = () => {
     });
 
     return (
-        <section class={styles['banner-image-component']}>
+        <header class={styles['banner-image-component']}>
             <BannerImage />
-            <h1 ref={(el) => (containerRef = el)}
-                contentEditable
-                tabIndex={0}
-                onClick={startEdit}
-                onBlur={saveText}
-                onKeyDown={onKeyDown}
-            >
-                {banner() || 'Click to edit'}
-            </h1>
+            <hgroup>
+                <h1 ref={(el) => (containerRef = el)}
+                    contentEditable
+                    tabIndex={0}
+                    onClick={startEdit}
+                    onBlur={saveText}
+                    onKeyDown={onKeyDown}
+                >
+                    {banner() || 'Click to edit'}
+                </h1>
+                <h2></h2>
+            </hgroup>
             <BannerClock />
-        </section>
+        </header>
     );
 }
 
