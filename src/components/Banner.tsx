@@ -7,8 +7,7 @@ import BannerImage from './BannerImage';
 import BannerClock from './BannerClock';
 
 export default function Banner() {
-    let headlineRef: HTMLDivElement | null = null;
-    let standfirstRef: HTMLDivElement | null = null;
+    let headlineRef: HTMLHeadingElement | null = null;
     let preEditTextContent = '';
 
     const hasCurrentItem = createMemo(() => !!currentPlaylistItem());
@@ -90,7 +89,6 @@ export default function Banner() {
                     {displayHeadline()}
                 </h1>
                 <h2
-                    ref={(el) => (standfirstRef = el)}
                     contentEditable={hasCurrentItem()}
                     tabIndex={0}
                     onClick={startEdit}
