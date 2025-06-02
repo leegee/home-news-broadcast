@@ -28,14 +28,13 @@ export const currentHistoryItem = createMemo(() => {
     return history().find(item => item.key === key);
 });
 
-export function moveHistoryItem(direction: number) {
+export function moveHistoryItem(current: string, direction: number) {
     const items = history();
-    const current = selectedKey();
     const currentIndex = items.findIndex(item => item.key === current);
 
     if (currentIndex === -1 || items.length < 2) return;
 
-    let newIndex = (currentIndex + direction + items.length) % items.length;
+    const newIndex = (currentIndex + direction + items.length) % items.length;
 
     if (newIndex === currentIndex) return;
 

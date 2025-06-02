@@ -24,22 +24,21 @@ export default function Gallery(props: GalleryProps) {
             case 'ArrowLeft':
             case 'ArrowUp':
                 e.preventDefault();
-                moveThumb(-1);
+                moveThumb(selectedKey(), -1);
                 break;
             case 'ArrowRight':
             case 'ArrowDown':
                 e.preventDefault();
-                moveThumb(1);
+                moveThumb(selectedKey(), 1);
                 break;
         }
     }
 
-    function moveThumb(dir: number) {
-        moveHistoryItem(dir);
+    function moveThumb(key: string, dir: number) {
+        moveHistoryItem(key, dir);
 
         // Wait until the DOM updates before focusing
         queueMicrotask(() => {
-            const key = selectedKey();
             const el = itemRefs.get(key);
             el?.focus();
         });
@@ -134,8 +133,8 @@ export default function Gallery(props: GalleryProps) {
                             <ThumbnailControl
                                 toDelete={() => props.onDelete(historyItem.key)}
                                 toSelect={() => props.onSelect(historyItem.key)}
-                                onLeft={() => moveThumb(-1)}
-                                onRight={() => moveThumb(1)}
+                                onLeft={() => moveThumb(selectedKey(), -1)}
+                                onRight={() => moveThumb(selectedKey(), 1)}
                             />
                         </li>
                     );
