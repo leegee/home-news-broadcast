@@ -1,6 +1,8 @@
 import { createSignal } from 'solid-js';
 import { makePersisted } from '@solid-primitives/storage'; // sync doesn't work
-import defatulCatimage from './default-banner-image';
+import defatulCatImage from './default-banner-image';
+
+const MAX_HISTORY = 30;
 
 export const STREAM_TYPES = {
     LIVE_LOCAL: 'live_local',
@@ -13,7 +15,11 @@ export const STREAM_TYPES = {
 
 export type StreamType = (typeof STREAM_TYPES)[keyof typeof STREAM_TYPES];
 
-const MAX_HISTORY = 30;
+type HistoryItem = {
+    key: string;
+    headline: string;
+    standfirst: string;
+};
 
 export interface MediaSource {
     url: string;
@@ -40,10 +46,10 @@ function createSyncedPersistedSignal<T>(key: string, initial: T): [() => T, (v: 
     return [value, setValue];
 }
 
+export const [history, setHistory] = createSyncedPersistedSignal<HistoryItem[]>('cap-history', []);
 export const [ticker, setTicker] = createSyncedPersistedSignal('cap-ticker', 'Click to edit');
 export const [banner, setBanner] = createSyncedPersistedSignal('cap-banner', 'Cat News');
-export const [history, setHistory] = createSyncedPersistedSignal<string[]>('cap-history', []);
-export const [bannerImage, setBannerImage] = createSyncedPersistedSignal<string>('cap-banner-image', defatulCatimage);
+export const [bannerImage, setBannerImage] = createSyncedPersistedSignal<string>('cap-banner-image', defatulCatImage);
 export const [qrCode, setQrCode] = createSyncedPersistedSignal<string>('cap-qr-code', '');
 export const [selectedKey, setSelectedKey] = createSyncedPersistedSignal('cap-selected-key', '');
 
@@ -51,13 +57,13 @@ export const [streamSource, setStreamSource] = createSignal<string | null>(null)
 export const [mediaStream, setMediaStream] = createSignal<MediaStream | null>(null);
 export const [error, setError] = createSignal<string | null>(null);
 
-export function removeFromHistory(item: string) {
-    setHistory(history().filter(entry => entry !== item));
+export function removeFromHistory(itemKey: string) {
+    setHistory(history().filter(entry => entry.key !== itemKey));
 }
 
-export function saveUrlToHistory(url: string) {
+export function saveUrlToHistory(item: HistoryItem) {
     let h = history();
-    h = [url, ...h.filter(v => v !== url)]; // prepend new URL, remove duplicates
+    h = [item, ...h.filter(v => v.key !== item.key)];
     if (h.length > MAX_HISTORY) h = h.slice(0, MAX_HISTORY);
     setHistory(h);
 }
@@ -68,3 +74,7 @@ export function initLocalStorage() {
     setMediaStream(null);
 }
 
+export const currentHistoryItem = () => {
+    const key = selectedKey();
+    return history().find(item => item.key === key);
+};

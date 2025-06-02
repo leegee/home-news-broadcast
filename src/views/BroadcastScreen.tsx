@@ -166,17 +166,17 @@ export default function BroadcastScreen() {
     }
 
     const navigateHistory = (direction: number) => {
-        const keys = history();
-        const current = selectedKey();
-        if (keys.length === 0) return;
+        const items = history();
+        const currentKey = selectedKey();
+        if (items.length === 0) return;
 
-        let index = keys.indexOf(current);
+        let index = items.findIndex(item => item.key === currentKey);
         if (index === -1) {
             index = direction > 0 ? -1 : 0;
         }
 
-        const newIndex = (index + direction + keys.length) % keys.length;
-        setSelectedKey(keys[newIndex]);
+        const newIndex = (index + direction + items.length) % items.length;
+        setSelectedKey(items[newIndex].key);
     };
 
     const toggleVideoPlayback = () => {
