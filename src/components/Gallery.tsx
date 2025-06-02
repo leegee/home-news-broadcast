@@ -1,6 +1,6 @@
 import styles from './Gallery.module.scss';
 import { For, Show, createEffect, createSignal, onCleanup } from 'solid-js';
-import { history, selectedKey, moveHistoryItem, } from '../lib/stores/history.ts';
+import { playlist, selectedKey, movePlaylistItem, } from '../lib/stores/playlist.ts';
 import { getYoutubeThumbnail } from '../lib/youtube.ts';
 import { getMimeType, loadFile } from '../lib/file-store.ts';
 import ThumbnailControl from './ThumbnailControl.tsx';
@@ -36,7 +36,7 @@ export default function Gallery(props: GalleryProps) {
     }
 
     function moveThumb(key: string, dir: number) {
-        moveHistoryItem(key, dir);
+        movePlaylistItem(key, dir);
 
         // Wait until the DOM updates before focusing
         queueMicrotask(() => {
@@ -46,12 +46,12 @@ export default function Gallery(props: GalleryProps) {
     }
 
     createEffect(async () => {
-        const keys = history();
+        const keys = playlist();
         const previous = localMedia();
         const newLocalMedia: Record<string, LocalMediaInfo> = { ...previous };
 
         console.log('Gallery loading effect triggered');
-        console.log('History keys:', keys);
+        console.log('Playlist keys:', keys);
         console.log('Existing localMedia keys:', Object.keys(previous));
 
         await Promise.all(
@@ -95,22 +95,22 @@ export default function Gallery(props: GalleryProps) {
 
     return (
         <nav class={styles['gallery-component']} tabindex={0} onKeyDown={handleKeyDown}>
-            <Show when={history().length === 0}>
+            <Show when={playlist().length === 0}>
                 <li>
                     <p>Drop or paste YouTube URLs or local videos into this window.</p>
                 </li>
             </Show>
 
-            <For each={history()}>
-                {(historyItem, index) => {
-                    const isLocal = historyItem.key.startsWith('local:');
-                    const mediaInfo = () => isLocal ? localMedia()[historyItem.key] : null;
-                    const isActive = () => selectedKey() === historyItem.key;
+            <For each={playlist()}>
+                {(playlistItem, index) => {
+                    const isLocal = playlistItem.key.startsWith('local:');
+                    const mediaInfo = () => isLocal ? localMedia()[playlistItem.key] : null;
+                    const isActive = () => selectedKey() === playlistItem.key;
 
                     return (
                         <li tabIndex={index() + 1}
                             classList={{ [styles['active-thumb']]: isActive() }}
-                            ref={(el) => itemRefs.set(historyItem.key, el)}
+                            ref={(el) => itemRefs.set(playlistItem.key, el)}
                         >
                             {isLocal ? (
                                 <Show when={mediaInfo()} fallback={<span>Loading…</span>}>
@@ -128,20 +128,20 @@ export default function Gallery(props: GalleryProps) {
                                     )}
                                 </Show>
                             ) : (
-                                <img src={getYoutubeThumbnail(historyItem.key)} />
+                                <img src={getYoutubeThumbnail(playlistItem.key)} />
                             )}
 
                             <ThumbnailControl
-                                onDelete={() => props.onDelete(historyItem.key)}
-                                onSelect={() => props.onSelect(historyItem.key)}
-                                onEdit={() => props.onEdit(historyItem.key)}
+                                onDelete={() => props.onDelete(playlistItem.key)}
+                                onSelect={() => props.onSelect(playlistItem.key)}
+                                onEdit={() => props.onEdit(playlistItem.key)}
                                 onLeft={() => moveThumb(selectedKey(), -1)}
                                 onRight={() => moveThumb(selectedKey(), 1)}
                             />
 
                             <div class={styles.metadata} onclick={() => alert(1)}>
-                                <p class={styles.headline}>{historyItem.headline || ''}</p>
-                                <p class={styles.standfirst}>{historyItem.standfirst || ''}</p>
+                                <p class={styles.headline}>{playlistItem.headline || ''}</p>
+                                <p class={styles.standfirst}>{playlistItem.standfirst || ''}</p>
                             </div>
                         </li>
                     );

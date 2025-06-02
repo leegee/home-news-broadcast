@@ -1,6 +1,6 @@
 import { createSignal, onMount } from 'solid-js';
 import styles from './MetadataModal.module.scss';
-import { getHistoryItem } from '../lib/stores/history';
+import { getPlaylistList } from '../lib/stores/playlist';
 
 interface MetadataModalProps {
     key: string;
@@ -13,7 +13,7 @@ export default function MetadataModal(props: MetadataModalProps) {
     const [standfirst, setStandfirst] = createSignal('');
 
     onMount(() => {
-        const item = getHistoryItem(props.key);
+        const item = getPlaylistList(props.key);
         setHeadline(item.headline || '');
         setStandfirst(item.standfirst || '');
     });

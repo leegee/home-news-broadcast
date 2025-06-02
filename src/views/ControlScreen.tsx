@@ -2,7 +2,7 @@ import styles from './ControlScreen.module.scss';
 import { createSignal, onMount, Show } from 'solid-js';
 import { getYoutubeEmbedUrl, isYoutubeUrl } from '../lib/youtube';
 import { STREAM_TYPES } from '../lib/stores/ui';
-import { removeFromHistory, saveHistoryItem, selectedKey, setSelectedKey, } from '../lib/stores/history';
+import { removeFromPlaylist, savePlaylistItem, selectedKey, setSelectedKey, } from '../lib/stores/playlist';
 import { saveFile, loadFile, deleteFile } from '../lib/file-store';
 import { changeMedia } from '../lib/inter-tab-comms';
 import { ErrorDisplay } from '../components/ErrorDisplay';
@@ -57,10 +57,10 @@ export const showItem = async (keyOrUrl: string) => {
 const deleteItem = (keyOrUrl: string) => {
     if (keyOrUrl.startsWith('local:')) {
         deleteFile(keyOrUrl);
-        removeFromHistory(keyOrUrl);
+        removeFromPlaylist(keyOrUrl);
     }
     else if (isYoutubeUrl(keyOrUrl)) {
-        removeFromHistory(keyOrUrl);
+        removeFromPlaylist(keyOrUrl);
     }
 };
 
@@ -115,7 +115,7 @@ export default function ControlScreen() {
         if (file.type.startsWith('video/') || file.type.startsWith('image/')) {
             const key = `local:${file.name}:${Date.now()}`;
             await saveFile(key, file);
-            saveHistoryItem({ key, headline: '', standfirst: '' });
+            savePlaylistItem({ key, headline: '', standfirst: '' });
             setPendingKey(key);
             setShowMetadataModal(true);
             showItem(key);
@@ -124,7 +124,7 @@ export default function ControlScreen() {
 
     const handleDroppedText = (text: string) => {
         if (text && isYoutubeUrl(text)) {
-            saveHistoryItem({ key: text, headline: '', standfirst: '' });
+            savePlaylistItem({ key: text, headline: '', standfirst: '' });
             setPendingKey(text);
             setShowMetadataModal(true);
             showItem(text);
@@ -170,7 +170,7 @@ export default function ControlScreen() {
                 <MetadataModal
                     key={pendingKey()!}
                     onSave={(headline, standfirst) => {
-                        saveHistoryItem({ key: pendingKey()!, headline, standfirst });
+                        savePlaylistItem({ key: pendingKey()!, headline, standfirst });
                         setShowMetadataModal(false);
                         setPendingKey(null);
                     }}

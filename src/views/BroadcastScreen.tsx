@@ -16,7 +16,7 @@ import {
     streamSource,
     STREAM_TYPES,
 } from '../lib/stores/ui.ts';
-import { history, selectedKey, setSelectedKey } from '../lib/stores/history.ts';
+import { playlist, selectedKey, setSelectedKey } from '../lib/stores/playlist.ts';
 
 let peerSetup = false;
 
@@ -103,12 +103,12 @@ export default function BroadcastScreen() {
                 case 'ArrowLeft':
                 case 'ArrowUp':
                     event.preventDefault();
-                    navigateHistory(-1);
+                    navigatePlaylist(-1);
                     break;
                 case 'ArrowRight':
                 case 'ArrowDown':
                     event.preventDefault();
-                    navigateHistory(1);
+                    navigatePlaylist(1);
                     break;
                 case 'Space':
                     event.preventDefault();
@@ -138,7 +138,7 @@ export default function BroadcastScreen() {
     const setMedia = async ({ url, type }: MediaChangeParams) => {
         console.log('Media changed to:', url, 'with type:', type);
         console.log('BroadcastScreen Media changed: url =', url, ', type =', type, ', peerSetup =', peerSetup, ", isYoutubeUrl =", isYoutubeUrl(url));
-        console.log('history', history());
+        console.log('Playlist', playlist());
         triedAutoPlay = false;
         setMediaSource({ url, type });
         setShowPlayButton(false);
@@ -163,8 +163,8 @@ export default function BroadcastScreen() {
         }
     }
 
-    const navigateHistory = (direction: number) => {
-        const items = history();
+    const navigatePlaylist = (direction: number) => {
+        const items = playlist();
         const currentKey = selectedKey();
         if (items.length === 0) return;
 

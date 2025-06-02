@@ -1,7 +1,7 @@
 import styles from './Banner.module.scss';
 import { createEffect, createMemo } from 'solid-js';
 import { selectContent } from '../lib/select-content';
-import { currentHistoryItem, updateCurrentHistoryItem } from '../lib/stores/history';
+import { currentPlaylistItem, updateCurrentPlaylistItem } from '../lib/stores/playlist';
 import { banner, setBanner } from '../lib/stores/ui';
 import BannerImage from './BannerImage';
 import BannerClock from './BannerClock';
@@ -11,15 +11,15 @@ export default function Banner() {
     let standfirstRef: HTMLDivElement | null = null;
     let preEditTextContent = '';
 
-    const hasCurrentItem = createMemo(() => !!currentHistoryItem());
+    const hasCurrentItem = createMemo(() => !!currentPlaylistItem());
 
     const displayHeadline = createMemo(() => {
-        const item = currentHistoryItem();
+        const item = currentPlaylistItem();
         return item?.headline || banner() || 'Click to edit';
     });
 
     const displayStandfirst = createMemo(() => {
-        return currentHistoryItem()?.standfirst || '';
+        return currentPlaylistItem()?.standfirst || '';
     });
 
     const startEdit = (e: Event) => {
@@ -33,10 +33,10 @@ export default function Banner() {
         const target = e.target as HTMLElement;
         const newText = target.textContent?.trim() || preEditTextContent;
 
-        const current = currentHistoryItem();
+        const current = currentPlaylistItem();
         if (current) {
             if (current.headline !== newText) {
-                updateCurrentHistoryItem({ headline: newText });
+                updateCurrentPlaylistItem({ headline: newText });
             }
         } else {
             setBanner(newText);
@@ -47,9 +47,9 @@ export default function Banner() {
         const target = e.target as HTMLElement;
         const newText = target.textContent?.trim() || preEditTextContent;
 
-        const current = currentHistoryItem();
+        const current = currentPlaylistItem();
         if (current && current.standfirst !== newText) {
-            updateCurrentHistoryItem({ standfirst: newText });
+            updateCurrentPlaylistItem({ standfirst: newText });
         }
     };
 

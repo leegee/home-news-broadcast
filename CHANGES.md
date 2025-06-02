@@ -1,6 +1,6 @@
 ## 0.2.0 2025-06-02
 
-Finished title/subtitle display and editing
+Finished title/subtitle display and editing. Renamed history to playlist
 
 ## 0.2.0 2025-06-01
 
