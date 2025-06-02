@@ -12,6 +12,11 @@ const MAX_HISTORY = 30;
 export const [history, setHistory] = createSyncedPersistedSignal<HistoryItem[]>('cap-history', []);
 export const [selectedKey, setSelectedKey] = createSyncedPersistedSignal<string>('cap-selected-key', '');
 
+export const currentHistoryItem = createMemo(() => {
+    const key = selectedKey();
+    return history().find(item => item.key === key);
+});
+
 export function removeFromHistory(itemKey: string) {
     setHistory(history().filter(entry => entry.key !== itemKey));
 }
@@ -23,10 +28,16 @@ export function saveHistoryItem(item: HistoryItem) {
     setHistory(h);
 }
 
-export const currentHistoryItem = createMemo(() => {
+export function updateCurrentHistoryItem(updates: Partial<Pick<HistoryItem, 'headline' | 'standfirst'>>) {
     const key = selectedKey();
-    return history().find(item => item.key === key);
-});
+    if (!key) return;
+
+    const updated = history().map(item =>
+        item.key === key ? { ...item, ...updates } : item
+    );
+
+    setHistory(updated);
+}
 
 export function moveHistoryItem(current: string, direction: number) {
     const items = history();
