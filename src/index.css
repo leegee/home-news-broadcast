@@ -33,6 +33,8 @@
   -moz-osx-font-smoothing: grayscale;
 
   height: 100%;
+
+  --cap-modal-bg: #010111;
 }
 
 

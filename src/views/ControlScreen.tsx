@@ -1,15 +1,16 @@
 import styles from './ControlScreen.module.scss';
-import { onMount } from 'solid-js';
+import { createSignal, onMount, Show } from 'solid-js';
 import { getYoutubeEmbedUrl, isYoutubeUrl } from '../lib/youtube';
 import { STREAM_TYPES } from '../lib/stores/ui';
 import { removeFromHistory, saveHistoryItem, selectedKey, setSelectedKey, } from '../lib/stores/history';
 import { saveFile, loadFile, deleteFile } from '../lib/file-store';
-import OpenOutputScreen from '../components/OpenOutputScreen';
+import { changeMedia } from '../lib/inter-tab-comms';
 import { ErrorDisplay } from '../components/ErrorDisplay';
+import OpenOutputScreen from '../components/OpenOutputScreen';
 import ShowQRCode from '../components/ShowQRCode';
 import Gallery from '../components/Gallery';
 import ShowRemoteCamera from '../components/ShowRemoteCamera';
-import { changeMedia } from '../lib/inter-tab-comms';
+import MetadataModal from '../components/MetadataModal';
 
 let lastUrl: string | null = null;
 
@@ -64,51 +65,6 @@ const deleteItem = (keyOrUrl: string) => {
     }
 };
 
-const handleDroppedFile = async (file: File) => {
-    console.log('file.type', file.type);
-    if (file.type.startsWith('video/') || file.type.startsWith('image/')) {
-        const key = `local:${file.name}:${Date.now()}`;
-        await saveFile(key, file);
-        saveHistoryItem({ key, headline: '', standfirst: '' });
-        showItem(key);
-    }
-};
-
-const handleDroppedText = (text: string) => {
-    if (text && isYoutubeUrl(text)) {
-        saveHistoryItem({ key: text, headline: '', standfirst: '' });
-        showItem(text);
-    }
-};
-
-export const pasteHandler = (e: ClipboardEvent) => {
-    const text = (e.clipboardData || (window as any).clipboardData).getData("text");
-    if (text) {
-        handleDroppedText(text);
-        return;
-    }
-
-    for (const item of e.clipboardData?.items || []) {
-        const file = item.getAsFile?.();
-        if (file) handleDroppedFile(file);
-    }
-};
-
-export const dropHandler = async (e: DragEvent) => {
-    e.preventDefault();
-    (e.currentTarget as HTMLElement).style.outline = '';
-
-    const text = e.dataTransfer?.getData("text/plain");
-    if (text) {
-        handleDroppedText(text);
-        return;
-    }
-
-    for (const file of e.dataTransfer?.files || []) {
-        handleDroppedFile(file);
-    }
-};
-
 export const dragOverHandler = (e: DragEvent) => {
     e.preventDefault();
     (e.currentTarget as HTMLElement).style.outline = "2px dashed yellow";
@@ -119,8 +75,62 @@ export const dragLeaveHandler = (e: DragEvent) => {
 };
 
 export default function ControlScreen() {
+    const [showMetadataModal, setShowMetadataModal] = createSignal(false);
+    const [pendingKey, setPendingKey] = createSignal<string | null>(null);
+
+    const pasteHandler = (e: ClipboardEvent) => {
+        const text = (e.clipboardData || (window as any).clipboardData).getData("text");
+        if (text) {
+            handleDroppedText(text);
+            return;
+        }
+
+        for (const item of e.clipboardData?.items || []) {
+            const file = item.getAsFile?.();
+            if (file) handleDroppedFile(file);
+        }
+    };
+
+    const dropHandler = async (e: DragEvent) => {
+        e.preventDefault();
+        (e.currentTarget as HTMLElement).style.outline = '';
+
+        const text = e.dataTransfer?.getData("text/plain");
+        if (text) {
+            handleDroppedText(text);
+            return;
+        }
+
+        for (const file of e.dataTransfer?.files || []) {
+            handleDroppedFile(file);
+        }
+    };
+
+    const handleDroppedFile = async (file: File) => {
+        console.log('file.type', file.type);
+        if (file.type.startsWith('video/') || file.type.startsWith('image/')) {
+            const key = `local:${file.name}:${Date.now()}`;
+            await saveFile(key, file);
+            saveHistoryItem({ key, headline: '', standfirst: '' });
+            setPendingKey(key);
+            setShowMetadataModal(true);
+            showItem(key);
+        }
+    };
+
+    const handleDroppedText = (text: string) => {
+        if (text && isYoutubeUrl(text)) {
+            saveHistoryItem({ key: text, headline: '', standfirst: '' });
+            setPendingKey(text);
+            setShowMetadataModal(true);
+            showItem(text);
+        }
+    };
+
     onMount(async () => {
-        if (selectedKey()) showItem(selectedKey());
+        if (selectedKey()) {
+            showItem(selectedKey()).catch(console.error);
+        }
 
         document.body.addEventListener("paste", pasteHandler);
         document.body.addEventListener("drop", dropHandler);
@@ -150,6 +160,20 @@ export default function ControlScreen() {
 
             <ShowQRCode />
             <ErrorDisplay />
+
+            <Show when={showMetadataModal() && pendingKey()}>
+                <MetadataModal
+                    onSave={(headline, standfirst) => {
+                        saveHistoryItem({ key: pendingKey()!, headline, standfirst });
+                        setShowMetadataModal(false);
+                        setPendingKey(null);
+                    }}
+                    onCancel={() => {
+                        setShowMetadataModal(false);
+                        setPendingKey(null);
+                    }}
+                />
+            </Show>
         </main>
     );
 }
