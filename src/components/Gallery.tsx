@@ -136,6 +136,11 @@ export default function Gallery(props: GalleryProps) {
                                 onLeft={() => moveThumb(selectedKey(), -1)}
                                 onRight={() => moveThumb(selectedKey(), 1)}
                             />
+
+                            <div class={styles.metadata}>
+                                <p class={styles.headline}>{historyItem.headline || ''}</p>
+                                <p class={styles.standfirst}>{historyItem.standfirst || ''}</p>
+                            </div>
                         </li>
                     );
                 }}
