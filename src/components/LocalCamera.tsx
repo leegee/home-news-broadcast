@@ -1,13 +1,17 @@
 import { createEffect, createSignal, Show } from "solid-js";
 import { STREAM_TYPES } from '../lib/stores/ui.ts';
+import { changeMedia } from "../lib/inter-tab-comms.ts";
 
-type LocalCameraProps = {
-    onSelect: (keyOrUrl: string) => void;
-};
-
-export default function LocalCamera(props: LocalCameraProps) {
+export default function ShowLocalCamera() {
     const [canAccessCamera, setCanAccessCamera] = createSignal(false);
     const [canAccessMic, setCanAccessMic] = createSignal(false);
+
+    const handleClick = () => {
+        changeMedia({
+            url: '',
+            type: STREAM_TYPES.LIVE_LOCAL
+        });
+    };
 
     createEffect(() => {
         navigator.permissions?.query({ name: 'camera' as PermissionName }).then((status) => {
@@ -21,8 +25,8 @@ export default function LocalCamera(props: LocalCameraProps) {
 
     return (
         <Show when={canAccessCamera() && canAccessMic()}>
-            <button onClick={() => props.onSelect(STREAM_TYPES.LIVE_LOCAL)}>
-                Local Camera
+            <button onClick={() => handleClick()}>
+                Show Local Camera
             </button>
         </Show>
     );

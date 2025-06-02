@@ -11,6 +11,7 @@ import ShowQRCode from '../components/ShowQRCode';
 import Gallery from '../components/Gallery';
 import ShowRemoteCamera from '../components/ShowRemoteCamera';
 import MetadataModal from '../components/MetadataModal';
+import ShowLocalCamera from '../components/LocalCamera';
 
 let lastUrl: string | null = null;
 
@@ -160,6 +161,7 @@ export default function ControlScreen() {
 
             <nav class={styles['button-strip']}>
                 <OpenOutputScreen />
+                <ShowLocalCamera />
                 <ShowRemoteCamera />
             </nav>
 

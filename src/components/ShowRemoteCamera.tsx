@@ -13,7 +13,7 @@ export default function ShowRemoteCamera() {
     return (
         <Show when={!qrCode()}>
             <button onClick={() => handleClick()}>
-                Show Phone Camera
+                Live Phone Camera
             </button>
         </Show>
     );
