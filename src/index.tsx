@@ -2,7 +2,7 @@
 import { render } from 'solid-js/web'
 import './index.css'
 import App from './App.tsx'
-import { initLocalStorage } from './lib/store.ts';
+import { initLocalStorage } from './lib/stores/store.ts';
 
 initLocalStorage();
 

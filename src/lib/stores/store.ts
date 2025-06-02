@@ -1,6 +1,6 @@
 import { createSignal } from 'solid-js';
 import { makePersisted } from '@solid-primitives/storage'; // sync doesn't work
-import defatulCatImage from './default-banner-image';
+import defatulCatImage from '../default-banner-image';
 
 const MAX_HISTORY = 30;
 

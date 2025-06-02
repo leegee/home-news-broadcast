@@ -1,7 +1,7 @@
 import styles from './Banner.module.scss';
 import { createEffect } from 'solid-js';
 import { selectContent } from '../lib/select-content';
-import { banner, setBanner } from '../lib/store';
+import { banner, setBanner } from '../lib/stores/store';
 import BannerImage from './BannerImage';
 import BannerClock from './BannerClock';
 

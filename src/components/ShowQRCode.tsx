@@ -1,5 +1,5 @@
 import { createEffect, Show } from "solid-js";
-import { qrCode } from "../lib/store";
+import { qrCode } from "../lib/stores/store";
 
 export default function ShowQRCode() {
 

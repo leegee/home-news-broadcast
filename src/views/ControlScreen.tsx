@@ -15,7 +15,7 @@ import {
     selectedKey,
     setSelectedKey,
     STREAM_TYPES
-} from '../lib/store';
+} from '../lib/stores/store';
 
 let lastUrl: string | null = null;
 

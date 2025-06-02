@@ -18,7 +18,7 @@ import {
     selectedKey,
     STREAM_TYPES,
     setSelectedKey
-} from '../lib/store.ts';
+} from '../lib/stores/store.ts';
 
 let peerSetup = false;
 

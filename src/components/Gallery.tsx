@@ -1,6 +1,6 @@
 import styles from './Gallery.module.scss';
 import { For, Show, createEffect, createSignal, onCleanup } from 'solid-js';
-import { setHistory, history, setSelectedKey, selectedKey, } from '../lib/store.ts';
+import { setHistory, history, setSelectedKey, selectedKey, } from '../lib/stores/store.ts';
 import { getYoutubeThumbnail } from '../lib/youtube.ts';
 import { getMimeType, loadFile } from '../lib/file-store.ts';
 import ThumbnailControl from './ThumbnailControl.tsx';

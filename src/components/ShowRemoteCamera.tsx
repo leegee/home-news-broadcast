@@ -1,5 +1,5 @@
 import { Show } from "solid-js";
-import { qrCode, STREAM_TYPES } from "../lib/store";
+import { qrCode, STREAM_TYPES } from "../lib/stores/store";
 import { changeMedia } from "../lib/inter-tab-comms";
 
 export default function ShowRemoteCamera() {
