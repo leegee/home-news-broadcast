@@ -151,7 +151,7 @@ const Ticker = () => {
     return (
         <div ref={(el) => (containerRef = el)} class={styles.ticker}>
             {createItem(ticker())}
-            {createItem(ticker())}
+            {/* {createItem(ticker())} */}
         </div>
     );
 };
