@@ -9,16 +9,14 @@ import { setupQRCodeFlow } from '../lib/qr2phone2stream';
 import { isYoutubeUrl } from '../lib/youtube';
 import { MediaChangeParams, onMediaChange } from '../lib/inter-tab-comms.ts';
 import {
-    history,
     mediaStream,
     setMediaStream,
     setQrCode,
     setStreamSource,
     streamSource,
-    selectedKey,
     STREAM_TYPES,
-    setSelectedKey
 } from '../lib/stores/store.ts';
+import { history, selectedKey, setSelectedKey } from '../lib/stores/history.ts';
 
 let peerSetup = false;
 

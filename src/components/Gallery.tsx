@@ -1,6 +1,6 @@
 import styles from './Gallery.module.scss';
 import { For, Show, createEffect, createSignal, onCleanup } from 'solid-js';
-import { setHistory, history, setSelectedKey, selectedKey, } from '../lib/stores/store.ts';
+import { history, selectedKey, moveHistoryItem, } from '../lib/stores/history.ts';
 import { getYoutubeThumbnail } from '../lib/youtube.ts';
 import { getMimeType, loadFile } from '../lib/file-store.ts';
 import ThumbnailControl from './ThumbnailControl.tsx';
@@ -14,7 +14,6 @@ export type LocalMediaInfo = {
     url: string;
     type: string;
 };
-
 
 export default function Gallery(props: GalleryProps) {
     const [localMedia, setLocalMedia] = createSignal<Record<string, LocalMediaInfo>>({});
@@ -36,44 +35,14 @@ export default function Gallery(props: GalleryProps) {
     }
 
     function moveThumb(dir: number) {
-        const keys = [...history()];
+        moveHistoryItem(dir);
 
-        if (keys.length === 0) return;
-
-        const current = selectedKey();
-        const currentIndex = keys.indexOf(current);
-
-        if (currentIndex === -1 && keys.length > 0) {
-            setSelectedKey(keys[0]);
-            return;
-        }
-
-        if (currentIndex === -1) return;
-
-        let newIndex = currentIndex;
-
-        if (dir < 0) {
-            newIndex = (currentIndex - 1 + keys.length) % keys.length;
-        } else if (dir > 0) {
-            newIndex = (currentIndex + 1) % keys.length;
-        } else {
-            return;
-        }
-
-        if (newIndex !== currentIndex) {
-            const updated = [...keys];
-            [updated[currentIndex], updated[newIndex]] = [updated[newIndex], updated[currentIndex]];
-            setHistory(updated);
-            setSelectedKey(updated[newIndex]);
-
-            // After DOM is updated:
-            queueMicrotask(() => {
-                const newKey = updated[newIndex];
-                const el = itemRefs.get(newKey);
-                el?.focus();
-            });
-        }
-
+        // Wait until the DOM updates before focusing
+        queueMicrotask(() => {
+            const key = selectedKey();
+            const el = itemRefs.get(key);
+            el?.focus();
+        });
     }
 
     createEffect(async () => {
@@ -86,13 +55,17 @@ export default function Gallery(props: GalleryProps) {
         console.log('Existing localMedia keys:', Object.keys(previous));
 
         await Promise.all(
-            keys.map(async (key) => {
+            keys.map(async ({ key }) => {
                 const hasKey = previous.hasOwnProperty(key);
                 console.log(`Checking key ${key}, already loaded? ${hasKey}`);
 
                 if (key.startsWith('local:') && !hasKey) {
                     try {
-                        const [blob, mimeType] = await Promise.all([loadFile(key), getMimeType(key)]);
+                        const [blob, mimeType] = await Promise.all([
+                            loadFile(key),
+                            getMimeType(key)
+                        ]);
+
                         if (blob && mimeType) {
                             newLocalMedia[key] = {
                                 url: URL.createObjectURL(blob),
@@ -129,18 +102,15 @@ export default function Gallery(props: GalleryProps) {
             </Show>
 
             <For each={history()}>
-                {(historyKey, index) => {
-                    const isLocal = historyKey.startsWith('local:');
-                    const mediaInfo = () => isLocal ? localMedia()[historyKey] : null;
-                    const isActive = () => selectedKey() === historyKey;
-
-                    console.log('history:', historyKey, isLocal, mediaInfo())
-                    console.log('localMedia', localMedia());
+                {(historyItem, index) => {
+                    const isLocal = historyItem.key.startsWith('local:');
+                    const mediaInfo = () => isLocal ? localMedia()[historyItem.key] : null;
+                    const isActive = () => selectedKey() === historyItem.key;
 
                     return (
                         <li tabIndex={index() + 1}
                             classList={{ [styles['active-thumb']]: isActive() }}
-                            ref={(el) => itemRefs.set(historyKey, el)}
+                            ref={(el) => itemRefs.set(historyItem.key, el)}
                         >
                             {isLocal ? (
                                 <Show when={mediaInfo()} fallback={<span>Loading…</span>}>
@@ -158,12 +128,12 @@ export default function Gallery(props: GalleryProps) {
                                     )}
                                 </Show>
                             ) : (
-                                <img src={getYoutubeThumbnail(historyKey)} />
+                                <img src={getYoutubeThumbnail(historyItem.key)} />
                             )}
 
                             <ThumbnailControl
-                                toDelete={() => props.onDelete(historyKey)}
-                                toSelect={() => props.onSelect(historyKey)}
+                                toDelete={() => props.onDelete(historyItem.key)}
+                                toSelect={() => props.onSelect(historyItem.key)}
                                 onLeft={() => moveThumb(-1)}
                                 onRight={() => moveThumb(1)}
                             />

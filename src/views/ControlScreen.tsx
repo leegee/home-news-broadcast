@@ -1,6 +1,8 @@
 import styles from './ControlScreen.module.scss';
 import { onMount } from 'solid-js';
 import { getYoutubeEmbedUrl, isYoutubeUrl } from '../lib/youtube';
+import { STREAM_TYPES } from '../lib/stores/store';
+import { removeFromHistory, saveUrlToHistory, selectedKey, setSelectedKey, } from '../lib/stores/history';
 import { saveFile, loadFile, deleteFile } from '../lib/file-store';
 import OpenOutputScreen from '../components/OpenOutputScreen';
 import { ErrorDisplay } from '../components/ErrorDisplay';
@@ -8,14 +10,6 @@ import ShowQRCode from '../components/ShowQRCode';
 import Gallery from '../components/Gallery';
 import ShowRemoteCamera from '../components/ShowRemoteCamera';
 import { changeMedia } from '../lib/inter-tab-comms';
-
-import {
-    removeFromHistory,
-    saveUrlToHistory,
-    selectedKey,
-    setSelectedKey,
-    STREAM_TYPES
-} from '../lib/stores/store';
 
 let lastUrl: string | null = null;
 
@@ -75,14 +69,14 @@ const handleDroppedFile = async (file: File) => {
     if (file.type.startsWith('video/') || file.type.startsWith('image/')) {
         const key = `local:${file.name}:${Date.now()}`;
         await saveFile(key, file);
-        saveUrlToHistory(key);
+        saveUrlToHistory({ key, headline: '', standfirst: '' });
         showItem(key);
     }
 };
 
 const handleDroppedText = (text: string) => {
     if (text && isYoutubeUrl(text)) {
-        saveUrlToHistory(text);
+        saveUrlToHistory({ key: text, headline: '', standfirst: '' });
         showItem(text);
     }
 };
