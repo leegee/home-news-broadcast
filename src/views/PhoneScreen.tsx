@@ -1,29 +1,14 @@
+import styles from './PhoneScreen.module.scss';
 import Peer, { MediaConnection } from 'peerjs';
 import { useLocation } from '@solidjs/router';
 import { createSignal, onCleanup, Show } from 'solid-js';
 import { ErrorDisplay, reportError } from '../components/ErrorDisplay';
-
-let audioCtx: AudioContext | null = null;
-
-function createSilentAudioStream(): MediaStream {
-    if (!audioCtx) {
-        audioCtx = new AudioContext();
-    }
-    if (audioCtx.state === 'suspended') {
-        audioCtx.resume();
-    }
-    const oscillator = audioCtx.createOscillator();
-    const dst = audioCtx.createMediaStreamDestination();
-    oscillator.connect(dst);
-    oscillator.start();
-    oscillator.stop(audioCtx.currentTime + 0.01);
-    return dst.stream;
-}
+import { createSilentAudioStream } from '../lib/media';
 
 async function getMediaStream(facing: 'user' | 'environment'): Promise<MediaStream> {
     try {
         return await navigator.mediaDevices.getUserMedia({
-            video: { facingMode: { ideal: facing } },
+            video: { facingMode: facing },
             audio: true
         });
     } catch (e) {
@@ -60,7 +45,6 @@ export default function PhoneScreen() {
             let localStream: MediaStream | undefined;
 
             try {
-                // localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
                 localStream = await getMediaStream(facingMode());
             } catch (e) {
                 setLocalLog('No video');
@@ -127,8 +111,39 @@ export default function PhoneScreen() {
         }
     });
 
+    async function switchCamera() {
+        const newFacing = facingMode() === 'user' ? 'environment' : 'user';
+        setFacingMode(newFacing);
+
+        const newStream = await getMediaStream(newFacing);
+        setStream(newStream);
+
+        if (call) {
+            // Replace tracks in call
+            const sender = (call as any)._pc?.getSenders?.().find((s: any) => s.track?.kind === 'video');
+            if (sender && sender.replaceTrack) {
+                const newVideoTrack = newStream.getVideoTracks()[0];
+                sender.replaceTrack(newVideoTrack);
+            } else {
+                // Restart if replaceTrack is not supported or fails
+                call.close();
+                startCall();
+            }
+        }
+    }
+
+    function endCall() {
+        call?.close();
+        stream()?.getTracks().forEach((track) => track.stop());
+        if (peer && !peer.destroyed) {
+            peer.destroy();
+        }
+        setConnected(false);
+        setStream(undefined);
+    }
+
     return (
-        <section>
+        <section class={styles['phone-view']}>
             <Show when={connected()} fallback={
                 <>
                     <h2>Not connected</h2>
@@ -139,39 +154,22 @@ export default function PhoneScreen() {
                 </>
             }>
                 <Show when={stream()} fallback={<h2>Waiting for media stream...</h2>}>
-                    {/* <video autoplay playsinline muted ref={el => el && (el.srcObject = stream()!)} /> */}
+                    <video class={styles['preview']}
+                        autoplay playsinline muted ref={el => el && (el.srcObject = stream()!)} />
                     <div>Call active</div>
 
-                    <button
-                        onClick={async () => {
-                            const newFacing = facingMode() === 'user' ? 'environment' : 'user';
-                            setFacingMode(newFacing);
+                    <button onClick={() => switchCamera()}> Switch Camera </button>
 
-                            const newStream = await getMediaStream(newFacing);
-                            setStream(newStream);
-
-                            // Replace tracks in call
-                            if (call) {
-                                const sender = (call as any)._pc?.getSenders?.().find((s: any) => s.track?.kind === 'video');
-                                if (sender && sender.replaceTrack) {
-                                    const newVideoTrack = newStream.getVideoTracks()[0];
-                                    sender.replaceTrack(newVideoTrack);
-                                } else {
-                                    // If replaceTrack is not supported or fails, restart call
-                                    call.close();
-                                    startCall();
-                                }
-                            }
-                        }}
-                    >
-                        Switch Camera
-                    </button>
-
+                    <Show when={connected()}>
+                        <button onClick={() => endCall()} > End Call </button>
+                    </Show>
                 </Show>
+
                 <Show when={localLog()}>
-                    <div style={{ color: 'green' }}>{localLog()}</div>
+                    <div class={styles['local-log']}>{localLog()}</div>
                 </Show>
             </Show>
+
             <ErrorDisplay />
         </section >
     );

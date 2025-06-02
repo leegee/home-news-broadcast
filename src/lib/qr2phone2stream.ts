@@ -2,24 +2,16 @@ import Peer, { MediaConnection } from 'peerjs';
 import QRCode from 'qrcode';
 import { setQrCode, setMediaStream, setStreamSource, STREAM_TYPES } from './store';
 import { reportError } from '../components/ErrorDisplay';
-import { changeMedia } from './broadcast-media';
+import { changeMedia } from './inter-tab-comms';
+import { createSilentAudioStream } from './media';
 
 let peer: Peer | null = null;
 let reconnectAttempts = 0;
 
 const MAX_RETRIES = 5;
-const BASE_DELAY_MS = 1000; // 1 second
+const BASE_DELAY_MS = 1_000;
 
 const peerId = 'desktop-ok';
-
-function createEmptyStream(): MediaStream {
-    const ctx = new AudioContext();
-    const oscillator = ctx.createOscillator();
-    const destination: MediaStreamAudioDestinationNode = ctx.createMediaStreamDestination();
-    oscillator.connect(destination);
-    oscillator.start();
-    return destination.stream;
-}
 
 export async function setupQRCodeFlow() {
     console.log('setupQRCodeFlow enter');
@@ -33,7 +25,7 @@ export async function setupQRCodeFlow() {
     try {
         peer = new Peer(peerId, {
             host: __LOCAL_IP__,
-            port: 9000,
+            port: __RTC_PORT__,
             path: '/',
             config: {
                 iceServers: [{ urls: 'stun:stun.l.google.com:19302' }],
@@ -59,20 +51,20 @@ export async function setupQRCodeFlow() {
             if (error.type === 'unavailable-id') {
                 reportError(`Peer ID "${peerId}" is already in use.`);
             } else if (error.message.includes('Lost connection')) {
-                reportError('Please check the local server is running!');
+                reportError('Please check the local server is running.');
             } else {
                 reportError(error);
             }
 
             if (reconnectAttempts < MAX_RETRIES) {
                 const delay = BASE_DELAY_MS * Math.pow(2, reconnectAttempts);
-                console.log(`Retrying peer connection in ${delay}ms...`);
+                console.log(`Retrying peer connection in ${delay} ms...`);
                 setTimeout(() => {
                     reconnectAttempts++;
                     setupQRCodeFlow();
                 }, delay);
             } else {
-                reportError('Unable to connect after several attempts.');
+                reportError(`Unable to connect after ${MAX_RETRIES} attempts.`);
             }
         });
 
@@ -82,7 +74,7 @@ export async function setupQRCodeFlow() {
 
         peer.on('call', (call: MediaConnection) => {
             console.log('Incoming call from phone:', call.peer);
-            call.answer(createEmptyStream());
+            call.answer(createSilentAudioStream());
 
             call.on('stream', (remoteStream) => {
                 console.log('Received remote media stream from phone');
@@ -96,6 +88,7 @@ export async function setupQRCodeFlow() {
                 console.log('Call closed');
                 setMediaStream(null);
                 setStreamSource(null);
+                changeMedia({ url: '', type: STREAM_TYPES.NONE });
             });
 
             call.on('error', (err) => {

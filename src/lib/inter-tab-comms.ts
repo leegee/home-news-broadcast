@@ -1,5 +1,4 @@
-// broadcast-media.ts
-import type { StreamType } from '../lib/store';
+import type { StreamType } from './store';
 
 export type MediaChangeMessage = {
     class: 'media-change';

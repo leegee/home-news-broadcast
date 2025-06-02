@@ -1,0 +1,11 @@
+// PhoneScreen.scss
+.phone-view {
+    video.preview {
+        max-height: 5em;
+    }
+
+    .local-log {
+        color: green;
+        margin-top: 1em;
+    }
+}

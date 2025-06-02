@@ -7,7 +7,7 @@ import { ErrorDisplay } from '../components/ErrorDisplay';
 import ShowQRCode from '../components/ShowQRCode';
 import Gallery from '../components/Gallery';
 import ShowRemoteCamera from '../components/ShowRemoteCamera';
-import { changeMedia } from '../lib/broadcast-media';
+import { changeMedia } from '../lib/inter-tab-comms';
 
 import {
     removeFromHistory,

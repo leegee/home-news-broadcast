@@ -23,6 +23,15 @@
         display: flex;
         justify-content: center;
 
+        .awaiting-camera {
+            margin-top: 40%;
+            height: 1em;
+            padding: 2em;
+            font-size: large;
+            border-radius: 2pt;
+            background: black;
+        }
+
         .broadcast-video,
         .broadcast-iframe {
             object-fit: contain;

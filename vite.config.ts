@@ -32,5 +32,6 @@ export default defineConfig({
   define: {
     __LOCAL_ADDRESS__: JSON.stringify(`https://${localIp}:${port}`),
     __LOCAL_IP__: JSON.stringify(localIp),
+    __RTC_PORT__: JSON.stringify(9000),
   },
 })
