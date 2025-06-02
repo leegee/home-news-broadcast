@@ -1,7 +1,7 @@
 import styles from './Ticker.module.css';
 import { createEffect, onCleanup, onMount } from 'solid-js';
 import { selectContent } from '../lib/select-content';
-import { ticker, setTicker } from '../lib/stores/store';
+import { ticker, setTicker } from '../lib/stores/ui';
 
 const speed = 100;
 const padding = 20;

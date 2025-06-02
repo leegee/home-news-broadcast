@@ -1,4 +1,4 @@
-import { bannerImage, setBannerImage } from '../lib/stores/store';
+import { bannerImage, setBannerImage } from '../lib/stores/ui';
 import styles from './BannerImage.module.scss';
 import { onMount, Show } from 'solid-js';
 

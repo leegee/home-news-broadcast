@@ -1,6 +1,6 @@
 import './ErrorDisplay.css';
 import { Show } from 'solid-js';
-import { error, setError } from '../lib/stores/store';
+import { error, setError } from '../lib/stores/ui';
 
 export function ErrorDisplay() {
     return (

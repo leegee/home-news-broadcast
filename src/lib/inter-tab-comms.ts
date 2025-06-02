@@ -1,4 +1,4 @@
-import type { StreamType } from './stores/store';
+import type { StreamType } from './stores/ui';
 
 export type MediaChangeParams = {
     url: string;

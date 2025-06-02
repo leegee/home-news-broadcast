@@ -15,7 +15,7 @@ import {
     setStreamSource,
     streamSource,
     STREAM_TYPES,
-} from '../lib/stores/store.ts';
+} from '../lib/stores/ui.ts';
 import { history, selectedKey, setSelectedKey } from '../lib/stores/history.ts';
 
 let peerSetup = false;

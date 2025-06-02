@@ -1,5 +1,5 @@
 import { createEffect, createSignal, Show } from "solid-js";
-import { STREAM_TYPES } from '../lib/stores/store.ts';
+import { STREAM_TYPES } from '../lib/stores/ui.ts';
 
 type LocalCameraProps = {
     onSelect: (keyOrUrl: string) => void;
