@@ -1,4 +1,4 @@
-.banner-image-component {
+.banner-text-component {
     --size: 4em;
     --text-size: 2em;
     z-index: 300;
@@ -41,6 +41,10 @@
 
         h2 {
             font-size: 100%;
+        }
+
+        h2:empty {
+            display: none;
         }
     }
 }
