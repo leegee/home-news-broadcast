@@ -2,7 +2,7 @@ import styles from './ControlScreen.module.scss';
 import { onMount } from 'solid-js';
 import { getYoutubeEmbedUrl, isYoutubeUrl } from '../lib/youtube';
 import { STREAM_TYPES } from '../lib/stores/ui';
-import { removeFromHistory, saveUrlToHistory, selectedKey, setSelectedKey, } from '../lib/stores/history';
+import { removeFromHistory, saveHistoryItem, selectedKey, setSelectedKey, } from '../lib/stores/history';
 import { saveFile, loadFile, deleteFile } from '../lib/file-store';
 import OpenOutputScreen from '../components/OpenOutputScreen';
 import { ErrorDisplay } from '../components/ErrorDisplay';
@@ -69,14 +69,14 @@ const handleDroppedFile = async (file: File) => {
     if (file.type.startsWith('video/') || file.type.startsWith('image/')) {
         const key = `local:${file.name}:${Date.now()}`;
         await saveFile(key, file);
-        saveUrlToHistory({ key, headline: '', standfirst: '' });
+        saveHistoryItem({ key, headline: '', standfirst: '' });
         showItem(key);
     }
 };
 
 const handleDroppedText = (text: string) => {
     if (text && isYoutubeUrl(text)) {
-        saveUrlToHistory({ key: text, headline: '', standfirst: '' });
+        saveHistoryItem({ key: text, headline: '', standfirst: '' });
         showItem(text);
     }
 };
