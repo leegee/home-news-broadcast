@@ -7,7 +7,7 @@ import { loadFile, getMimeType } from '../lib/file-store';
 import CaptureControls from '../components/CaptureControls';
 import { setupQRCodeFlow } from '../lib/qr2phone2stream';
 import { isYoutubeUrl } from '../lib/youtube';
-import { changeMedia, onMediaChange } from '../lib/inter-tab-comms.ts';
+import { MediaChangeParams, onMediaChange } from '../lib/inter-tab-comms.ts';
 import {
     history,
     mediaStream,
@@ -85,7 +85,7 @@ export default function BroadcastScreen() {
 
             if (type) {
                 console.log('Loaded local file from file-store:', key, type);
-                changeMedia({ url, type });
+                setMedia({ url, type });
             } else {
                 console.warn('Unrecognized mime type in Broadcast tab:', mime);
             }
@@ -122,31 +122,7 @@ export default function BroadcastScreen() {
         window.addEventListener('keydown', handleKeyDown);
 
         const cleanupBroadcastChannel = onMediaChange(async ({ url, type }) => {
-            console.log('Media changed to:', url, 'with type:', type);
-            console.log('BroadcastScreen Media changed: url =', url, ', type =', type, ', peerSetup =', peerSetup, ", isYoutubeUrl =", isYoutubeUrl(url));
-
-            setMediaSource({ url, type });
-            triedAutoPlay = false;
-            setShowPlayButton(false);
-
-            if (type !== STREAM_TYPES.LIVE_EXTERNAL) {
-                peerSetup = false;
-            }
-
-            if (type === STREAM_TYPES.LIVE_EXTERNAL && !peerSetup) {
-                peerSetup = true;
-                setupQRCodeFlow();
-            }
-            else if (type === STREAM_TYPES.LIVE_LOCAL && !mediaStream()) {
-                const localMediaStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-                setMediaStream(localMediaStream);
-                setStreamSource('local');
-            }
-            else if (mediaStream() && streamSource() === STREAM_TYPES.LIVE_LOCAL) {
-                mediaStream()!.getTracks().forEach(track => track.stop());
-                setMediaStream(null);
-                setStreamSource(null);
-            }
+            setMedia({ url, type });
         });
 
         onCleanup(() => {
@@ -160,6 +136,34 @@ export default function BroadcastScreen() {
         mediaStream()?.getTracks().forEach(t => t.stop());
         setMediaStream(null);
     });
+
+    const setMedia = async ({ url, type }: MediaChangeParams) => {
+        console.log('Media changed to:', url, 'with type:', type);
+        console.log('BroadcastScreen Media changed: url =', url, ', type =', type, ', peerSetup =', peerSetup, ", isYoutubeUrl =", isYoutubeUrl(url));
+        console.log('history', history());
+        triedAutoPlay = false;
+        setMediaSource({ url, type });
+        setShowPlayButton(false);
+
+        if (type !== STREAM_TYPES.LIVE_EXTERNAL) {
+            peerSetup = false;
+        }
+
+        if (type === STREAM_TYPES.LIVE_EXTERNAL && !peerSetup) {
+            peerSetup = true;
+            setupQRCodeFlow();
+        }
+        else if (type === STREAM_TYPES.LIVE_LOCAL && !mediaStream()) {
+            const localMediaStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+            setMediaStream(localMediaStream);
+            setStreamSource('local');
+        }
+        else if (mediaStream() && streamSource() === STREAM_TYPES.LIVE_LOCAL) {
+            mediaStream()!.getTracks().forEach(track => track.stop());
+            setMediaStream(null);
+            setStreamSource(null);
+        }
+    }
 
     const navigateHistory = (direction: number) => {
         const keys = history();
@@ -203,14 +207,15 @@ export default function BroadcastScreen() {
             <CaptureControls />
 
             <div class={`${styles['broadcast-pane']
-                } ${mediaSource().type === STREAM_TYPES.NONE ? styles['without-media'] : ''
+                } ${(mediaSource().type === STREAM_TYPES.NONE || mediaStream() !== null)}? styles['without-media'] : ''
                 }`
             }>
-                <Show when={mediaSource().type !== STREAM_TYPES.NONE && mediaStream() !== null} fallback={
-                    <p class={styles['awaiting-camera']}>Awaiting camera</p>
-                }>
+                <Show when={mediaSource().type !== STREAM_TYPES.NONE}>
                     <Switch fallback={<div>No matching stream type for: {mediaSource().type}</div>}>
-                        <Match when={mediaSource().type === STREAM_TYPES.LIVE_LOCAL || mediaSource().type === STREAM_TYPES.LIVE_EXTERNAL}>
+                        <Match when={
+                            (mediaSource().type === STREAM_TYPES.LIVE_LOCAL || mediaSource().type === STREAM_TYPES.LIVE_EXTERNAL)
+                            && mediaStream() !== null
+                        }>
                             <video
                                 class={styles['broadcast-video']}
                                 ref={el => setVideoRef(el)}

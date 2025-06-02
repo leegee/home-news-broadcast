@@ -1,10 +1,13 @@
 import type { StreamType } from './store';
 
-export type MediaChangeMessage = {
-    class: 'media-change';
+export type MediaChangeParams = {
     url: string;
     type: StreamType;
-};
+}
+
+export type MediaChangeMessage = {
+    class: 'media-change';
+} & MediaChangeParams;
 
 const CHANNEL_NAME = 'cap-channel';
 
@@ -25,7 +28,7 @@ export const changeMedia = (params: { url: string; type: StreamType }) => {
  * @returns cleanup function
  */
 export const onMediaChange = (
-    callback: (params: { url: string; type: StreamType }) => void
+    callback: (params: MediaChangeParams) => void
 ) => {
     const handler = (event: MessageEvent<MediaChangeMessage>) => {
         if (event.data.class === 'media-change') {
