@@ -12,6 +12,11 @@ const MAX_HISTORY = 30;
 export const [history, setHistory] = createSyncedPersistedSignal<HistoryItem[]>('cap-history', []);
 export const [selectedKey, setSelectedKey] = createSyncedPersistedSignal<string>('cap-selected-key', '');
 
+export function getHistoryItem(key: string): HistoryItem {
+    const item = history().find(item => item.key === key);
+    return item || { key, headline: '', standfirst: '' };
+}
+
 export const currentHistoryItem = createMemo(() => {
     const key = selectedKey();
     return history().find(item => item.key === key);

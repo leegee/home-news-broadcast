@@ -1,7 +1,9 @@
-import { createSignal } from 'solid-js';
+import { createSignal, onMount } from 'solid-js';
 import styles from './MetadataModal.module.scss';
+import { getHistoryItem } from '../lib/stores/history';
 
 interface MetadataModalProps {
+    key: string;
     onSave: (headline: string, standfirst: string) => void;
     onCancel: () => void;
 }
@@ -9,6 +11,12 @@ interface MetadataModalProps {
 export default function MetadataModal(props: MetadataModalProps) {
     const [headline, setHeadline] = createSignal('');
     const [standfirst, setStandfirst] = createSignal('');
+
+    onMount(() => {
+        const item = getHistoryItem(props.key);
+        setHeadline(item.headline || '');
+        setStandfirst(item.standfirst || '');
+    });
 
     return (
         <div class={styles.backdrop}>

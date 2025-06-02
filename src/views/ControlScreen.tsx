@@ -168,6 +168,7 @@ export default function ControlScreen() {
 
             <Show when={showMetadataModal() && pendingKey()}>
                 <MetadataModal
+                    key={pendingKey()!}
                     onSave={(headline, standfirst) => {
                         saveHistoryItem({ key: pendingKey()!, headline, standfirst });
                         setShowMetadataModal(false);
