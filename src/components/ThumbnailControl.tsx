@@ -3,6 +3,8 @@ import styles from './ThumbnailControl.module.scss';
 type ThumbnailControlProps = {
     toSelect: () => void;
     toDelete: () => void;
+    onLeft: () => void;
+    onRight: () => void;
 }
 
 export default function ThumbnailControl(props: ThumbnailControlProps) {

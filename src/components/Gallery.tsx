@@ -21,6 +21,21 @@ export default function Gallery(props: GalleryProps) {
     const itemRefs = new Map<string, HTMLLIElement>();
 
     function handleKeyDown(e: KeyboardEvent) {
+        switch (e.key) {
+            case 'ArrowLeft':
+            case 'ArrowUp':
+                e.preventDefault();
+                moveThumb(-1);
+                break;
+            case 'ArrowRight':
+            case 'ArrowDown':
+                e.preventDefault();
+                moveThumb(1);
+                break;
+        }
+    }
+
+    function moveThumb(dir: number) {
         const keys = [...history()];
 
         if (keys.length === 0) return;
@@ -37,17 +52,12 @@ export default function Gallery(props: GalleryProps) {
 
         let newIndex = currentIndex;
 
-        switch (e.key) {
-            case 'ArrowLeft':
-            case 'ArrowUp':
-                newIndex = (currentIndex - 1 + keys.length) % keys.length;
-                break;
-            case 'ArrowRight':
-            case 'ArrowDown':
-                newIndex = (currentIndex + 1) % keys.length;
-                break;
-            default:
-                return; // exit early
+        if (dir < 0) {
+            newIndex = (currentIndex - 1 + keys.length) % keys.length;
+        } else if (dir > 0) {
+            newIndex = (currentIndex + 1) % keys.length;
+        } else {
+            return;
         }
 
         if (newIndex !== currentIndex) {
@@ -55,8 +65,6 @@ export default function Gallery(props: GalleryProps) {
             [updated[currentIndex], updated[newIndex]] = [updated[newIndex], updated[currentIndex]];
             setHistory(updated);
             setSelectedKey(updated[newIndex]);
-
-            e.preventDefault();
 
             // After DOM is updated:
             queueMicrotask(() => {
@@ -156,6 +164,8 @@ export default function Gallery(props: GalleryProps) {
                             <ThumbnailControl
                                 toDelete={() => props.onDelete(historyKey)}
                                 toSelect={() => props.onSelect(historyKey)}
+                                onLeft={() => moveThumb(-1)}
+                                onRight={() => moveThumb(1)}
                             />
                         </li>
                     );
