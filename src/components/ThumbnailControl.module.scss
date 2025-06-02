@@ -19,11 +19,19 @@
         button {
             z-index: 100;
             border-radius: 50%;
+            width: 3em;
             height: 3em;
             display: flex;
             align-items: center;
             justify-content: center;
             opacity: 0.66;
+        }
+
+        button.move-left,
+        button.move-right {
+            font-size: 50%;
+            width: 2em;
+            height: 2em;
         }
 
         button:hover {
