@@ -99,7 +99,7 @@ export default function BroadcastScreen() {
 
     onMount(() => {
         const handleKeyDown = (event: KeyboardEvent) => {
-            switch (event.code) {
+            switch (event.key) {
                 case 'ArrowLeft':
                 case 'ArrowUp':
                     event.preventDefault();
@@ -113,6 +113,9 @@ export default function BroadcastScreen() {
                 case 'Space':
                     event.preventDefault();
                     toggleVideoPlayback();
+                    break;
+                case 'Escape':
+                    escape();
                     break;
             }
         };
@@ -161,6 +164,10 @@ export default function BroadcastScreen() {
             setMediaStream(null);
             setStreamSource(null);
         }
+        else if (streamSource() === STREAM_TYPES.NONE || streamSource() === STREAM_TYPES.IMAGE || streamSource() === STREAM_TYPES.YOUTUBE) {
+            setMediaStream(null);
+            setStreamSource(null);
+        }
     }
 
     const navigatePlaylist = (direction: number) => {
@@ -175,6 +182,14 @@ export default function BroadcastScreen() {
 
         const newIndex = (index + direction + items.length) % items.length;
         setSelectedKey(items[newIndex].key);
+    };
+
+    const escape = () => {
+        const video = videoRef();
+        if (video && !video.paused) {
+            video.pause();
+        }
+        setMedia({ url: '', type: STREAM_TYPES.NONE });
     };
 
     const toggleVideoPlayback = () => {
@@ -204,10 +219,10 @@ export default function BroadcastScreen() {
             <ErrorDisplay />
             <CaptureControls />
 
-            <div class={`${styles['broadcast-pane']
-                } ${(mediaSource().type === STREAM_TYPES.NONE || mediaStream() !== null)}? styles['without-media'] : ''
-                }`
-            }>
+            <div class={`${styles['broadcast-pane']} ${(mediaSource().type === STREAM_TYPES.NONE || mediaStream() === null)
+                    ? styles['without-media']
+                    : ''
+                }`}>
                 <Show when={mediaSource().type !== STREAM_TYPES.NONE}>
                     <Switch fallback={<div>No matching stream type for: {mediaSource().type}</div>}>
                         <Match when={
