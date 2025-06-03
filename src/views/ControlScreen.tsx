@@ -157,18 +157,18 @@ export default function ControlScreen() {
     return (
         <main class={styles['control-screen-component']}>
 
-            <Gallery
-                onSelect={showItem}
-                onDelete={deleteItem}
-                onEdit={editItem}
-            />
-
             <nav class={styles['button-strip']}>
                 <CaptureControls />
                 <OpenBroadcastScreen />
                 <ShowLocalCamera />
                 <ShowRemoteCamera />
             </nav>
+
+            <Gallery
+                onSelect={showItem}
+                onDelete={deleteItem}
+                onEdit={editItem}
+            />
 
             <ShowQRCode />
             <ErrorDisplay />
