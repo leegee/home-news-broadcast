@@ -6,95 +6,69 @@ const DELIMITER = ' · ';
 const SPLIT_DELIMITER = /\s+·\s+/;
 
 function parseTicker(t: string) {
-    return t
-        ? t.split(SPLIT_DELIMITER).map(part => part.trim()).filter(Boolean)
-        : [''];
-}
-
-function ensureTrailingEmpty(arr: string[]) {
-    if (arr.length === 0) return [''];
-    return arr[arr.length - 1].trim() === '' ? arr : [...arr, ''];
+    return t ? t.split(SPLIT_DELIMITER).map(part => part.trim()).filter(Boolean) : [];
 }
 
 export const TickerEditor = () => {
-    // Confirmed values synced with the store
-    const [values, setValues] = createSignal(parseTicker(ticker()));
+    const [values, setValues] = createSignal(parseTicker(ticker())); // No trailing empty string here
 
-    // Draft input values for live editing
-    const [draftValues, setDraftValues] = createSignal(parseTicker(ticker()));
-
-    const updateStore = (items: string[]) => {
-        setTicker(items.filter(Boolean).join(DELIMITER));
-    };
-
-    const onInputChange = (index: number, value: string) => {
-        const nextDraft = [...draftValues()];
-        nextDraft[index] = value;
-        setDraftValues(nextDraft);
-    };
-
-    const confirm = (index: number) => {
-        const confirmed = [...values()];
-        const draft = draftValues();
-
-        // update confirmed at index with draft value
-        confirmed[index] = draft[index];
-
-        // if confirming last input and not empty, add a new empty input
-        if (confirmed[index].trim() && index === confirmed.length - 1) {
-            confirmed.push('');
-            setDraftValues([...draft, '']);
-        } else {
-            setDraftValues(draft);
+    // Sync store → local state when store changes externally
+    createEffect(() => {
+        const parsed = parseTicker(ticker());
+        if (parsed.join(DELIMITER) !== values().join(DELIMITER)) {
+            setValues(parsed);
         }
+    });
 
-        setValues(confirmed);
-        updateStore(confirmed);
+    const updateValuesAndStore = (newValues: string[]) => {
+        setValues(newValues);
+        setTicker(newValues.filter(Boolean).join(DELIMITER));
+    };
+
+    const confirm = (index: number, inputEl: HTMLInputElement) => {
+        const val = inputEl.value.trim();
+        if (!val) return;
+
+        const v = [...values()];
+        if (index === v.length) {
+            // Confirming the extra empty input at the end → add new item
+            v.push(val);
+        } else {
+            v[index] = val;
+        }
+        updateValuesAndStore(v);
     };
 
     const removeAt = (index: number) => {
-        const confirmed = [...values()];
-        const draft = [...draftValues()];
-
-        confirmed.splice(index, 1);
-        draft.splice(index, 1);
-
-        if (confirmed.length === 0) {
-            confirmed.push('');
-            draft.push('');
+        const v = [...values()];
+        if (index === v.length) {
+            // Removing the extra empty input → do nothing
+            return;
         }
-
-        setValues(confirmed);
-        setDraftValues(draft);
-        updateStore(confirmed);
+        v.splice(index, 1);
+        updateValuesAndStore(v);
     };
-
-    createEffect(() => {
-        const parsed = ensureTrailingEmpty(parseTicker(ticker()));
-
-        // sync confirmed values only if store changed externally
-        if (parsed.join(DELIMITER) !== values().join(DELIMITER)) {
-            setValues(parsed);
-            setDraftValues(parsed);
-        }
-    });
 
     return (
         <section class={styles['ticker-editor-component']}>
             <h2>Ticker</h2>
             <ul class={styles['ticker-items']}>
-                <For each={draftValues()}>
-                    {(val, i) => (
-                        <li>
-                            <input
-                                type="text"
-                                value={val}
-                                onInput={e => onInputChange(i(), e.currentTarget.value)}
-                            />
-                            <button onClick={() => confirm(i())}>✔</button>
-                            <button onClick={() => removeAt(i())}>✖</button>
-                        </li>
-                    )}
+                <For each={[...values(), '']}>
+                    {(val, i) => {
+                        let inputRef: HTMLInputElement | undefined;
+
+                        return (
+                            <li>
+                                <input
+                                    type="text"
+                                    value={val}
+                                    ref={el => (inputRef = el)}
+                                />
+                                <button onClick={() => confirm(i(), inputRef!)}>✔</button>
+                                <button onClick={() => removeAt(i())}>✖</button>
+                            </li>
+                        );
+                    }}
                 </For>
             </ul>
         </section>
