@@ -1,0 +1,53 @@
+.ticker-editor-component {
+    padding: 1em;
+
+    .ticker-items {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+
+        li {
+            display: flex;
+            align-items: center;
+            gap: 0.5em;
+            margin-bottom: 0.5em;
+
+            input[type="text"] {
+                flex-grow: 1;
+                padding: 0.4em 0.6em;
+                font-size: 1em;
+
+                &:focus {
+                    outline: 2px solid #007bff;
+                    border-color: #007bff;
+                }
+            }
+
+            button {
+                background: none;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+                padding: 0.25em 0.5em;
+                font-size: 1.1rem;
+                cursor: pointer;
+                color: #333;
+
+                &:hover {
+                    background-color: #f0f0f0;
+                }
+
+                &:first-of-type {
+                    color: oldlace;
+                    background-color: green;
+                    border-color: green;
+                }
+
+                &:last-of-type {
+                    color: oldlace;
+                    background-color: crimson;
+                    border-color: crimson;
+                }
+            }
+        }
+    }
+}

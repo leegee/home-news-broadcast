@@ -128,7 +128,6 @@ export default function BroadcastScreen() {
                     break;
                 case 'Escape':
                     escape();
-                    setError('');
                     break;
             }
         };
@@ -227,6 +226,7 @@ export default function BroadcastScreen() {
             video.pause();
         }
         setMedia({ url: '', type: STREAM_TYPES.NONE });
+        setError('');
         triggerBannerReset(1);
     };
 

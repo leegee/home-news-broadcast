@@ -85,7 +85,8 @@ export default function Banner() {
 
     // Respond to reset signal, triggerBannerReset
     createEffect(() => {
-        bannerResetCount(); // depend on reset count signal
+        console.log('Resset banner')
+        const _ = bannerResetCount(); // depend on reset count signal
         setLocalHeadline(banner());
         setLocalStandfirst('');
     });
