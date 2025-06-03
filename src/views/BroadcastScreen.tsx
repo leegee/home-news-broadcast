@@ -5,7 +5,6 @@ import Banner from '../components/Banner';
 import { ErrorDisplay } from '../components/ErrorDisplay';
 import { loadFile, getMimeType } from '../lib/stores/file-store.ts';
 import { setupQRCodeFlow } from '../lib/qr2phone2stream';
-import { isYoutubeUrl } from '../lib/youtube';
 import { MediaChangeParams, onMediaChange } from '../lib/inter-tab-comms.ts';
 import {
     mediaStream,
