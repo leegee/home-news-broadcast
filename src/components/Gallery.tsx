@@ -54,10 +54,6 @@ export default function Gallery(props: GalleryProps) {
         const previous = localMedia();
         const newLocalMedia: Record<string, LocalMediaInfo> = { ...previous };
 
-        console.log('Gallery loading effect triggered');
-        console.log('Playlist keys:', keys);
-        console.log('Existing localMedia keys:', Object.keys(previous));
-
         await Promise.all(
             keys.map(async ({ key }) => {
                 const hasKey = previous.hasOwnProperty(key);
