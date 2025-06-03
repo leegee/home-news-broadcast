@@ -9,7 +9,7 @@ export default function CaptureControls() {
 
     const startCapture = async () => {
         try {
-            initRTMPConnection('ws://localhost:3000'); // TODO: move to env var
+            initRTMPConnection(`ws://${__WS_IP__}:${__WS_PORT__}`); // TODO: move to env var
 
             const recorder = await startScreenCapture((videoBlob: Blob) => {
                 sendToRTMP(videoBlob);
