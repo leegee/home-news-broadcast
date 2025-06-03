@@ -145,37 +145,59 @@ export default function BroadcastScreen() {
 
     const setMedia = async ({ url, type }: MediaChangeParams) => {
         console.log('Media changed to:', url, 'with type:', type);
-        console.log('BroadcastScreen Media changed: url =', url, ', type =', type, ', peerSetup =', peerSetup, ", isYoutubeUrl =", isYoutubeUrl(url));
         console.log('Playlist', playlist());
         triedAutoPlay = false;
-        setMediaSource({ url, type });
         setShowPlayButton(false);
+        setMediaSource({ url, type });
 
-        if (type !== STREAM_TYPES.LIVE_EXTERNAL) {
-            peerSetup = false;
-        }
-
-        if (type === STREAM_TYPES.LIVE_EXTERNAL && !peerSetup) {
-            peerSetup = true;
-            setupQRCodeFlow();
-        }
-        else if (type === STREAM_TYPES.LIVE_LOCAL && !mediaStream()) {
-            const localMediaStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-            setMediaStream(localMediaStream);
-            setStreamSource('local');
-        }
-        else if (mediaStream() && streamSource() === STREAM_TYPES.LIVE_LOCAL) {
+        // Stop and reset previous local stream if applicable
+        if (mediaStream() && streamSource() === STREAM_TYPES.LIVE_LOCAL) {
             mediaStream()!.getTracks().forEach(track => track.stop());
             setMediaStream(null);
             setStreamSource(null);
             setQrCode('');
         }
-        else if (streamSource() === STREAM_TYPES.NONE || streamSource() === STREAM_TYPES.IMAGE || streamSource() === STREAM_TYPES.YOUTUBE) {
-            setMediaStream(null);
-            setStreamSource(null);
-            setQrCode('');
+
+        // Handle each stream type individually
+        switch (type) {
+            case STREAM_TYPES.LIVE_LOCAL: {
+                try {
+                    const localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                    setMediaStream(localStream);
+                    setStreamSource(STREAM_TYPES.LIVE_LOCAL);
+                } catch (err) {
+                    console.error('Failed to get local media stream:', err);
+                    setError('Camera/mic access failed.');
+                }
+                break;
+            }
+
+            case STREAM_TYPES.LIVE_EXTERNAL: {
+                if (!peerSetup) {
+                    peerSetup = true;
+                    setupQRCodeFlow();
+                }
+                break;
+            }
+
+            case STREAM_TYPES.IMAGE:
+            case STREAM_TYPES.VIDEO:
+            case STREAM_TYPES.YOUTUBE: {
+                setMediaStream(null);
+                setStreamSource(type);
+                setQrCode('');
+                break;
+            }
+
+            case STREAM_TYPES.NONE:
+            default: {
+                setMediaStream(null);
+                setStreamSource(null);
+                setQrCode('');
+                break;
+            }
         }
-    }
+    };
 
     const navigatePlaylist = (direction: number) => {
         const items = playlist();
