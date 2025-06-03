@@ -48,14 +48,31 @@ export function movePlaylistItem(current: string, direction: number) {
     const items = playlist();
     const currentIndex = items.findIndex(item => item.key === current);
 
-    if (currentIndex === -1 || items.length < 2) return;
+    if (currentIndex === -1 || items.length < 2) {
+        return;
+    }
 
-    const newIndex = (currentIndex + direction + items.length) % items.length;
+    const newIndex = currentIndex + direction;
 
-    if (newIndex === currentIndex) return;
+    // Prevent out-of-bounds movement
+    if (newIndex < 0 || newIndex >= items.length) {
+        console.warn('Move out of bounds:', { currentIndex, newIndex });
+        return;
+    }
+
+    console.debug('Swapping items:', {
+        from: currentIndex,
+        to: newIndex,
+        fromKey: items[currentIndex].key,
+        toKey: items[newIndex].key,
+    });
 
     const updated = [...items];
     [updated[currentIndex], updated[newIndex]] = [updated[newIndex], updated[currentIndex]];
+
     setPlaylist(updated);
     setSelectedKey(updated[newIndex].key);
+
+    console.debug('Playlist after move:', updated.map(i => i.key));
+    console.debug('Selected key is now:', updated[newIndex].key);
 }

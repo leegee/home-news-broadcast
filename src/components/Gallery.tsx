@@ -36,6 +36,10 @@ export default function Gallery(props: GalleryProps) {
     }
 
     function moveThumb(key: string, dir: number) {
+        if (!key) {
+            throw new Error('No key to moveThumb')
+        }
+
         movePlaylistItem(key, dir);
 
         // Wait until the DOM updates before focusing
@@ -135,8 +139,8 @@ export default function Gallery(props: GalleryProps) {
                                 onDelete={() => props.onDelete(playlistItem.key)}
                                 onSelect={() => props.onSelect(playlistItem.key)}
                                 onEdit={() => props.onEdit(playlistItem.key)}
-                                onLeft={() => moveThumb(selectedKey(), -1)}
-                                onRight={() => moveThumb(selectedKey(), 1)}
+                                onLeft={() => moveThumb(playlistItem.key, -1)}
+                                onRight={() => moveThumb(playlistItem.key, 1)}
                             />
 
                             <div class={styles.metadata} onclick={() => alert(1)}>
