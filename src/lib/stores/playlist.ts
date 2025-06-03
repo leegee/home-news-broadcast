@@ -61,3 +61,8 @@ export function movePlaylistItem(current: string, direction: number) {
     setPlaylist(updated);
     setSelectedKey(updated[newIndex].key);
 }
+
+
+export function initPlaylistStorage() {
+    setSelectedKey('');
+}

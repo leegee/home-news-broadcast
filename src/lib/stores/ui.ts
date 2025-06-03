@@ -30,7 +30,7 @@ export const [error, setError] = createSignal<string | null>(null);
 export const [isCapturing, setIsCapturing] = createSignal(false);
 
 
-export function initLocalStorage() {
+export function initUiStorage() {
     setQrCode('');
     setStreamSource(STREAM_TYPES.NONE);
 }

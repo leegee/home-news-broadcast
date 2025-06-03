@@ -2,9 +2,11 @@
 import { render } from 'solid-js/web'
 import './index.css'
 import App from './App.tsx'
-import { initLocalStorage } from './lib/stores/ui.ts';
+import { initUiStorage } from './lib/stores/ui.ts';
+import { initPlaylistStorage } from './lib/stores/playlist.ts';
 
-initLocalStorage();
+initUiStorage();
+initPlaylistStorage();
 
 const root = document.getElementById('root')
 

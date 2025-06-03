@@ -18,6 +18,9 @@ let lastUrl: string | null = null;
 
 export const showItem = async (keyOrUrl: string) => {
     console.log('showItem called with:', keyOrUrl);
+
+    if (keyOrUrl === selectedKey()) return;
+
     setSelectedKey(keyOrUrl);
 
     if (lastUrl) {
@@ -49,8 +52,11 @@ export const showItem = async (keyOrUrl: string) => {
             console.log('Set YouTube source:', embed);
         }
     }
+    else if (keyOrUrl === STREAM_TYPES.NONE) {
+        changeMedia({ url: '', type: keyOrUrl });
+    }
     else {
-        const type = keyOrUrl.endsWith('.jpg') ? STREAM_TYPES.IMAGE : STREAM_TYPES.VIDEO;
+        const type = /\.(jpe?g|png|gif|webp|bmp|ico|avif|svg)$/i.test(keyOrUrl) ? STREAM_TYPES.IMAGE : STREAM_TYPES.VIDEO;
         changeMedia({ url: keyOrUrl, type });
         console.log('Set fallback source:', keyOrUrl, type);
     }
@@ -138,6 +144,7 @@ export default function ControlScreen() {
     onMount(async () => {
         document.title = "Control Window";
         if (selectedKey()) {
+            console.info('First media', selectedKey())
             showItem(selectedKey()).catch(console.error);
         }
 
