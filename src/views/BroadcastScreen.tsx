@@ -15,6 +15,7 @@ import {
     setStreamSource,
     streamSource,
     STREAM_TYPES,
+    triggerBannerReset,
 } from '../lib/stores/ui.ts';
 import { playlist, selectedKey, setSelectedKey } from '../lib/stores/playlist.ts';
 
@@ -190,6 +191,7 @@ export default function BroadcastScreen() {
             video.pause();
         }
         setMedia({ url: '', type: STREAM_TYPES.NONE });
+        triggerBannerReset(1);
     };
 
     const toggleVideoPlayback = () => {
@@ -220,8 +222,8 @@ export default function BroadcastScreen() {
             <CaptureControls />
 
             <div class={`${styles['broadcast-pane']} ${(mediaSource().type === STREAM_TYPES.NONE || mediaStream() === null)
-                    ? styles['without-media']
-                    : ''
+                ? styles['without-media']
+                : ''
                 }`}>
                 <Show when={mediaSource().type !== STREAM_TYPES.NONE}>
                     <Switch fallback={<div>No matching stream type for: {mediaSource().type}</div>}>
