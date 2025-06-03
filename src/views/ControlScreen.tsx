@@ -7,7 +7,7 @@ import { saveFile, loadFile, deleteFile } from '../lib/stores/file-store';
 import { changeMedia } from '../lib/inter-tab-comms';
 import { ErrorDisplay } from '../components/ErrorDisplay';
 import CaptureControls from '../components/CaptureControls';
-import OpenOutputScreen from '../components/OpenOutputScreen';
+import OpenBroadcastScreen from '../components/OpenBroadcastScreen';
 import ShowQRCode from '../components/ShowQRCode';
 import Gallery from '../components/Gallery';
 import ShowRemoteCamera from '../components/ShowRemoteCamera';
@@ -165,7 +165,7 @@ export default function ControlScreen() {
 
             <nav class={styles['button-strip']}>
                 <CaptureControls />
-                <OpenOutputScreen />
+                <OpenBroadcastScreen />
                 <ShowLocalCamera />
                 <ShowRemoteCamera />
             </nav>
