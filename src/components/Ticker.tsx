@@ -1,6 +1,5 @@
 import styles from './Ticker.module.css';
 import { createEffect, onCleanup, onMount } from 'solid-js';
-import { selectContent } from '../lib/select-content';
 import { ticker, setTicker } from '../lib/stores/ui';
 
 const speed = 100;
@@ -13,7 +12,6 @@ const Ticker = () => {
     let preEditTextContent = '';
 
     let item1: HTMLDivElement | null = null;
-    let item2: HTMLDivElement | null = null;
 
     let width = 0;
     let x1 = 0;
@@ -33,7 +31,6 @@ const Ticker = () => {
         x2 = 0;
 
         const target = e.target as HTMLElement;
-        selectContent(target);
         preEditTextContent = target.textContent || '';
     };
 
@@ -61,6 +58,9 @@ const Ticker = () => {
             }
             e.preventDefault();
             (e.currentTarget as HTMLElement).blur();
+        }
+        else if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
+            e.stopPropagation();
         }
     };
 
@@ -105,7 +105,6 @@ const Ticker = () => {
         }
 
         if (item1) item1.style.transform = `translateX(${x1}px)`;
-        if (item2) item2.style.transform = `translateX(${x2}px)`;
 
         animationFrameId = requestAnimationFrame(step);
     };
@@ -114,7 +113,6 @@ const Ticker = () => {
         if (!containerRef) return;
 
         item1 = containerRef.querySelector('.' + styles['ticker-item']) as HTMLDivElement;
-        item2 = containerRef.querySelector('.' + styles['ticker-item'] + ':nth-child(2)') as HTMLDivElement;
 
         lastTime = performance.now();
         if (animationFrameId === null) {
@@ -127,7 +125,7 @@ const Ticker = () => {
         if (!containerRef) return;
 
         item1 = containerRef.querySelector('.' + styles['ticker-item']) as HTMLDivElement;
-        item2 = containerRef.querySelector('.' + styles['ticker-item'] + ':nth-child(2)') as HTMLDivElement;
+        // item2 = containerRef.querySelector('.' + styles['ticker-item'] + ':nth-child(2)') as HTMLDivElement;
 
         width = 0;
         x1 = 0;
