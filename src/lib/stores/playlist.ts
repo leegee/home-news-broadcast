@@ -1,5 +1,5 @@
 import { createMemo } from 'solid-js';
-import { createSyncedPersistedSignal } from './store';
+import { createSyncedPersistedSignal } from './base';
 
 export type PlaylistItem = {
     key: string;
