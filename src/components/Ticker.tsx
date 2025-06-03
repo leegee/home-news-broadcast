@@ -12,6 +12,7 @@ const Ticker = () => {
     let preEditTextContent = '';
 
     let item1: HTMLDivElement | null = null;
+    let item2: HTMLDivElement | null = null;
 
     let width = 0;
     let x1 = 0;
@@ -58,17 +59,19 @@ const Ticker = () => {
             }
             e.preventDefault();
             (e.currentTarget as HTMLElement).blur();
-        }
-        else if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
+        } else if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
             e.stopPropagation();
         }
     };
 
-    const createItem = (text: string) => (
+    // Use refs here to assign item divs and avoid querying
+    const createItem = (text: string, assignRef: (el: HTMLDivElement) => void, extraClass = '') => (
         <div
-            class={styles['ticker-item']}
+            ref={assignRef}
+            class={`${styles['ticker-item']} ${extraClass}`}
             contentEditable
             tabIndex={0}
+            spellcheck={true}
             onClick={startEdit}
             onBlur={saveText}
             onKeyDown={onKeyDown}
@@ -105,15 +108,12 @@ const Ticker = () => {
         }
 
         if (item1) item1.style.transform = `translateX(${x1}px)`;
+        if (item2) item2.style.transform = `translateX(${x2}px)`;
 
         animationFrameId = requestAnimationFrame(step);
     };
 
     onMount(() => {
-        if (!containerRef) return;
-
-        item1 = containerRef.querySelector('.' + styles['ticker-item']) as HTMLDivElement;
-
         lastTime = performance.now();
         if (animationFrameId === null) {
             animationFrameId = requestAnimationFrame(step);
@@ -122,10 +122,6 @@ const Ticker = () => {
 
     createEffect(() => {
         ticker(); // track ticker reactive
-        if (!containerRef) return;
-
-        item1 = containerRef.querySelector('.' + styles['ticker-item']) as HTMLDivElement;
-        // item2 = containerRef.querySelector('.' + styles['ticker-item'] + ':nth-child(2)') as HTMLDivElement;
 
         width = 0;
         x1 = 0;
@@ -148,8 +144,8 @@ const Ticker = () => {
 
     return (
         <div ref={(el) => (containerRef = el)} class={styles.ticker}>
-            {createItem(ticker())}
-            {/* {createItem(ticker())} */}
+            {createItem(ticker(), (el) => (item1 = el))}
+            {createItem(ticker(), (el) => (item2 = el), styles['ticker-item2'])}
         </div>
     );
 };
