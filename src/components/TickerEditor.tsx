@@ -10,9 +10,8 @@ function parseTicker(t: string) {
 }
 
 export const TickerEditor = () => {
-    const [values, setValues] = createSignal(parseTicker(ticker())); // No trailing empty string here
+    const [values, setValues] = createSignal(parseTicker(ticker()));
 
-    // Sync store → local state when store changes externally
     createEffect(() => {
         const parsed = parseTicker(ticker());
         if (parsed.join(DELIMITER) !== values().join(DELIMITER)) {
@@ -31,20 +30,22 @@ export const TickerEditor = () => {
 
         const v = [...values()];
         if (index === v.length) {
-            // Confirming the extra empty input at the end → add new item
             v.push(val);
         } else {
             v[index] = val;
         }
+
         updateValuesAndStore(v);
     };
 
-    const removeAt = (index: number) => {
-        const v = [...values()];
-        if (index === v.length) {
-            // Removing the extra empty input → do nothing
+    const removeAt = (index: number, inputEl?: HTMLInputElement) => {
+        if (index === values().length) {
+            // Clear the temporary final input
+            if (inputEl) inputEl.value = '';
             return;
         }
+
+        const v = [...values()];
         v.splice(index, 1);
         updateValuesAndStore(v);
     };
@@ -53,10 +54,9 @@ export const TickerEditor = () => {
         <section class={styles['ticker-editor-component']}>
             <h2>Ticker</h2>
             <ul class={styles['ticker-items']}>
-                <For each={[...values(), '']}>
+                <For each={values()}>
                     {(val, i) => {
                         let inputRef: HTMLInputElement | undefined;
-
                         return (
                             <li>
                                 <input
@@ -65,11 +65,16 @@ export const TickerEditor = () => {
                                     ref={el => (inputRef = el)}
                                 />
                                 <button onClick={() => confirm(i(), inputRef!)}>✔</button>
-                                <button onClick={() => removeAt(i())}>✖</button>
+                                <button onClick={() => removeAt(i(), inputRef)}>✖</button>
                             </li>
                         );
                     }}
                 </For>
+                <li>
+                    <input type="text" value="" ref={el => (el.value = '')} />
+                    <button onClick={e => confirm(values().length, e.currentTarget.previousElementSibling as HTMLInputElement)}>✔</button>
+                    <button onClick={e => removeAt(values().length, e.currentTarget.previousElementSibling as HTMLInputElement)}>✖</button>
+                </li>
             </ul>
         </section>
     );
