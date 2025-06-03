@@ -11,7 +11,9 @@ function parseTicker(t: string) {
 
 export const TickerEditor = () => {
     const [values, setValues] = createSignal(parseTicker(ticker()));
+    const [newValue, setNewValue] = createSignal('');
 
+    // Sync when store changes externally
     createEffect(() => {
         const parsed = parseTicker(ticker());
         if (parsed.join(DELIMITER) !== values().join(DELIMITER)) {
@@ -28,20 +30,19 @@ export const TickerEditor = () => {
         const val = inputEl.value.trim();
         if (!val) return;
 
-        const v = [...values()];
-        if (index === v.length) {
-            v.push(val);
+        const current = [...values()];
+        if (index === current.length) {
+            updateValuesAndStore([...current, val]);
+            setNewValue('');
         } else {
-            v[index] = val;
+            current[index] = val;
+            updateValuesAndStore(current);
         }
-
-        updateValuesAndStore(v);
     };
 
-    const removeAt = (index: number, inputEl?: HTMLInputElement) => {
+    const removeAt = (index: number) => {
         if (index === values().length) {
-            // Clear the temporary final input
-            if (inputEl) inputEl.value = '';
+            setNewValue('');
             return;
         }
 
@@ -65,15 +66,23 @@ export const TickerEditor = () => {
                                     ref={el => (inputRef = el)}
                                 />
                                 <button onClick={() => confirm(i(), inputRef!)}>✔</button>
-                                <button onClick={() => removeAt(i(), inputRef)}>✖</button>
+                                <button onClick={() => removeAt(i())}>✖</button>
                             </li>
                         );
                     }}
                 </For>
                 <li>
-                    <input type="text" value="" ref={el => (el.value = '')} />
-                    <button onClick={e => confirm(values().length, e.currentTarget.previousElementSibling as HTMLInputElement)}>✔</button>
-                    <button onClick={e => removeAt(values().length, e.currentTarget.previousElementSibling as HTMLInputElement)}>✖</button>
+                    <input
+                        type="text"
+                        value={newValue()}
+                        onInput={e => setNewValue(e.currentTarget.value)}
+                    />
+                    <button onClick={e =>
+                        confirm(values().length, e.currentTarget.previousElementSibling as HTMLInputElement)
+                    }>
+                        ✔
+                    </button>
+                    <button onClick={() => removeAt(values().length)}>✖</button>
                 </li>
             </ul>
         </section>
