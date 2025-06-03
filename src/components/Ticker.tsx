@@ -3,7 +3,6 @@ import { createEffect, onCleanup, onMount } from 'solid-js';
 import { ticker, setTicker } from '../lib/stores/ui';
 
 const speed = 100;
-const padding = 20;
 
 const Ticker = () => {
     let containerRef: HTMLDivElement | null = null;
@@ -33,6 +32,40 @@ const Ticker = () => {
 
         const target = e.target as HTMLElement;
         preEditTextContent = target.textContent || '';
+    };
+
+    const step = (now: number) => {
+        if (!runAnimation) {
+            animationFrameId = null;
+            return;
+        }
+
+        const deltaT = (now - lastTime) / 1000;
+        lastTime = now;
+
+        if (!width && item1 && item2) {
+            width = item1.offsetWidth;
+            x1 = 0;
+            x2 = width;
+            item1.style.transform = `translateX(${x1}px)`;
+            item2.style.transform = `translateX(${x2}px)`;
+        }
+
+        x1 -= speed * deltaT;
+        x2 -= speed * deltaT;
+
+        // Offscreen?
+        if (x1 + width < 0 && containerRef) {
+            x1 = containerRef.offsetWidth;
+        }
+        if (x2 + width < 0 && containerRef) {
+            x2 = containerRef.offsetWidth;
+        }
+
+        if (item1) item1.style.transform = `translateX(${x1}px)`;
+        if (item2) item2.style.transform = `translateX(${x2}px)`;
+
+        animationFrameId = requestAnimationFrame(step);
     };
 
     const saveText = (e: Event) => {
@@ -77,41 +110,6 @@ const Ticker = () => {
             {text || 'Click to edit'}
         </div>
     );
-
-    const step = (now: number) => {
-        if (!runAnimation) {
-            animationFrameId = null;
-            return;
-        }
-
-        const deltaT = (now - lastTime) / 1000;
-        lastTime = now;
-
-        if (!width && item1 && item2) {
-            width = item1.offsetWidth;
-            x1 = 0;
-            x2 = width + padding;
-            item1.style.transform = `translateX(${x1}px)`;
-            item2.style.transform = `translateX(${x2}px)`;
-        }
-
-        x1 -= speed * deltaT;
-        x2 -= speed * deltaT;
-
-        const epsilon = 1; // 1px margin to avoid overlap
-
-        if (x1 <= -width) {
-            x1 = x2 + width + padding - epsilon;
-        }
-        if (x2 <= -width) {
-            x2 = x1 + width + padding - epsilon;
-        }
-
-        if (item1) item1.style.transform = `translateX(${x1}px)`;
-        if (item2) item2.style.transform = `translateX(${x2}px)`;
-
-        animationFrameId = requestAnimationFrame(step);
-    };
 
     onMount(() => {
         if (!containerRef) return;
