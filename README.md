@@ -1,9 +1,23 @@
+## Synopsis
 
-## Dependencies
+    # This will be combined
+    bun dev               # UI
+    bun node/server.js    # WebRTC exchange
+    bun node/streamer.js  # Streams to YT
+
+## Installation
+
+    bun install
+
+## Environment
+
+    YOUTUBEO_KEY
+
+### Dependencies
 
     bun run make-certs # Or put yours in ./certs/
 
-    choco install ffmpeg-full # For libx264
+    choco install ffmpeg-full # For  libx264
     
     brew reinstall ffmpeg --with-libx264
     
@@ -21,18 +35,7 @@
       -c:a aac -b:a 128k -ar 44100 -pix_fmt yuv420p \
       -shortest -f flv rtmp://a.rtmp.youtube.com/live2/$YOUTUBE_KEY
 
-## Installation
-
-    bun install
-
-## Synopsis
-
-    # This will be combined
-    bun dev               # UI
-    bun node/server.js    # WebRTC exchange
-    bun node/streamer.js  # Streams to YT
-
-## Certs
+### Certs
 
 To use the camera/mic from an external device, you will need to
 either used a trusted CA or use `mkcert -CAROOT` to locate the
