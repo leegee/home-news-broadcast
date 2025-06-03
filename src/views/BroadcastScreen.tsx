@@ -165,10 +165,12 @@ export default function BroadcastScreen() {
             mediaStream()!.getTracks().forEach(track => track.stop());
             setMediaStream(null);
             setStreamSource(null);
+            setQrCode('');
         }
         else if (streamSource() === STREAM_TYPES.NONE || streamSource() === STREAM_TYPES.IMAGE || streamSource() === STREAM_TYPES.YOUTUBE) {
             setMediaStream(null);
             setStreamSource(null);
+            setQrCode('');
         }
     }
 

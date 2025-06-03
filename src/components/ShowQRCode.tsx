@@ -1,3 +1,4 @@
+import styles from './ShowQRCode.module.scss';
 import { createEffect, Show } from "solid-js";
 import { qrCode } from "../lib/stores/ui";
 
@@ -19,7 +20,7 @@ export default function ShowQRCode() {
 
     return (
         <Show when={qrCode()}>
-            <img src={qrCode()} alt="QR Code" width={400} height={400} style={{ margin: '4em' }} />
+            <img src={qrCode()} alt="QR Code" class={styles['qr-code']} />
         </Show>
     );
 }
