@@ -52,27 +52,12 @@ export function movePlaylistItem(current: string, direction: number) {
         return;
     }
 
-    const newIndex = currentIndex + direction;
-
-    // Prevent out-of-bounds movement
-    if (newIndex < 0 || newIndex >= items.length) {
-        console.warn('Move out of bounds:', { currentIndex, newIndex });
-        return;
-    }
-
-    console.debug('Swapping items:', {
-        from: currentIndex,
-        to: newIndex,
-        fromKey: items[currentIndex].key,
-        toKey: items[newIndex].key,
-    });
+    // Wrap the index
+    const newIndex = (currentIndex + direction + items.length) % items.length;
 
     const updated = [...items];
     [updated[currentIndex], updated[newIndex]] = [updated[newIndex], updated[currentIndex]];
 
     setPlaylist(updated);
     setSelectedKey(updated[newIndex].key);
-
-    console.debug('Playlist after move:', updated.map(i => i.key));
-    console.debug('Selected key is now:', updated[newIndex].key);
 }
