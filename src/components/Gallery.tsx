@@ -2,7 +2,7 @@ import styles from './Gallery.module.scss';
 import { For, Show, createEffect, createSignal, onCleanup } from 'solid-js';
 import { playlist, selectedKey, movePlaylistItem, } from '../lib/stores/playlist.ts';
 import { getYoutubeThumbnail } from '../lib/youtube.ts';
-import { getMimeType, loadFile } from '../lib/file-store.ts';
+import { getMimeType, loadFile } from '../lib/stores/file-store.ts';
 import ThumbnailControl from './ThumbnailControl.tsx';
 
 type GalleryProps = {

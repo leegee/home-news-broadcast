@@ -3,7 +3,7 @@ import { createEffect, createSignal, Match, onCleanup, onMount, Show, Switch } f
 import Ticker from '../components/Ticker';
 import Banner from '../components/Banner';
 import { ErrorDisplay } from '../components/ErrorDisplay';
-import { loadFile, getMimeType } from '../lib/file-store';
+import { loadFile, getMimeType } from '../lib/stores/file-store.ts';
 import { setupQRCodeFlow } from '../lib/qr2phone2stream';
 import { isYoutubeUrl } from '../lib/youtube';
 import { MediaChangeParams, onMediaChange } from '../lib/inter-tab-comms.ts';
