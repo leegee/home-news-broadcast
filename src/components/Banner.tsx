@@ -15,15 +15,6 @@ export default function Banner() {
 
     const hasCurrentItem = createMemo(() => !!currentPlaylistItem());
 
-    const displayHeadline = createMemo(() => {
-        const item = currentPlaylistItem();
-        return item?.headline || banner() || 'Click to edit';
-    });
-
-    const displayStandfirst = createMemo(() => {
-        return currentPlaylistItem()?.standfirst || '';
-    });
-
     const startEdit = (e: Event) => {
         const target = e.target as HTMLElement;
         if (!hasCurrentItem()) return;
@@ -94,7 +85,7 @@ export default function Banner() {
 
     // Respond to reset signal, triggerBannerReset
     createEffect(() => {
-        const _ = bannerResetCount(); // depend on reset count signal
+        bannerResetCount(); // depend on reset count signal
         setLocalHeadline(banner());
         setLocalStandfirst('');
     });

@@ -34,7 +34,7 @@ export default function CaptureControls() {
     };
 
     onMount(() => {
-        const cleanupOnMediaChange = onMediaChange(async ({ url, type }) => {
+        const cleanupOnMediaChange = onMediaChange(async ({ type }) => {
             if (type === STREAM_TYPES.NONE) {
                 stopCapture();
             }
