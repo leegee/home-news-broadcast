@@ -6,29 +6,15 @@
     width: 100vw;
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: flex-start;
     z-index: 1000;
-
 
     .button-strip {
         padding: 1em;
         gap: 1em;
         display: flex;
-        margin-top: auto;
-
+        margin-bottom: 1em;
         justify-content: center;
         align-items: center;
     }
 }
-
-// .control-screen-component::before {
-//     content: "";
-//     position: absolute;
-//     inset: 0;
-//     background-image: url('globe.gif');
-//     background-position: center;
-//     background-repeat: no-repeat;
-//     background-size: contain;
-//     filter: blur(5px) brightness(0.6);
-//     z-index: -1;
-// }
