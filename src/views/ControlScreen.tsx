@@ -6,6 +6,7 @@ import { removeFromPlaylist, savePlaylistItem, selectedKey, setSelectedKey, } fr
 import { saveFile, loadFile, deleteFile } from '../lib/file-store';
 import { changeMedia } from '../lib/inter-tab-comms';
 import { ErrorDisplay } from '../components/ErrorDisplay';
+import CaptureControls from '../components/CaptureControls';
 import OpenOutputScreen from '../components/OpenOutputScreen';
 import ShowQRCode from '../components/ShowQRCode';
 import Gallery from '../components/Gallery';
@@ -135,6 +136,7 @@ export default function ControlScreen() {
     };
 
     onMount(async () => {
+        document.title = "Control Window";
         if (selectedKey()) {
             showItem(selectedKey()).catch(console.error);
         }
@@ -162,6 +164,7 @@ export default function ControlScreen() {
             />
 
             <nav class={styles['button-strip']}>
+                <CaptureControls />
                 <OpenOutputScreen />
                 <ShowLocalCamera />
                 <ShowRemoteCamera />

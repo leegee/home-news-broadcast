@@ -16,6 +16,7 @@ const wss = new WebSocketServer({ port: 3000 });
 wss.on('connection', (ws) => {
     console.log('Client connected');
 
+    // With audio:
     const ffmpeg = spawn('ffmpeg', [
         '-re',
         '-f', 'webm', // -f matroska
@@ -31,6 +32,39 @@ wss.on('connection', (ws) => {
         '-f', 'flv',
         STREAM_URL,
     ]);
+
+    // If no  audio:
+    // const ffmpeg = spawn('ffmpeg', [
+    //     '-re',
+    //     // Input 0: video via stdin
+    //     '-f', 'webm', // or 'matroska' if needed
+    //     '-i', '-',
+
+    //     // Input 1: silent audio
+    //     '-f', 'lavfi',
+    //     '-i', 'anullsrc=channel_layout=stereo:sample_rate=44100',
+
+    //     // Video encoding
+    //     '-c:v', 'libx264',
+    //     '-preset', 'veryfast',
+    //     '-tune', 'zerolatency',
+
+    //     // Audio encoding
+    //     '-c:a', 'aac',
+    //     '-ar', '44100',
+    //     '-b:a', '128k',
+
+    //     // Pixel format
+    //     '-pix_fmt', 'yuv420p',
+
+    //     // Ensure shortest duration (in case video ends before audio)
+    //     '-shortest',
+
+    //     // Output format and URL
+    //     '-f', 'flv',
+    //     STREAM_URL,
+    // ]);
+
 
     ffmpeg.stdin.on('error', (e) => {
         console.error('FFmpeg stdin error:', e);
