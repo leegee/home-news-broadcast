@@ -15,10 +15,12 @@ import {
     streamSource,
     STREAM_TYPES,
     triggerBannerReset,
+    setError,
 } from '../lib/stores/ui.ts';
 import { playlist, selectedKey, setSelectedKey } from '../lib/stores/playlist.ts';
 
 let peerSetup = false;
+export const windowTitle = "Broadcast Window";
 
 export default function BroadcastScreen() {
     const [videoRef, setVideoRef] = createSignal<HTMLVideoElement | null>(null);
@@ -98,7 +100,7 @@ export default function BroadcastScreen() {
     });
 
     onMount(() => {
-        document.title = "Broadcast Window";
+        document.title = windowTitle;
 
         const handleKeyDown = (event: KeyboardEvent) => {
             switch (event.key) {
@@ -118,18 +120,19 @@ export default function BroadcastScreen() {
                     break;
                 case 'Escape':
                     escape();
+                    setError('');
                     break;
             }
         };
 
         window.addEventListener('keydown', handleKeyDown);
 
-        const cleanupBroadcastChannel = onMediaChange(async ({ url, type }) => {
+        const cleanupOnMediaChange = onMediaChange(async ({ url, type }) => {
             setMedia({ url, type });
         });
 
         onCleanup(() => {
-            cleanupBroadcastChannel();
+            cleanupOnMediaChange();
             window.removeEventListener('keydown', handleKeyDown);
         });
     });

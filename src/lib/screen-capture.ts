@@ -1,7 +1,11 @@
-const DEFAULT_EMIT_RATE = 250;
+import { windowTitle } from "../views/BroadcastScreen";
+
+const DEFAULT_EMIT_RATE = 150;
 
 export async function startScreenCapture(mediaRecorderCallback: Function, emitRate: number = DEFAULT_EMIT_RATE) {
     try {
+        alert(`You will be asked to choose which window or tab to share.\n\nChoose "${windowTitle}"`);
+
         const stream = await navigator.mediaDevices.getDisplayMedia({
             video: true,
             audio: true,
