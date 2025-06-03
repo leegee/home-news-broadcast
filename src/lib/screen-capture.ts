@@ -30,5 +30,7 @@ export async function startScreenCapture(mediaRecorderCallback: Function, emitRa
 }
 
 export function stopScreenCapture(mediaRecorder: MediaRecorder) {
+    console.info('Stopping stream');
     mediaRecorder.stop();
+    console.info('Stream stopped');
 }

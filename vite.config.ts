@@ -30,11 +30,10 @@ export default defineConfig({
   },
   plugins: [solid(),],
   define: {
-    // __LOCAL_WEBRTC_ADDRESS__: JSON.stringify(`https://${localIp}:${port}`),
-    __LOCAL_WEBRTC_ADDRESS__: JSON.stringify(`https://${localIp}:9000`),
+    __DESKTOP_WEBRTC_ADDRESS__: JSON.stringify(`https://${localIp}:5173`),
     __LOCAL_IP__: JSON.stringify(localIp),
     __RTC_PORT__: JSON.stringify(9000),
-    __WS_PORT__: JSON.stringify(localIp),
-    __WS_IP__: JSON.stringify(3000)
+    __WS_IP__: JSON.stringify('localhost'),
+    __WS_PORT__: JSON.stringify(3000),
   },
 })

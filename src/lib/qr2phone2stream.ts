@@ -38,7 +38,7 @@ export async function setupQRCodeFlow() {
             console.log('Desktop peer ID:', id);
             reconnectAttempts = 0; // reset on success
 
-            const url = `${__LOCAL_WEBRTC_ADDRESS__}/#/phone?peerId=${id}`;
+            const url = `${__DESKTOP_WEBRTC_ADDRESS__}/#/phone?peerId=${id}`;
             const canvas = document.createElement('canvas');
             QRCode.toCanvas(canvas, url, { width: 400, errorCorrectionLevel: 'L' })
                 .then(() => setQrCode(canvas.toDataURL()))
