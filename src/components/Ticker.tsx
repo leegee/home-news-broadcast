@@ -64,17 +64,15 @@ const Ticker = () => {
         }
     };
 
-    // Use refs here to assign item divs and avoid querying
-    const createItem = (text: string, assignRef: (el: HTMLDivElement) => void, extraClass = '') => (
+    const createItem = (text: string) => (
         <div
-            ref={assignRef}
-            class={`${styles['ticker-item']} ${extraClass}`}
+            class={styles['ticker-item']}
             contentEditable
             tabIndex={0}
-            spellcheck={true}
             onClick={startEdit}
             onBlur={saveText}
             onKeyDown={onKeyDown}
+            style={{ border: '1px solid transparent' }} // Remove or customize borders as needed
         >
             {text || 'Click to edit'}
         </div>
@@ -89,22 +87,24 @@ const Ticker = () => {
         const deltaT = (now - lastTime) / 1000;
         lastTime = now;
 
-        if (!width && item1) {
+        if (!width && item1 && item2) {
             width = item1.offsetWidth;
             x1 = 0;
             x2 = width + padding;
+            item1.style.transform = `translateX(${x1}px)`;
+            item2.style.transform = `translateX(${x2}px)`;
         }
 
         x1 -= speed * deltaT;
         x2 -= speed * deltaT;
 
-        const viewportRight = containerRef?.offsetWidth ?? 0;
+        const epsilon = 1; // 1px margin to avoid overlap
 
         if (x1 <= -width) {
-            x1 = Math.max(x2 + padding + width, viewportRight);
+            x1 = x2 + width + padding - epsilon;
         }
         if (x2 <= -width) {
-            x2 = Math.max(x1 + padding + width, viewportRight);
+            x2 = x1 + width + padding - epsilon;
         }
 
         if (item1) item1.style.transform = `translateX(${x1}px)`;
@@ -114,6 +114,11 @@ const Ticker = () => {
     };
 
     onMount(() => {
+        if (!containerRef) return;
+
+        item1 = containerRef.querySelector('.' + styles['ticker-item']) as HTMLDivElement;
+        item2 = containerRef.querySelector('.' + styles['ticker-item'] + ':nth-child(2)') as HTMLDivElement;
+
         lastTime = performance.now();
         if (animationFrameId === null) {
             animationFrameId = requestAnimationFrame(step);
@@ -122,11 +127,14 @@ const Ticker = () => {
 
     createEffect(() => {
         ticker(); // track ticker reactive
+        if (!containerRef) return;
 
-        width = 0;
-        x1 = 0;
-        x2 = 0;
+        item1 = containerRef.querySelector('.' + styles['ticker-item']) as HTMLDivElement;
+        item2 = containerRef.querySelector('.' + styles['ticker-item'] + ':nth-child(2)') as HTMLDivElement;
 
+        if (item1) {
+            width = 0; // triggers recalculation in `step`
+        }
         runAnimation = true;
         lastTime = performance.now();
         if (animationFrameId === null) {
@@ -144,8 +152,8 @@ const Ticker = () => {
 
     return (
         <div ref={(el) => (containerRef = el)} class={styles.ticker}>
-            {createItem(ticker(), (el) => (item1 = el))}
-            {createItem(ticker(), (el) => (item2 = el), styles['ticker-item2'])}
+            {createItem(ticker())}
+            {createItem(ticker())}
         </div>
     );
 };

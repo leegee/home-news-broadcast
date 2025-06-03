@@ -2,7 +2,6 @@
     position: relative;
     background-color: rgb(9, 9, 194);
     color: white;
-    display: flex;
     overflow: hidden;
     z-index: 300;
     width: 100%;
@@ -15,15 +14,20 @@
     min-height: 24pt;
     height: 24pt;
     line-height: 24pt;
+    white-space: nowrap;
+    margin: 0;
+    padding: 0;
 
     .ticker-item {
         position: absolute;
         top: 0;
         left: 0;
         white-space: nowrap;
+        margin: 0;
+        padding: 0;
     }
 
     .ticker-item:after {
-        content: ' ';
+        content: ' · ';
     }
 }
