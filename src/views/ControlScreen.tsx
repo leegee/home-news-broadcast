@@ -56,12 +56,14 @@ export const showItem = async (keyOrUrl: string) => {
 };
 
 const deleteItem = (keyOrUrl: string) => {
-    if (keyOrUrl.startsWith('local:')) {
-        deleteFile(keyOrUrl);
-        removeFromPlaylist(keyOrUrl);
-    }
-    else if (isYoutubeUrl(keyOrUrl)) {
-        removeFromPlaylist(keyOrUrl);
+    if (confirm('Really delete this item?')) {
+        if (keyOrUrl.startsWith('local:')) {
+            deleteFile(keyOrUrl);
+            removeFromPlaylist(keyOrUrl);
+        }
+        else if (isYoutubeUrl(keyOrUrl)) {
+            removeFromPlaylist(keyOrUrl);
+        }
     }
 };
 
