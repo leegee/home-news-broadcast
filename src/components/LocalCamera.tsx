@@ -25,7 +25,7 @@ export default function ShowLocalCamera() {
 
     return (
         <Show when={canAccessCamera() && canAccessMic()}>
-            <button onClick={() => handleClick()}>
+            <button onClick={() => handleClick()} title="Stream a camera from this computer">
                 Show Local Camera
             </button>
         </Show>

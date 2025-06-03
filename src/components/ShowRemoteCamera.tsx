@@ -20,7 +20,7 @@ export default function ShowRemoteCamera() {
     };
 
     return (
-        <button onClick={toggleCamera}>
+        <button onClick={toggleCamera} title="Stream a camera from a mobile phone">
             {source() !== 'peer' ? 'Live Phone Camera' : 'Disconnect Phone Camera'}
         </button>
     );

@@ -47,7 +47,11 @@ export default function CaptureControls() {
 
     return (
         <Show when={!isCapturing()}>
-            <button class={styles["start-capture"]} onClick={startCapture}>Start Capture Broadcast</button>
+            <button
+                title="Begins the screen capture for broadcast"
+                class={styles["start-capture"]}
+                onClick={startCapture}
+            >Start Capture Broadcast</button>
         </Show>
     );
 }

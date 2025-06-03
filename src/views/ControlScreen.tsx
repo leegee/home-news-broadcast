@@ -158,8 +158,8 @@ export default function ControlScreen() {
         <main class={styles['control-screen-component']}>
 
             <nav class={styles['button-strip']}>
-                <CaptureControls />
                 <OpenBroadcastScreen />
+                <CaptureControls />
                 <ShowLocalCamera />
                 <ShowRemoteCamera />
             </nav>
