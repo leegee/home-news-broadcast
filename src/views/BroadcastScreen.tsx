@@ -19,6 +19,8 @@ import {
 import { playlist, selectedKey, setSelectedKey } from '../lib/stores/playlist.ts';
 
 let peerSetup = false;
+let previousObjectUrl: string | null = null;
+
 export const windowTitle = "Broadcast Window";
 
 export default function BroadcastScreen() {
@@ -75,8 +77,15 @@ export default function BroadcastScreen() {
         const blob = await loadFile(key);
         const mime = await getMimeType(key);
 
+        // Cleanup old ObjectURL if it exists
+        if (previousObjectUrl) {
+            URL.revokeObjectURL(previousObjectUrl);
+            previousObjectUrl = null;
+        }
+
         if (blob && mime) {
             const url = URL.createObjectURL(blob);
+            previousObjectUrl = url;
 
             const type = mime.startsWith("image/")
                 ? STREAM_TYPES.IMAGE
