@@ -28,7 +28,6 @@ export const [bannerImage, setBannerImage] = createSyncedPersistedSignal<string>
 export const [qrCode, setQrCode] = createSyncedPersistedSignal<string>('cap-qr-code', '');
 export const [streamSource, setStreamSource] = createSyncedPersistedSignal<string | null>('cap-stream-source', null);
 
-export const [bannerResetCount, triggerBannerReset] = createSyncedPersistedSignal('cap-banner-reset-count', 0);
 export const [mediaStream, setMediaStream] = createSignal<MediaStream | null>(null);
 export const [error, setError] = createSignal<string | null>(null);
 export const [isCapturing, setIsCapturing] = createSignal(false);

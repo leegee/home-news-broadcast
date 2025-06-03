@@ -13,7 +13,6 @@ import {
     setStreamSource,
     streamSource,
     STREAM_TYPES,
-    triggerBannerReset,
     setError,
 } from '../lib/stores/ui.ts';
 import { playlist, selectedKey, setSelectedKey } from '../lib/stores/playlist.ts';
@@ -227,7 +226,6 @@ export default function BroadcastScreen() {
         }
         setMedia({ url: '', type: STREAM_TYPES.NONE });
         setError('');
-        triggerBannerReset(1);
     };
 
     const toggleVideoPlayback = () => {
