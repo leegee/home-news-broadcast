@@ -123,6 +123,11 @@ const Ticker = () => {
         if (animationFrameId === null) {
             animationFrameId = requestAnimationFrame(step);
         }
+
+        const resizeObserver = new ResizeObserver(() => {
+            width = 0; // will force re-measure in step()
+        });
+        if (item1) resizeObserver.observe(item1);
     });
 
     createEffect(() => {
