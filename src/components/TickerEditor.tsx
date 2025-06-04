@@ -65,8 +65,8 @@ export default function TickerEditor() {
                                     value={val}
                                     ref={el => (inputRef = el)}
                                 />
-                                <button class={styles['confirm-button']} onClick={() => confirm(i(), inputRef!)}>✔</button>
-                                <button class={styles['cancel-button']} onClick={() => removeAt(i())}>✖</button>
+                                <button class={styles['confirm-button']} title='Confirm' onClick={() => confirm(i(), inputRef!)}>✔</button>
+                                <button class={styles['cancel-button']} title='Cancel' onClick={() => removeAt(i())}>✖</button>
                             </li>
                         );
                     }}
@@ -74,12 +74,10 @@ export default function TickerEditor() {
 
                 <li>
                     <input type="text" value={newValue()} onInput={e => setNewValue(e.currentTarget.value)} placeholder='News ticker item' />
-                    <button class={styles['confirm-button']} onClick={e =>
+                    <button class={styles['confirm-button']} title='Confirm' onClick={e =>
                         confirm(values().length, e.currentTarget.previousElementSibling as HTMLInputElement)
-                    }>
-                        ✔
-                    </button>
-                    <button class={styles['cancel-button']} onClick={() => removeAt(values().length)}>✖</button>
+                    }>✔</button>
+                    <button class={styles['cancel-button']} onClick={() => removeAt(values().length)} title='Reset'>↻</button>
                 </li>
 
             </ul>

@@ -27,8 +27,8 @@ export default function BannerEditor() {
             <h2>Default Banner</h2>
             <p>
                 <input type="text" ref={inputRef} value={draftBanner()} placeholder='Default banner text' />
-                <button class={styles['confirm-button']} onClick={() => confirmEdit()}> ✔ </button>
-                <button class={styles['cancel-button']} onClick={() => cancelEdit()}>✖</button>
+                <button class={styles['confirm-button']} onClick={() => confirmEdit()} title='Confirm'>✔</button>
+                <button class={styles['cancel-button']} onClick={() => cancelEdit()} title='Reset'>↻</button>
             </p>
 
         </section>
