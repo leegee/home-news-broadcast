@@ -103,10 +103,11 @@
 
     .lower-third {
         position: absolute;
-        width: 100%;
+        width: calc(100% - 4em);
         height: auto;
         bottom: 0;
         z-index: 10;
+        margin: 1em;
     }
 
     button:hover,
