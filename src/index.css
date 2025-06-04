@@ -73,6 +73,11 @@ h1 {
   line-height: 1.1;
 }
 
+h1,
+h2 {
+  margin-top: 0;
+}
+
 
 input[type="text"] {
   flex-grow: 1;
