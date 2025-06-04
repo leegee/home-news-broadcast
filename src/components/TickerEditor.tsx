@@ -76,6 +76,7 @@ export const TickerEditor = () => {
                         type="text"
                         value={newValue()}
                         onInput={e => setNewValue(e.currentTarget.value)}
+                        placeholder='News ticker item'
                     />
                     <button onClick={e =>
                         confirm(values().length, e.currentTarget.previousElementSibling as HTMLInputElement)
