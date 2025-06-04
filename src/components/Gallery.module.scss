@@ -19,6 +19,8 @@
         flex-wrap: nowrap;
         padding: 1em;
         scrollbar-gutter: stable;
+        scrollbar-width: thin;
+        scrollbar-color: transparent transparent;
 
         li {
             position: relative;
@@ -89,7 +91,7 @@
     }
 
     .gallery-component-inner::-webkit-scrollbar {
-        height: 6p5;
+        height: 6pt;
     }
 
     .gallery-component-inner::-webkit-scrollbar-track {
@@ -97,7 +99,17 @@
     }
 
     .gallery-component-inner::-webkit-scrollbar-thumb {
-        background-color: rgba(255, 255, 255, 0.3);
-        border-radius: 3pt;
+        background-color: transparent;
+        border-radius: 2pt;
+        transition: background-color 0.3s ease;
     }
+
+    .gallery-component-inner:hover::-webkit-scrollbar-thumb {
+        background-color: rgba(255, 255, 255, 0.3);
+    }
+
+    .gallery-component-inner:hover {
+        scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+    }
+
 }
