@@ -65,15 +65,26 @@ export default function Banner() {
     };
 
     const onKeyDown = (e: KeyboardEvent) => {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            (e.currentTarget as HTMLElement).blur();
-        } else if (e.key === 'Escape') {
-            if (e.target) {
-                (e.target as HTMLElement).textContent = preEditTextContent;
-            }
-            e.preventDefault();
-            (e.currentTarget as HTMLElement).blur();
+        switch (e.key) {
+            case 'Enter':
+                e.preventDefault();
+                (e.currentTarget as HTMLElement).blur();
+                break;
+            case 'Escape':
+                if (e.target) {
+                    (e.target as HTMLElement).textContent = preEditTextContent;
+                }
+                e.preventDefault();
+                (e.currentTarget as HTMLElement).blur();
+                break;
+            case 'ArrowLeft':
+            case 'ArrowUp':
+            case 'ArrowRight':
+            case 'ArrowDown':
+                e.stopPropagation();
+                break;
+            default:
+                break;
         }
     };
 
