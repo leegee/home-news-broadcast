@@ -4,6 +4,8 @@ import { useLocation } from '@solidjs/router';
 import { createSignal, onCleanup, Show } from 'solid-js';
 import { ErrorDisplay, reportError } from '../components/ErrorDisplay';
 import { createSilentAudioStream } from '../lib/media';
+import { changeMedia } from '../lib/inter-tab-comms';
+import { STREAM_TYPES } from '../lib/stores/ui';
 
 async function getMediaStream(facing: 'user' | 'environment'): Promise<MediaStream> {
     try {
@@ -44,26 +46,17 @@ export default function PhoneScreen() {
 
             let localStream: MediaStream | undefined;
 
-            try {
-                localStream = await getMediaStream(facingMode());
-            } catch (e) {
-                setLocalLog('No video');
-                try {
-                    localStream = await navigator.mediaDevices.getUserMedia({ video: false, audio: true });
-                } catch (e) {
-                    setLocalLog('No audio, using silent audio stream');
-                    localStream = createSilentAudioStream();
-                }
-            }
+            localStream = await getMediaStream(facingMode());
 
             setStream(localStream);
+
             setLocalLog('Got local media stream');
 
             if (peer && !peer.destroyed) {
                 peer?.destroy();
             }
 
-            peer = new Peer('phone-ok', { host: __LOCAL_IP__, port: 9000, path: '/' });
+            peer = new Peer(`phone-${Date.now()}`, { host: __LOCAL_IP__, port: __RTC_PORT__, path: '/' });
 
             if (!peer) {
                 throw new Error('no peer')
@@ -79,10 +72,17 @@ export default function PhoneScreen() {
 
                 call = peer!.call(desktopPeerId, localStream);
 
+                if (!call) {
+                    setLocalLog('Failed to initiate call');
+                    reportError('Call setup failed');
+                    return;
+                }
+
                 call.on('close', () => {
                     setLocalLog('Call closed');
                     setConnected(false);
                     setStream(undefined);
+                    changeMedia({ url: '', type: STREAM_TYPES.NONE })
                 });
 
                 call.on('error', (err) => {
