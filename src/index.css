@@ -78,19 +78,6 @@ h2 {
   margin-top: 0;
 }
 
-
-input[type="text"] {
-  flex-grow: 1;
-  padding: 0.4em 0.6em;
-  font-size: 1em;
-  outline: 2px solid transparent;
-}
-
-input[type="text"]:focus {
-  outline: 2px solid #007bff;
-  border-color: #007bff;
-}
-
 button {
   border-radius: 8px;
   border: 1px solid #646cff83;
