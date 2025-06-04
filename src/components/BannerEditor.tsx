@@ -3,21 +3,30 @@ import { createSignal } from 'solid-js';
 import { banner, setBanner } from '../lib/stores/ui';
 
 export default function BannerEditor() {
+    let inputRef: HTMLInputElement | undefined;
+
     const [draftBanner, setDraftBanner] = createSignal(banner());
 
-    function cancelEdit() {
-        setDraftBanner(banner());
+    function confirmEdit() {
+        if (inputRef) {
+            setDraftBanner(inputRef.value);
+            setBanner(inputRef.value);
+        }
     }
 
-    function confirmEdit() {
-        setBanner(draftBanner());
+    function cancelEdit() {
+        if (inputRef) {
+            inputRef.value = banner();
+            setDraftBanner(banner());
+        }
     }
+
 
     return (
         <section class={styles['banner-editor-component']}>
             <h2>Default Banner</h2>
             <p>
-                <input type="text" value={draftBanner()} placeholder='Default banner text' />
+                <input type="text" ref={inputRef} value={draftBanner()} placeholder='Default banner text' />
                 <button class={styles['confirm-button']} onClick={() => confirmEdit()}> ✔ </button>
                 <button class={styles['cancel-button']} onClick={() => cancelEdit()}>✖</button>
             </p>
