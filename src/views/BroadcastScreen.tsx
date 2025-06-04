@@ -241,6 +241,11 @@ export default function BroadcastScreen() {
         }
     };
 
+    const getPlayButtonLabel = () =>
+        mediaSource().type === STREAM_TYPES.LIVE_LOCAL
+            ? "Click To Connect Camera"
+            : "Click To Play Video";
+
     const tryPlayManually = () => {
         const video = videoRef();
         if (!video) return;
@@ -271,7 +276,7 @@ export default function BroadcastScreen() {
                                 playsinline
                             />
                             <Show when={showPlayButton()}>
-                                <button onClick={tryPlayManually} class={styles["play-button"]}>Click To Connect Camera</button>
+                                <button onClick={tryPlayManually} class={styles["play-button"]}>{getPlayButtonLabel()}</button>
                             </Show>
                         </Match>
 
