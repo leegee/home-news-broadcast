@@ -12,13 +12,13 @@ button.cancel-button {
         background-color: #f0f0f0;
     }
 
-    &:first-of-type {
+    &.confirm-button {
         color: oldlace;
         background-color: green;
         border-color: green;
     }
 
-    &:last-of-type {
+    &.cancel-button {
         color: oldlace;
         background-color: crimson;
         border-color: crimson;
