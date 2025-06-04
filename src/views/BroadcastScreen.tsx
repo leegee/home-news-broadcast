@@ -3,7 +3,7 @@ import { createEffect, createSignal, Match, onCleanup, onMount, Show, Switch } f
 import Ticker from '../components/Ticker';
 import Banner from '../components/Banner';
 import { ErrorDisplay } from '../components/ErrorDisplay';
-import { loadFile, getMimeType } from '../lib/stores/file-store.ts';
+import { getFileAndType } from '../lib/stores/file-store.ts';
 import { setupQRCodeFlow } from '../lib/qr2phone2stream';
 import { MediaChangeParams, onMediaChange } from '../lib/inter-tab-comms.ts';
 import {
@@ -73,8 +73,7 @@ export default function BroadcastScreen() {
         const key = selectedKey();
         if (!key || !key.startsWith("local:")) return;
 
-        const blob = await loadFile(key);
-        const mime = await getMimeType(key);
+        const [blob, mime] = await getFileAndType(key);
 
         // Cleanup old ObjectURL if it exists
         if (previousObjectUrl) {
