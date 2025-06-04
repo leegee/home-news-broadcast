@@ -3,7 +3,7 @@ import { createSignal, onMount, Show } from 'solid-js';
 import { getYoutubeEmbedUrl, isYoutubeUrl } from '../lib/youtube';
 import { STREAM_TYPES } from '../lib/stores/ui';
 import { removeFromPlaylist, savePlaylistItem, selectedKey, setSelectedKey, } from '../lib/stores/playlist';
-import { saveFile, loadFile, deleteFile, getFileAndType } from '../lib/stores/file-store';
+import { saveFile, deleteFile, getFileAndType } from '../lib/stores/file-store';
 import { changeMedia } from '../lib/inter-tab-comms';
 import { ErrorDisplay } from '../components/ErrorDisplay';
 import CaptureControls from '../components/CaptureControls';
