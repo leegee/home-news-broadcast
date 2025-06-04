@@ -1,5 +1,5 @@
 import styles from './Gallery.module.scss';
-import { For, Show, createEffect, createSignal, onCleanup } from 'solid-js';
+import { For, Show, createEffect, createSignal, onCleanup, onMount } from 'solid-js';
 import { playlist, selectedKey, movePlaylistItem, } from '../lib/stores/playlist.ts';
 import { getYoutubeThumbnail } from '../lib/youtube.ts';
 import { getMimeType, loadFile } from '../lib/stores/file-store.ts';
@@ -18,7 +18,27 @@ export type LocalMediaInfo = {
 
 export default function Gallery(props: GalleryProps) {
     const [localMedia, setLocalMedia] = createSignal<Record<string, LocalMediaInfo>>({});
+    let galleryWrapperRef!: HTMLElement;
+    let galleryInnerRef!: HTMLElement;
+
     const itemRefs = new Map<string, HTMLLIElement>();
+
+    function updateScrollIndicators() {
+        if (!galleryWrapperRef || !galleryInnerRef) return;
+        const { scrollLeft, scrollWidth, clientWidth } = galleryInnerRef;
+
+        galleryWrapperRef.classList.toggle(styles['can-scroll-left'], scrollLeft > 0);
+        galleryWrapperRef.classList.toggle(styles['can-scroll-right'], scrollLeft + clientWidth < scrollWidth - 10);
+    }
+
+    onMount(() => {
+        if (galleryInnerRef) {
+            updateScrollIndicators();
+            galleryInnerRef.addEventListener('scroll', updateScrollIndicators);
+        }
+
+        onCleanup(() => galleryInnerRef?.removeEventListener('scroll', updateScrollIndicators));
+    });
 
     function handleKeyDown(e: KeyboardEvent) {
         switch (e.key) {
@@ -94,8 +114,10 @@ export default function Gallery(props: GalleryProps) {
     });
 
     return (
-        <section class={styles['gallery-component']}>
-            <nav class={styles['gallery-component-inner']} tabindex={0} onKeyDown={handleKeyDown}>
+        <section class={styles['gallery-component']} ref={(el) => (galleryWrapperRef = el)}>
+            <nav class={styles['gallery-component-inner']} ref={(el) => (galleryInnerRef = el)}
+                tabindex={0} onKeyDown={handleKeyDown}
+            >
                 <Show when={playlist().length === 0}>
                     <li>
                         <p>Drop or paste YouTube URLs or local videos into this window.</p>

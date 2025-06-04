@@ -1,10 +1,51 @@
 .gallery-component {
+    position: relative;
     width: 100%;
     max-width: 100%;
     overflow-y: hidden;
     padding: 1em;
 
+    &::before,
+    &::after {
+        z-index: 1110;
+        position: absolute;
+        top: 50%;
+        width: 38pt;
+        height: 38pt;
+        line-height: 32pt;
+        font-size: 32pt;
+        background-color: #FFF5;
+        color: rgba(0, 0, 0, 0.5);
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        transform: translateY(-50%);
+        pointer-events: none;
+        opacity: 0;
+        transition: opacity 0.2s ease;
+    }
+
+    &::before {
+        left: 0;
+        content: '⏴';
+    }
+
+    &::after {
+        right: 0;
+        content: '⏵';
+    }
+
+    &.can-scroll-left::before {
+        opacity: 1 !important;
+    }
+
+    &.can-scroll-right::after {
+        opacity: 1 !important;
+    }
+
     .gallery-component-inner {
+        position: relative;
         z-index: 1100;
         display: flex;
         flex-wrap: no-wrap;
@@ -17,10 +58,35 @@
         overflow-x: scroll;
         overflow-y: hidden;
         flex-wrap: nowrap;
-        padding: 1em;
         scrollbar-gutter: stable;
         scrollbar-width: thin;
         scrollbar-color: transparent transparent;
+
+        &:focus {
+            outline: 1pt solid #007bff;
+        }
+
+        &::-webkit-scrollbar {
+            height: 6pt;
+        }
+
+        &::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        &::-webkit-scrollbar-thumb {
+            background-color: transparent;
+            border-radius: 2pt;
+            transition: background-color 0.3s ease;
+        }
+
+        &:hover::-webkit-scrollbar-thumb {
+            background-color: rgba(255, 255, 255, 0.3);
+        }
+
+        &:hover {
+            scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+        }
 
         li {
             position: relative;
@@ -85,31 +151,4 @@
             outline: 2px solid #007bff;
         }
     }
-
-    .gallery-component-inner:focus {
-        outline: 1pt solid #007bff;
-    }
-
-    .gallery-component-inner::-webkit-scrollbar {
-        height: 6pt;
-    }
-
-    .gallery-component-inner::-webkit-scrollbar-track {
-        background: transparent;
-    }
-
-    .gallery-component-inner::-webkit-scrollbar-thumb {
-        background-color: transparent;
-        border-radius: 2pt;
-        transition: background-color 0.3s ease;
-    }
-
-    .gallery-component-inner:hover::-webkit-scrollbar-thumb {
-        background-color: rgba(255, 255, 255, 0.3);
-    }
-
-    .gallery-component-inner:hover {
-        scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
-    }
-
 }
