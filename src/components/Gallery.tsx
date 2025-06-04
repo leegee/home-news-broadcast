@@ -94,60 +94,61 @@ export default function Gallery(props: GalleryProps) {
     });
 
     return (
-        <nav class={styles['gallery-component']} tabindex={0} onKeyDown={handleKeyDown}>
-            <Show when={playlist().length === 0}>
-                <li>
-                    <p>Drop or paste YouTube URLs or local videos into this window.</p>
-                </li>
-            </Show>
+        <section class={styles['gallery-component']}>
+            <nav class={styles['gallery-component-inner']} tabindex={0} onKeyDown={handleKeyDown}>
+                <Show when={playlist().length === 0}>
+                    <li>
+                        <p>Drop or paste YouTube URLs or local videos into this window.</p>
+                    </li>
+                </Show>
 
-            <For each={playlist()}>
-                {(playlistItem, index) => {
-                    const isLocal = playlistItem.key.startsWith('local:');
-                    const mediaInfo = () => isLocal ? localMedia()[playlistItem.key] : null;
-                    const isActive = () => selectedKey() === playlistItem.key;
+                <For each={playlist()}>
+                    {(playlistItem, index) => {
+                        const isLocal = playlistItem.key.startsWith('local:');
+                        const mediaInfo = () => isLocal ? localMedia()[playlistItem.key] : null;
+                        const isActive = () => selectedKey() === playlistItem.key;
 
-                    return (
-                        <li tabIndex={index() + 1}
-                            classList={{ [styles['active-thumb']]: isActive() }}
-                            ref={(el) => itemRefs.set(playlistItem.key, el)}
-                        >
-                            {isLocal ? (
-                                <Show when={mediaInfo()} fallback={<span>Loading…</span>}>
-                                    {mediaInfo()?.type.startsWith('video/') ? (
-                                        <video
-                                            src={mediaInfo()?.url}
-                                            muted
-                                            playsinline
-                                            preload="metadata"
-                                        />
-                                    ) : mediaInfo()?.type.startsWith('image/') ? (
-                                        <img src={mediaInfo()?.url} />
-                                    ) : (
-                                        <span>Unsupported media type</span>
-                                    )}
-                                </Show>
-                            ) : (
-                                <img src={getYoutubeThumbnail(playlistItem.key)} />
-                            )}
+                        return (
+                            <li tabIndex={index() + 1}
+                                classList={{ [styles['active-thumb']]: isActive() }}
+                                ref={(el) => itemRefs.set(playlistItem.key, el)}
+                            >
+                                {isLocal ? (
+                                    <Show when={mediaInfo()} fallback={<span>Loading…</span>}>
+                                        {mediaInfo()?.type.startsWith('video/') ? (
+                                            <video
+                                                src={mediaInfo()?.url}
+                                                muted
+                                                playsinline
+                                                preload="metadata"
+                                            />
+                                        ) : mediaInfo()?.type.startsWith('image/') ? (
+                                            <img src={mediaInfo()?.url} />
+                                        ) : (
+                                            <span>Unsupported media type</span>
+                                        )}
+                                    </Show>
+                                ) : (
+                                    <img src={getYoutubeThumbnail(playlistItem.key)} />
+                                )}
 
-                            <ThumbnailControl
-                                onDelete={() => props.onDelete(playlistItem.key)}
-                                onSelect={() => props.onSelect(playlistItem.key)}
-                                onEdit={() => props.onEdit(playlistItem.key)}
-                                onLeft={() => moveThumb(playlistItem.key, -1)}
-                                onRight={() => moveThumb(playlistItem.key, 1)}
-                            />
+                                <ThumbnailControl
+                                    onDelete={() => props.onDelete(playlistItem.key)}
+                                    onSelect={() => props.onSelect(playlistItem.key)}
+                                    onEdit={() => props.onEdit(playlistItem.key)}
+                                    onLeft={() => moveThumb(playlistItem.key, -1)}
+                                    onRight={() => moveThumb(playlistItem.key, 1)}
+                                />
 
-                            <div class={styles.metadata} onclick={() => alert(1)}>
-                                <p class={styles.headline}>{playlistItem.headline || ''}</p>
-                                <p class={styles.standfirst}>{playlistItem.standfirst || ''}</p>
-                            </div>
-                        </li>
-                    );
-                }}
-            </For>
-
-        </nav>
+                                <div class={styles.metadata} onclick={() => alert(1)}>
+                                    <p class={styles.headline}>{playlistItem.headline || ''}</p>
+                                    <p class={styles.standfirst}>{playlistItem.standfirst || ''}</p>
+                                </div>
+                            </li>
+                        );
+                    }}
+                </For>
+            </nav>
+        </section>
     );
 }
