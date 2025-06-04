@@ -3,7 +3,7 @@ import { createSignal, onMount, Show } from 'solid-js';
 import { getYoutubeEmbedUrl, isYoutubeUrl } from '../lib/youtube';
 import { STREAM_TYPES } from '../lib/stores/ui';
 import { removeFromPlaylist, savePlaylistItem, selectedKey, setSelectedKey, } from '../lib/stores/playlist';
-import { saveFile, loadFile, deleteFile } from '../lib/stores/file-store';
+import { saveFile, loadFile, deleteFile, getFileAndType } from '../lib/stores/file-store';
 import { changeMedia } from '../lib/inter-tab-comms';
 import { ErrorDisplay } from '../components/ErrorDisplay';
 import CaptureControls from '../components/CaptureControls';
@@ -32,26 +32,27 @@ export const showItem = async (keyOrUrl: string) => {
 
     if (keyOrUrl === STREAM_TYPES.LIVE_LOCAL) {
         changeMedia({ url: '', type: STREAM_TYPES.LIVE_LOCAL });
-        console.log('Set live_local source');
     }
     else if (keyOrUrl.startsWith('local:')) {
-        const blob = await loadFile(keyOrUrl);
-        console.log('Loaded blob:', blob);
-        if (blob) {
-            const url = URL.createObjectURL(blob);
-            lastUrl = url;
-            const type = blob.type.startsWith('image/') ? STREAM_TYPES.IMAGE : STREAM_TYPES.VIDEO;
-            changeMedia({ url, type });
-            console.log('Set local media source:', url, type);
-        } else {
-            console.warn('Blob load failed for', keyOrUrl);
+        const key = keyOrUrl.slice(6); // remove 'local:' prefix
+        try {
+            const [blob, mime] = await getFileAndType(key);
+            if (blob) {
+                const url = URL.createObjectURL(blob);
+                lastUrl = url;
+                const type = mime?.startsWith('image/') ? STREAM_TYPES.IMAGE : STREAM_TYPES.VIDEO;
+                changeMedia({ url, type });
+            } else {
+                console.warn('Blob load failed for', keyOrUrl);
+            }
+        } catch (error) {
+            console.error('Error loading local file', keyOrUrl, error);
         }
     }
     else if (isYoutubeUrl(keyOrUrl)) {
         const embed = getYoutubeEmbedUrl(keyOrUrl);
         if (embed) {
             changeMedia({ url: embed, type: STREAM_TYPES.YOUTUBE });
-            console.log('Set YouTube source:', embed);
         }
     }
     else if (keyOrUrl === STREAM_TYPES.NONE) {
@@ -60,7 +61,6 @@ export const showItem = async (keyOrUrl: string) => {
     else {
         const type = /\.(jpe?g|png|gif|webp|bmp|ico|avif|svg)$/i.test(keyOrUrl) ? STREAM_TYPES.IMAGE : STREAM_TYPES.VIDEO;
         changeMedia({ url: keyOrUrl, type });
-        console.log('Set fallback source:', keyOrUrl, type);
     }
 };
 
