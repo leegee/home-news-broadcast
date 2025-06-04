@@ -224,6 +224,7 @@ export default function BroadcastScreen() {
         if (video && !video.paused) {
             video.pause();
         }
+        setSelectedKey('');
         setMedia({ url: '', type: STREAM_TYPES.NONE });
         setError('');
     };
