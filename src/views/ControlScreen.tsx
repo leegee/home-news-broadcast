@@ -13,7 +13,8 @@ import Gallery from '../components/Gallery';
 import ShowRemoteCamera from '../components/ShowRemoteCamera';
 import MetadataModal from '../components/MetadataModal';
 import ShowLocalCamera from '../components/LocalCamera';
-import { TickerEditor } from '../components/TickerEditor';
+import TickerEditor from '../components/TickerEditor';
+import BannerEditor from '../components/BannerEditor';
 
 let lastUrl: string | null = null;
 
@@ -178,6 +179,7 @@ export default function ControlScreen() {
                 onEdit={editItem}
             />
 
+            <BannerEditor />
             <TickerEditor />
 
             <ShowQRCode />

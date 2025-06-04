@@ -4,6 +4,6 @@ export default function OpenBroadcastScreen() {
     }
 
     return (
-        <button onClick={open} title="Opens the broadcast window that will be streamed">Open Broadcast Display</button>
+        <button onClick={open} title="Opens the broadcast window that will be streamed">Broadcast Display</button>
     );
 }

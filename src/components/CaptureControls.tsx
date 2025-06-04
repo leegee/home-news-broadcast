@@ -51,7 +51,7 @@ export default function CaptureControls() {
                 title="Begins the screen capture for broadcast"
                 class={styles["start-capture"]}
                 onClick={startCapture}
-            >Start Capture Broadcast</button>
+            >Capture Broadcast</button>
         </Show>
     );
 }

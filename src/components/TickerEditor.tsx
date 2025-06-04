@@ -9,7 +9,7 @@ function parseTicker(t: string) {
     return t ? t.split(SPLIT_DELIMITER).map(part => part.trim()).filter(Boolean) : [];
 }
 
-export const TickerEditor = () => {
+export default function TickerEditor() {
     const [values, setValues] = createSignal(parseTicker(ticker()));
     const [newValue, setNewValue] = createSignal('');
 
@@ -65,26 +65,23 @@ export const TickerEditor = () => {
                                     value={val}
                                     ref={el => (inputRef = el)}
                                 />
-                                <button onClick={() => confirm(i(), inputRef!)}>✔</button>
-                                <button onClick={() => removeAt(i())}>✖</button>
+                                <button class={styles['confirm-button']} onClick={() => confirm(i(), inputRef!)}>✔</button>
+                                <button class={styles['cancel-button']} onClick={() => removeAt(i())}>✖</button>
                             </li>
                         );
                     }}
                 </For>
+
                 <li>
-                    <input
-                        type="text"
-                        value={newValue()}
-                        onInput={e => setNewValue(e.currentTarget.value)}
-                        placeholder='News ticker item'
-                    />
-                    <button onClick={e =>
+                    <input type="text" value={newValue()} onInput={e => setNewValue(e.currentTarget.value)} placeholder='News ticker item' />
+                    <button class={styles['confirm-button']} onClick={e =>
                         confirm(values().length, e.currentTarget.previousElementSibling as HTMLInputElement)
                     }>
                         ✔
                     </button>
-                    <button onClick={() => removeAt(values().length)}>✖</button>
+                    <button class={styles['cancel-button']} onClick={() => removeAt(values().length)}>✖</button>
                 </li>
+
             </ul>
         </section>
     );

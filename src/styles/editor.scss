@@ -1,0 +1,34 @@
+button.confirm-button,
+button.cancel-button {
+    background: none;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 0.25em 0.5em;
+    font-size: 1.1rem;
+    cursor: pointer;
+    color: #333;
+
+    &:hover {
+        background-color: #f0f0f0;
+    }
+
+    &:first-of-type {
+        color: oldlace;
+        background-color: green;
+        border-color: green;
+    }
+
+    &:last-of-type {
+        color: oldlace;
+        background-color: crimson;
+        border-color: crimson;
+    }
+}
+
+
+@mixin editor-line {
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
+    margin-bottom: 0.5em;
+}

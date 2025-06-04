@@ -1,0 +1,9 @@
+@import '../styles/editor.scss';
+
+.banner-editor-component {
+    padding: 1em;
+
+    p {
+        @include editor-line;
+    }
+}
