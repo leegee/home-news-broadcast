@@ -20,7 +20,6 @@ export default function Gallery(props: GalleryProps) {
     const [localMedia, setLocalMedia] = createSignal<Record<string, LocalMediaInfo>>({});
     let galleryWrapperRef!: HTMLElement;
     let galleryInnerRef!: HTMLElement;
-    let timeoutId: ReturnType<typeof setTimeout>;
 
     const itemRefs = new Map<string, HTMLLIElement>();
 
