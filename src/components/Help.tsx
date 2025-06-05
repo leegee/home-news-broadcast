@@ -1,5 +1,6 @@
 import styles from './Help.module.scss';
 import { createSignal, JSX, Show, onCleanup } from 'solid-js';
+import { Portal } from 'solid-js/web';
 
 interface HelpProps {
     children: JSX.Element;
@@ -7,16 +8,17 @@ interface HelpProps {
 
 export default function Help(props: HelpProps) {
     const [showHelp, setShowHelp] = createSignal(false);
-    let containerRef: HTMLElement | undefined;
+    const [coords, setCoords] = createSignal({ x: 0, y: 0 });
 
     function handleDocumentClick() {
         setShowHelp(false);
     }
 
-    function toggleHelp() {
+    function toggleHelp(e: MouseEvent) {
         if (showHelp()) {
             setShowHelp(false);
         } else {
+            setCoords({ x: e.clientX + 10, y: e.clientY + 10 });
             setShowHelp(true);
             setTimeout(() => document.addEventListener('click', handleDocumentClick, { once: true }));
         }
@@ -27,11 +29,8 @@ export default function Help(props: HelpProps) {
     });
 
     return (
-        <section
-            class={styles['help-component']}
-            ref={(el) => (containerRef = el)}
-        >
-            <aside
+        <>
+            <span
                 class={styles['help-component-icon']}
                 role="button"
                 tabindex="0"
@@ -40,17 +39,27 @@ export default function Help(props: HelpProps) {
                 onKeyDown={(e) => {
                     if (e.key === 'Enter' || e.key === ' ' || e.key === 'Escape') {
                         e.preventDefault();
-                        toggleHelp();
+                        setShowHelp(prev => !prev);
                     }
                 }}
             >
                 ?
-            </aside>
+            </span>
+
             <Show when={showHelp()}>
-                <section class={styles['help-content']}>
-                    {props.children}
-                </section>
+                <Portal>
+                    <div
+                        class={styles['help-content']}
+                        style={{
+                            position: 'fixed',
+                            top: `${coords().y}px`,
+                            left: `${coords().x}px`,
+                        }}
+                    >
+                        {props.children}
+                    </div>
+                </Portal>
             </Show>
-        </section>
+        </>
     );
 }
