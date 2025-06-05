@@ -8,6 +8,13 @@
     flex-direction: column;
     align-items: flex-start;
     z-index: 1000;
+    --border-width: 2pt;
+    border: var(--border-width) solid transparent;
+
+    &.dragged-over {
+        background-color: #00f5;
+        border: var(--border-width) solid #00fa;
+    }
 
     .button-strip {
         margin: 1em;
@@ -18,4 +25,5 @@
         justify-content: center;
         align-items: center;
     }
+
 }

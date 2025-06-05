@@ -76,22 +76,23 @@ const deleteItem = (keyOrUrl: string) => {
     }
 };
 
-export const dragOverHandler = (e: DragEvent) => {
-    e.preventDefault();
-    (e.currentTarget as HTMLElement).style.outline = "2px dashed yellow";
-};
-
-export const dragLeaveHandler = (e: DragEvent) => {
-    (e.currentTarget as HTMLElement).style.outline = "";
-};
-
 export default function ControlScreen() {
     const [showMetadataModal, setShowMetadataModal] = createSignal(false);
     const [pendingKey, setPendingKey] = createSignal<string | null>(null);
+    let componentRef: HTMLElement | null = null;
 
     const editItem = (key: string) => {
         setPendingKey(key);
         setShowMetadataModal(true);
+    };
+
+    const dragOverHandler = (e: DragEvent) => {
+        componentRef?.classList.add(styles['dragged-over']);
+        e.preventDefault();
+    };
+
+    const dragLeaveHandler = () => {
+        componentRef?.classList.remove(styles['dragged-over']);
     };
 
     const pasteHandler = (e: ClipboardEvent) => {
@@ -164,7 +165,7 @@ export default function ControlScreen() {
     });
 
     return (
-        <main class={styles['control-screen-component']}>
+        <main class={styles['control-screen-component']} ref={el => componentRef = el}>
 
             <nav class={styles['button-strip']}>
                 <OpenBroadcastScreen />
