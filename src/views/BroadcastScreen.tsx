@@ -1,11 +1,11 @@
 import styles from './BroadcastScreen.module.scss';
-import { createEffect, createSignal, Match, onCleanup, onMount, Show, Switch } from 'solid-js';
+import { createEffect, createMemo, createSignal, Match, onCleanup, onMount, Show, Switch } from 'solid-js';
 import Ticker from '../components/Ticker';
 import Banner from '../components/Banner';
 import { ErrorDisplay } from '../components/ErrorDisplay';
 import { getFileAndType } from '../lib/stores/file-store.ts';
-import { setupQRCodeFlow } from '../lib/qr2phone2stream';
-import { MediaChangeParams, onMediaChange } from '../lib/inter-tab-comms.ts';
+import { endCurrentCall, setupQRCodeFlow } from '../lib/qr2phone2stream';
+import { MediaChangeParams, registerOnEndCallHandler, onMediaChange } from '../lib/inter-tab-comms.ts';
 import {
     mediaStream,
     setMediaStream,
@@ -27,143 +27,17 @@ export default function BroadcastScreen() {
     const [showPlayButton, setShowPlayButton] = createSignal(false);
     const [mediaSource, setMediaSource] = createSignal<{ url: string; type: string }>({ url: '', type: STREAM_TYPES.NONE });
 
-    let triedAutoPlay = false;
-
-    createEffect(() => {
-        const stream = mediaStream();
-        const video = videoRef();
-
-        if (!stream) {
-            if (video) {
-                video.pause();
-                video.srcObject = null;
-            }
-            return;
-        }
-
-        if (!video) return;
-
-        console.log('Set video as mediaStream changed', stream);
-        video.srcObject = stream;
-
-        if (stream === null) {
-            console.debug('null stream')
-            setMediaSource({ url: '', type: STREAM_TYPES.NONE });
-        }
-
-        video.onloadedmetadata = () => {
-            if (!triedAutoPlay && mediaStream()) {
-                triedAutoPlay = true;
-                video.play().catch((err) => {
-                    console.warn('Autoplay prevented or failed:', err);
-                    setShowPlayButton(true);
-                });
-            }
-        };
-    });
-
-    createEffect(() => {
-        const stream = mediaStream();
-        if (stream) {
-            console.log('Stream tracks:', stream.getTracks().map(t => `${t.kind}:${t.readyState}`));
-        }
-    });
-
-    createEffect(async () => {
-        const key = selectedKey();
-        if (!key || !key.startsWith("local:")) return;
-
-        const [blob, mime] = await getFileAndType(key);
-
-        // Cleanup old ObjectURL if it exists
-        if (previousObjectUrl) {
-            URL.revokeObjectURL(previousObjectUrl);
-            previousObjectUrl = null;
-        }
-
-        if (blob && mime) {
-            const url = URL.createObjectURL(blob);
-            previousObjectUrl = url;
-
-            const type = mime.startsWith("image/")
-                ? STREAM_TYPES.IMAGE
-                : mime.startsWith("video/") ? STREAM_TYPES.VIDEO : '';
-
-            if (type) {
-                console.log('Loaded local file from file-store:', key, type);
-                setMedia({ url, type });
-            } else {
-                console.warn('Unrecognized mime type in Broadcast tab:', mime);
-            }
-        } else {
-            console.warn("No blob or mime found for key in Broadcast tab:", key);
-        }
-    });
-
-    createEffect(() => {
-        console.log('[DEBUG] mediaSource:', mediaSource());
-        console.log('[DEBUG] mediaStream:', mediaStream());
-    });
-
-    onMount(() => {
-        document.title = windowTitle;
-
-        const handleKeyDown = (event: KeyboardEvent) => {
-            switch (event.key) {
-                case 'ArrowLeft':
-                case 'ArrowUp':
-                    event.preventDefault();
-                    navigatePlaylist(-1);
-                    break;
-                case 'ArrowRight':
-                case 'ArrowDown':
-                    event.preventDefault();
-                    navigatePlaylist(1);
-                    break;
-                case 'Space':
-                    event.preventDefault();
-                    toggleVideoPlayback();
-                    break;
-                case 'Escape':
-                    escape();
-                    break;
-            }
-        };
-
-        window.addEventListener('keydown', handleKeyDown);
-
-        const cleanupOnMediaChange = onMediaChange(async ({ url, type }) => {
-            setMedia({ url, type });
-        });
-
-        onCleanup(() => {
-            cleanupOnMediaChange();
-            window.removeEventListener('keydown', handleKeyDown);
-        });
-    });
-
-    onCleanup(() => {
-        setQrCode('');
-        mediaStream()?.getTracks().forEach(t => t.stop());
-        setMediaStream(null);
-    });
 
     const setMedia = async ({ url, type }: MediaChangeParams) => {
         console.log('Media changed to:', url, 'with type:', type);
         console.log('Playlist', playlist());
-        triedAutoPlay = false;
         setShowPlayButton(false);
         setMediaSource({ url, type });
 
-        // Stop and reset previous local stream if applicable
-        if (mediaStream() && streamSource() === STREAM_TYPES.LIVE_LOCAL) {
-            mediaStream()!.getTracks().forEach(track => track.stop());
-            setMediaStream(null);
-            setStreamSource(null);
-            setQrCode('');
+        if (mediaStream() && streamSource() === STREAM_TYPES.LIVE_EXTERNAL) {
+            endCurrentCall();
         }
 
-        // Handle each stream type individually
         switch (type) {
             case STREAM_TYPES.LIVE_LOCAL: {
                 try {
@@ -241,10 +115,7 @@ export default function BroadcastScreen() {
         }
     };
 
-    const getPlayButtonLabel = () =>
-        mediaSource().type === STREAM_TYPES.LIVE_LOCAL
-            ? "Click To Connect Camera"
-            : "Click To Play Video";
+    const getPlayButtonLabel = () => mediaSource().type === STREAM_TYPES.LIVE_LOCAL ? "Click To Connect Camera" : "Click To Play Video";
 
     const tryPlayManually = () => {
         const video = videoRef();
@@ -255,20 +126,122 @@ export default function BroadcastScreen() {
             .catch(err => console.warn('Manual play still failed:', err));
     };
 
+    const showLiveStream = createMemo(() =>
+        (mediaSource().type === STREAM_TYPES.LIVE_LOCAL || mediaSource().type === STREAM_TYPES.LIVE_EXTERNAL)
+        && mediaStream() !== null
+    );
+
+    createEffect(() => {
+        const stream = mediaStream();
+        const video = videoRef();
+        if (!video) return;
+
+        if (stream) {
+            video.srcObject = stream;
+            video.play().catch(err => {
+                console.warn('Autoplay prevented/failed:', err);
+                setShowPlayButton(true);
+            });
+        } else {
+            video.pause();
+            video.srcObject = null;
+        }
+    });
+
+    createEffect(async () => {
+        const key = selectedKey();
+        if (!key || !key.startsWith("local:")) return;
+
+        const [blob, mime] = await getFileAndType(key);
+
+        // Cleanup old ObjectURL if it exists
+        if (previousObjectUrl) {
+            URL.revokeObjectURL(previousObjectUrl);
+            previousObjectUrl = null;
+        }
+
+        if (blob && mime) {
+            const url = URL.createObjectURL(blob);
+            previousObjectUrl = url;
+
+            const type = mime.startsWith("image/")
+                ? STREAM_TYPES.IMAGE
+                : mime.startsWith("video/") ? STREAM_TYPES.VIDEO : '';
+
+            if (type) {
+                console.log('Loaded local file from file-store:', key, type);
+                setMedia({ url, type });
+            } else {
+                console.warn('Unrecognized mime type in Broadcast tab:', mime);
+            }
+        } else {
+            console.warn("No blob or mime found for key in Broadcast tab:", key);
+        }
+    });
+
+    createEffect(() => {
+        console.log('[DEBUG] mediaSource:', mediaSource());
+        console.log('[DEBUG] mediaStream:', mediaStream());
+    });
+
+    onMount(() => {
+        document.title = windowTitle;
+
+        const handleKeyDown = (event: KeyboardEvent) => {
+            switch (event.key) {
+                case 'ArrowLeft':
+                case 'ArrowUp':
+                    event.preventDefault();
+                    navigatePlaylist(-1);
+                    break;
+                case 'ArrowRight':
+                case 'ArrowDown':
+                    event.preventDefault();
+                    navigatePlaylist(1);
+                    break;
+                case 'Space':
+                    event.preventDefault();
+                    toggleVideoPlayback();
+                    break;
+                case 'Escape':
+                    escape();
+                    break;
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+
+        registerOnEndCallHandler();
+
+        const cleanupOnMediaChange = onMediaChange(async ({ url, type }) => {
+            setMedia({ url, type });
+        });
+
+        onCleanup(() => {
+            cleanupOnMediaChange();
+            window.removeEventListener('keydown', handleKeyDown);
+        });
+    });
+
+    onCleanup(() => {
+        setQrCode('');
+        if (mediaStream() && (streamSource() === STREAM_TYPES.LIVE_LOCAL || streamSource() === STREAM_TYPES.LIVE_EXTERNAL)) {
+            mediaStream()?.getTracks().forEach(track => track.stop());
+            setMediaStream(null);
+        }
+    });
+
     return (
         <main class={styles['broadcast-screen-component']} >
             <ErrorDisplay />
 
-            <div class={`${styles['broadcast-pane']} ${(mediaSource().type === STREAM_TYPES.NONE || mediaStream() === null)
-                ? styles['without-media']
-                : ''
-                }`}>
+            <div class={`${styles['broadcast-pane']} ${(mediaSource().type === STREAM_TYPES.NONE || mediaStream() === null) ? styles['without-media'] : ''}`}>
                 <Show when={mediaSource().type !== STREAM_TYPES.NONE}>
+
                     <Switch fallback={<div>No matching stream type for: {mediaSource().type}</div>}>
-                        <Match when={
-                            (mediaSource().type === STREAM_TYPES.LIVE_LOCAL || mediaSource().type === STREAM_TYPES.LIVE_EXTERNAL)
-                            && mediaStream() !== null
-                        }>
+
+                        <Match when={showLiveStream()}>
+
                             <video
                                 class={styles['broadcast-video']}
                                 ref={el => setVideoRef(el)}

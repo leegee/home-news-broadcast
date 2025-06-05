@@ -32,7 +32,6 @@ export const [mediaStream, setMediaStream] = createSignal<MediaStream | null>(nu
 export const [error, setError] = createSignal<string | null>(null);
 export const [isCapturing, setIsCapturing] = createSignal(false);
 
-
 export function initUiStorage() {
     setBanner(Default.banner);
     setQrCode('');

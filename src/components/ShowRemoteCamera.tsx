@@ -1,27 +1,31 @@
 import { createSignal } from 'solid-js';
-import { qrCode, setQrCode, STREAM_TYPES, streamSource } from '../lib/stores/ui';
-import { changeMedia } from '../lib/inter-tab-comms';
+import { qrCode, setStreamSource, STREAM_TYPES, streamSource } from '../lib/stores/ui';
+import { changeMedia, sendEndCallRequest } from '../lib/inter-tab-comms';
 
 export default function ShowRemoteCamera() {
-    const [source, setSource] = createSignal(streamSource());
 
     const toggleCamera = () => {
-        const currentSource = source();
+        const currentSource = streamSource();
         const currentQr = qrCode();
+        console.log('toggle camera', currentSource, currentQr);
 
         if (currentSource !== 'peer' && !currentQr) {
+            console.log('not peer/qr so make it so');
             changeMedia({ url: '', type: STREAM_TYPES.LIVE_EXTERNAL });
-            setSource(STREAM_TYPES.LIVE_EXTERNAL);
+            setStreamSource(STREAM_TYPES.LIVE_EXTERNAL);
         } else {
-            changeMedia({ url: '', type: STREAM_TYPES.NONE });
-            setSource(STREAM_TYPES.NONE);
-            setQrCode('')
+            console.log('other');
+            sendEndCallRequest();
         }
     };
 
+    createSignal(() => {
+        console.log('xxx', streamSource());
+    })
+
     return (
         <button onClick={toggleCamera} title="Stream a camera from a mobile phone">
-            {source() !== 'peer' ? 'Phone Camera' : 'Disconnect Phone'}
+            {streamSource() !== 'peer' ? 'Phone Camera' : 'Disconnect Phone'}
         </button>
     );
 }

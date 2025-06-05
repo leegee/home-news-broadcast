@@ -1,6 +1,6 @@
 import Peer, { MediaConnection } from 'peerjs';
 import QRCode from 'qrcode';
-import { setQrCode, setMediaStream, setStreamSource, STREAM_TYPES } from './stores/ui';
+import { setQrCode, setMediaStream, setStreamSource, STREAM_TYPES, mediaStream } from './stores/ui';
 import { reportError } from '../components/ErrorDisplay';
 import { changeMedia } from './inter-tab-comms';
 import { createSilentAudioStream } from './media';
@@ -118,5 +118,22 @@ export async function setupQRCodeFlow() {
 
     } catch (e) {
         reportError(e);
+    }
+}
+
+export function endCurrentCall() {
+    console.log('Enter endCurrentCall')
+    if (currentCall) {
+        console.log('endCurrentCall has current call')
+        currentCall.close();
+        currentCall = null;
+        mediaStream()?.getTracks().forEach(track => track.stop());
+        setMediaStream(null);
+        setStreamSource(STREAM_TYPES.NONE);
+        changeMedia({ url: '', type: STREAM_TYPES.NONE });
+        setQrCode('');
+
+    } else {
+        console.warn('endCurrentCall found no current call');
     }
 }
