@@ -5,19 +5,25 @@ import { reportError } from '../components/ErrorDisplay';
 import { changeMedia } from './inter-tab-comms';
 import { createSilentAudioStream } from './media';
 
-let peer: Peer | null = null;
-let reconnectAttempts = 0;
-
 const MAX_RETRIES = 5;
 const BASE_DELAY_MS = 1_000;
 
 const peerId = 'desktop-ok';
+let peer: Peer | null = null;
+let currentCall: MediaConnection | null = null;
+let reconnectAttempts = 0;
+let reconnectTimeout: ReturnType<typeof setTimeout> | null = null;
+
 
 export async function setupQRCodeFlow() {
     console.log('setupQRCodeFlow enter');
 
     // Clean up previous peer
     if (peer) {
+        if (currentCall) {
+            currentCall.close();
+            currentCall = null;
+        }
         peer.destroy();
         peer = null;
     }
@@ -59,7 +65,8 @@ export async function setupQRCodeFlow() {
             if (reconnectAttempts < MAX_RETRIES) {
                 const delay = BASE_DELAY_MS * Math.pow(2, reconnectAttempts);
                 console.log(`Retrying peer connection in ${delay} ms...`);
-                setTimeout(() => {
+                if (reconnectTimeout) clearTimeout(reconnectTimeout);
+                reconnectTimeout = setTimeout(() => {
                     reconnectAttempts++;
                     setupQRCodeFlow();
                 }, delay);
@@ -70,10 +77,21 @@ export async function setupQRCodeFlow() {
 
         peer.on('close', () => {
             console.log('PeerJS connection closed');
+            if (currentCall) {
+                currentCall.close();
+                currentCall = null;
+            }
         });
 
         peer.on('call', (call: MediaConnection) => {
             console.log('Incoming call from phone:', call.peer);
+
+            if (currentCall) {
+                currentCall.close(); // Close the previous call if still active
+                console.log('Closed previous call');
+            }
+
+            currentCall = call;
             call.answer(createSilentAudioStream());
 
             call.on('stream', (remoteStream) => {
@@ -86,6 +104,7 @@ export async function setupQRCodeFlow() {
 
             call.on('close', () => {
                 console.log('Call closed');
+                currentCall = null;
                 setMediaStream(null);
                 setStreamSource(null);
                 changeMedia({ url: '', type: STREAM_TYPES.NONE });
@@ -95,6 +114,7 @@ export async function setupQRCodeFlow() {
                 console.error('Call error:', err);
             });
         });
+
 
     } catch (e) {
         reportError(e);
