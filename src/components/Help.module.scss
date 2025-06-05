@@ -1,0 +1,55 @@
+.help-component {
+    position: relative;
+    display: inline-block;
+    cursor: default;
+}
+
+.help-component-icon {
+    display: inline-flex;
+    align-items: baseline;
+    justify-content: center;
+    width: 1.5rem;
+    height: 1.5rem;
+    font-weight: bold;
+    font-size: 1rem;
+    margin-left: 1em;
+    color: var(--cap-modal-bg);
+    border-radius: 50%;
+    cursor: pointer;
+    user-select: none;
+    outline: none;
+    transition: background-color 0.2s;
+
+    color: #fff7;
+    border: 1pt solid #fff7;
+
+    &:hover,
+    &:focus {
+        background-color: #333;
+    }
+}
+
+.help-content {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 10;
+    background-color: var(--cap-modal-bg);
+    color: #fffc;
+    padding: 0.75rem;
+    border: 1px solid #fffc;
+    border-radius: 0.5rem;
+    width: 250px;
+    margin-top: 0.5rem;
+    box-shadow: 0 2pt 10pt rgba(0, 0, 0, 0.1);
+
+    p {
+        margin: 0 0 0.5rem 0;
+        font-size: 0.9rem;
+        line-height: 1.4;
+
+        &:last-child {
+            margin-bottom: 0;
+        }
+    }
+}
