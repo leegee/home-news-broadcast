@@ -200,6 +200,10 @@ export default function ControlScreen() {
                     }}
                 />
             </Show>
+
+            <div class={styles['drop-message']}>
+                Drop an image, video, or YouTube link into this window.
+            </div>
         </main>
     );
 }
