@@ -1,6 +1,7 @@
 import styles from './TickerEditor.module.scss';
 import { For, createEffect, createSignal } from 'solid-js';
 import { ticker, setTicker } from '../lib/stores/ui';
+import Help from './Help';
 
 const DELIMITER = ' · ';
 const SPLIT_DELIMITER = /\s+·\s+/;
@@ -53,7 +54,14 @@ export default function TickerEditor() {
 
     return (
         <section class={styles['ticker-editor-component']}>
-            <h2>Ticker</h2>
+
+            <h2>Ticker
+                <Help>
+                    <p>The news ticker scrolls text across the bottom of the broadcast screen. </p>
+                    <p>You can edit it here or by clicking on it on the broadcast screen.</p>
+                </Help>
+            </h2>
+
             <ul class={styles['ticker-items']}>
                 <For each={values()}>
                     {(val, i) => {

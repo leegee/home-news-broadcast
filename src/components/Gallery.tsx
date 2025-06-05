@@ -4,6 +4,7 @@ import { playlist, selectedKey, movePlaylistItem, } from '../lib/stores/playlist
 import { getYoutubeThumbnail } from '../lib/youtube.ts';
 import { getMimeType, loadFile } from '../lib/stores/file-store.ts';
 import ThumbnailControl from './ThumbnailControl.tsx';
+import Help from './Help.tsx';
 
 type GalleryProps = {
     onSelect: (keyOrUrl: string) => void;
@@ -129,6 +130,16 @@ export default function Gallery(props: GalleryProps) {
         <section class={styles['gallery-component']} ref={(el) => (galleryWrapperRef = el)}
             onClick={handleGalleryClick}
         >
+
+            <h2>Gallery
+                <Help>
+                    <p>All media that can be shown in the broadcast screen. </p>
+                    <p>To add new media, drop it into this browser tab.</p>
+                    <p>Hover over a thumbnail to edit the title and subtitle, which if set will appear in the lower third of the broadcast screen.</p>
+                    <p>Re-arrange the order with the little arrows at the side of the controls shown when hovering over the thumbnail.</p>
+                </Help>
+            </h2>
+
             <nav class={styles['gallery-component-inner']} ref={(el) => (galleryInnerRef = el)}
                 tabindex={0} onKeyDown={handleKeyDown}
             >
