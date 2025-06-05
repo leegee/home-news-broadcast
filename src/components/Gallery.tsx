@@ -20,6 +20,7 @@ export default function Gallery(props: GalleryProps) {
     const [localMedia, setLocalMedia] = createSignal<Record<string, LocalMediaInfo>>({});
     let galleryWrapperRef!: HTMLElement;
     let galleryInnerRef!: HTMLElement;
+    let timeoutId: ReturnType<typeof setTimeout>;
 
     const itemRefs = new Map<string, HTMLLIElement>();
 
@@ -34,7 +35,8 @@ export default function Gallery(props: GalleryProps) {
     onMount(() => {
         if (galleryInnerRef) {
             updateScrollIndicators();
-            galleryInnerRef.addEventListener('scroll', updateScrollIndicators);
+            clearTimeout(timeoutId);
+            timeoutId = setTimeout(updateScrollIndicators, 50);
         }
 
         onCleanup(() => galleryInnerRef?.removeEventListener('scroll', updateScrollIndicators));
