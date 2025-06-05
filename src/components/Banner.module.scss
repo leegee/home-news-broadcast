@@ -1,13 +1,12 @@
 .banner-text-component {
-    --size: 4em;
-    --text-size: 2em;
+    height: 4em;
     z-index: 300;
     background-color: rgb(2, 2, 88);
+    background: #3F5EFB;
+    background: radial-gradient(circle, rgba(63, 94, 251, 1) 0%, rgb(211, 51, 83) 100%);
     color: white;
     display: flex;
     align-items: center;
-
-    height: var(--size);
 
     img {
         height: 100%;
@@ -29,7 +28,7 @@
             font-weight: 900;
             letter-spacing: 0.3pt;
             overflow: hidden;
-            font-size: var(--text-size);
+            font-size: 2em;
             text-transform: capitalize;
         }
 

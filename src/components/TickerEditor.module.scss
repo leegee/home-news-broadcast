@@ -1,4 +1,4 @@
-@import '../styles/editor.scss';
+@use '../styles/editor.scss' as *;
 
 .ticker-editor-component {
     padding: 1em;
