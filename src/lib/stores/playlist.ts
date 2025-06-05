@@ -17,11 +17,6 @@ export function getPlaylistList(key: string): PlaylistItem {
     return item || { key, headline: '', standfirst: '' };
 }
 
-export const currentPlaylistItem = createMemo(() => {
-    const key = selectedKey();
-    return playlist().find(item => item.key === key);
-});
-
 export function removeFromPlaylist(itemKey: string) {
     setPlaylist(playlist().filter(entry => entry.key !== itemKey));
 }

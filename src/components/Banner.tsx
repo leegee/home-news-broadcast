@@ -1,7 +1,7 @@
 import styles from './Banner.module.scss';
 import { createMemo, createSignal } from 'solid-js';
 import { selectContent } from '../lib/select-content';
-import { currentPlaylistItem, updateCurrentPlaylistItem } from '../lib/stores/playlist';
+import { playlist, selectedKey, updateCurrentPlaylistItem } from '../lib/stores/playlist';
 import { banner, setBanner } from '../lib/stores/ui';
 import BannerImage from './BannerImage';
 import BannerClock from './BannerClock';
@@ -11,6 +11,11 @@ export default function Banner() {
     const [editingStandfirst, setEditingStandfirst] = createSignal('');
     const [isEditingHeadline, setIsEditingHeadline] = createSignal(false);
     const [isEditingStandfirst, setIsEditingStandfirst] = createSignal(false);
+
+    const currentPlaylistItem = createMemo(() => {
+        const key = selectedKey();
+        return playlist().find(item => item.key === key);
+    });
 
     let preEditTextContent = '';
 
