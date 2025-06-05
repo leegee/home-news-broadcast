@@ -27,20 +27,23 @@ export default function Gallery(props: GalleryProps) {
     function updateScrollIndicators() {
         if (!galleryWrapperRef || !galleryInnerRef) return;
         const { scrollLeft, scrollWidth, clientWidth } = galleryInnerRef;
-
         galleryWrapperRef.classList.toggle(styles['can-scroll-left'], scrollLeft > 0);
         galleryWrapperRef.classList.toggle(styles['can-scroll-right'], scrollLeft + clientWidth < scrollWidth - 10);
     }
 
-    onMount(() => {
-        if (galleryInnerRef) {
-            updateScrollIndicators();
-            clearTimeout(timeoutId);
-            timeoutId = setTimeout(updateScrollIndicators, 50);
-        }
+    function handleGalleryClick(e: MouseEvent) {
+        if (!galleryInnerRef) return;
 
-        onCleanup(() => galleryInnerRef?.removeEventListener('scroll', updateScrollIndicators));
-    });
+        const { clientX } = e;
+        const { left, right } = galleryInnerRef.getBoundingClientRect();
+
+        const edgeThreshold = 48;
+        if (clientX - left < edgeThreshold) {
+            galleryInnerRef.scrollBy({ left: -120, behavior: 'smooth' });
+        } else if (right - clientX < edgeThreshold) {
+            galleryInnerRef.scrollBy({ left: 120, behavior: 'smooth' });
+        }
+    }
 
     function handleKeyDown(e: KeyboardEvent) {
         switch (e.key) {
@@ -70,6 +73,14 @@ export default function Gallery(props: GalleryProps) {
             el?.focus();
         });
     }
+
+    onMount(() => {
+        galleryInnerRef.addEventListener('scroll', () => {
+            updateScrollIndicators();
+        });
+        updateScrollIndicators();
+        onCleanup(() => galleryInnerRef?.removeEventListener('scroll', updateScrollIndicators));
+    });
 
     createEffect(async () => {
         const keys = playlist();
@@ -116,7 +127,9 @@ export default function Gallery(props: GalleryProps) {
     });
 
     return (
-        <section class={styles['gallery-component']} ref={(el) => (galleryWrapperRef = el)}>
+        <section class={styles['gallery-component']} ref={(el) => (galleryWrapperRef = el)}
+            onClick={handleGalleryClick}
+        >
             <nav class={styles['gallery-component-inner']} ref={(el) => (galleryInnerRef = el)}
                 tabindex={0} onKeyDown={handleKeyDown}
             >
