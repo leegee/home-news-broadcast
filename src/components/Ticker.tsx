@@ -59,7 +59,7 @@ const Ticker = () => {
             x1 = containerRef.offsetWidth;
         }
         if (x2 + width < 0 && containerRef) {
-            x2 = containerRef.offsetWidth;
+            x2 = width + containerRef.offsetWidth;
         }
 
         if (item1) item1.style.transform = `translateX(${x1}px)`;
