@@ -19,10 +19,6 @@ export default function ShowRemoteCamera() {
         }
     };
 
-    createSignal(() => {
-        console.log('xxx', streamSource());
-    })
-
     return (
         <button onClick={toggleCamera} title="Stream a camera from a mobile phone">
             {streamSource() !== 'peer' ? 'Phone Camera' : 'Disconnect Phone'}
