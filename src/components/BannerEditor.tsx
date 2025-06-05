@@ -1,5 +1,5 @@
 import styles from './BannerEditor.module.scss';
-import { createSignal } from 'solid-js';
+import { createEffect, createSignal } from 'solid-js';
 import { banner, setBanner } from '../lib/stores/ui';
 
 export default function BannerEditor() {
@@ -21,6 +21,13 @@ export default function BannerEditor() {
         }
     }
 
+    createEffect(() => {
+        const b = banner();
+        setDraftBanner(b);
+        if (inputRef) {
+            inputRef.value = b;
+        }
+    });
 
     return (
         <section class={styles['banner-editor-component']}>
