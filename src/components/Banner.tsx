@@ -1,6 +1,5 @@
 import styles from './Banner.module.scss';
 import { createMemo, createSignal } from 'solid-js';
-import { selectContent } from '../lib/select-content';
 import { playlist, selectedKey, updateCurrentPlaylistItem } from '../lib/stores/playlist';
 import { banner, setBanner } from '../lib/stores/ui';
 import BannerImage from './BannerImage';
@@ -34,10 +33,7 @@ export default function Banner() {
 
     const startEdit = (e: Event, field: 'headline' | 'standfirst') => {
         const target = e.target as HTMLElement;
-        if (!hasCurrentItem()) return;
         preEditTextContent = target.textContent || '';
-        selectContent(target);
-
         if (field === 'headline') {
             setEditingHeadline(preEditTextContent);
             setIsEditingHeadline(true);
@@ -47,11 +43,11 @@ export default function Banner() {
         }
     };
 
-    const saveField = (e: Event, field: 'headline' | 'standfirst') => {
+    const endEdit = (e: Event, field: 'headline' | 'standfirst') => {
         const target = e.target as HTMLElement;
         const newText = target.textContent?.trim() || preEditTextContent;
-
         const current = currentPlaylistItem();
+
         if (field === 'headline') {
             setIsEditingHeadline(false);
             if (current) {
@@ -98,21 +94,21 @@ export default function Banner() {
             <BannerImage />
             <hgroup>
                 <h1
-                    contentEditable={hasCurrentItem()}
+                    contentEditable='plaintext-only'
                     tabIndex={0}
                     onClick={(e) => startEdit(e, 'headline')}
                     onFocus={(e) => startEdit(e, 'headline')}
-                    onBlur={(e) => saveField(e, 'headline')}
+                    onBlur={(e) => endEdit(e, 'headline')}
                     onKeyDown={onKeyDown}
                 >
                     {displayHeadline()}
                 </h1>
                 <h2
-                    contentEditable={hasCurrentItem()}
+                    contentEditable='plaintext-only'
                     tabIndex={0}
                     onClick={(e) => startEdit(e, 'standfirst')}
                     onFocus={(e) => startEdit(e, 'standfirst')}
-                    onBlur={(e) => saveField(e, 'standfirst')}
+                    onBlur={(e) => endEdit(e, 'standfirst')}
                     onKeyDown={onKeyDown}
                 >
                     {displayStandfirst()}
