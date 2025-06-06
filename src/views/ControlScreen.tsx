@@ -96,6 +96,7 @@ export default function ControlScreen() {
     };
 
     const pasteHandler = (e: ClipboardEvent) => {
+        dragLeaveHandler();
         const text = (e.clipboardData || (window as any).clipboardData).getData("text");
         if (text) {
             handleDroppedText(text);
@@ -109,6 +110,7 @@ export default function ControlScreen() {
     };
 
     const dropHandler = async (e: DragEvent) => {
+        dragLeaveHandler();
         e.preventDefault();
         (e.currentTarget as HTMLElement).style.outline = '';
 
