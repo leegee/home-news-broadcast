@@ -1,6 +1,8 @@
 {
   "compilerOptions": {
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
+    "composite": true,
+    "outDir": "dist",
     "target": "ES2020",
     "useDefineForClassFields": true,
     "module": "ESNext",
@@ -12,21 +14,18 @@
     "skipLibCheck": true,
     /* Bundler mode */
     "moduleResolution": "bundler",
-    "allowImportingTsExtensions": true,
     "isolatedModules": true,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
     "moduleDetection": "force",
-    "noEmit": true,
+    "noEmit": false,
     "jsx": "preserve",
     "jsxImportSource": "solid-js",
     /* Linting */
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "noFallthroughCasesInSwitch": true,
-    "noUncheckedSideEffectImports": true
-  },
-  "include": [
-    "packages/web/src",
-    "packages/web/vite-env.d.ts"
-  ]
+    "noFallthroughCasesInSwitch": true
+    // "noUncheckedSideEffectImports": true
+  }
 }

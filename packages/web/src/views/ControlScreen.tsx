@@ -6,6 +6,7 @@ import { removeFromPlaylist, savePlaylistItem, selectedKey, setSelectedKey, } fr
 import { saveFile, deleteFile, getFileAndType } from '../lib/stores/file-store';
 import { changeMedia } from '../lib/inter-tab-comms';
 import { ErrorDisplay } from '../components/ErrorDisplay';
+import StreamUrl from '../components/StreamUrl';
 import CaptureControls from '../components/CaptureControls';
 import OpenBroadcastScreen from '../components/OpenBroadcastScreen';
 import ShowQRCode from '../components/ShowQRCode';
@@ -171,6 +172,7 @@ export default function ControlScreen() {
 
             <nav class={styles['button-strip']}>
                 <OpenBroadcastScreen />
+                <StreamUrl />
                 <CaptureControls />
                 <ShowLocalCamera />
                 <ShowRemoteCamera />

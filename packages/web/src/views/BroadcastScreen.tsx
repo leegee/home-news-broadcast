@@ -1,11 +1,11 @@
 import styles from './BroadcastScreen.module.scss';
 import { createEffect, createMemo, createSignal, Match, onCleanup, onMount, Show, Switch } from 'solid-js';
-import Ticker from '../components/Ticker.tsx';
-import Banner from '../components/Banner.tsx';
-import { ErrorDisplay } from '../components/ErrorDisplay.tsx';
-import { getFileAndType } from '../lib/stores/file-store.ts';
-import { endCurrentCall, setupQRCodeFlow } from '../lib/qr2phone2stream.ts';
-import { MediaChangeParams, registerOnEndCallHandler, onMediaChange } from '../lib/inter-tab-comms.ts';
+import Ticker from '../components/Ticker';
+import Banner from '../components/Banner';
+import { ErrorDisplay } from '../components/ErrorDisplay';
+import { getFileAndType } from '../lib/stores/file-store';
+import { endCurrentCall, setupQRCodeFlow } from '../lib/qr2phone2stream';
+import { MediaChangeParams, registerOnEndCallHandler, onMediaChange } from '../lib/inter-tab-comms';
 import {
     mediaStream,
     setMediaStream,
@@ -14,8 +14,8 @@ import {
     streamSource,
     STREAM_TYPES,
     setError,
-} from '../lib/stores/ui.ts';
-import { playlist, selectedKey, setSelectedKey } from '../lib/stores/playlist.ts';
+} from '../lib/stores/ui';
+import { playlist, selectedKey, setSelectedKey } from '../lib/stores/playlist';
 
 let peerSetup = false;
 let previousObjectUrl: string | null = null;

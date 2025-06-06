@@ -1,8 +1,8 @@
 import './App.css';
 import { HashRouter, Route } from "@solidjs/router";
-import BroadcastScreen from './views/BroadcastScreen.tsx';
-import ControlScreen from './views/ControlScreen.tsx';
-import PhoneScreen from "./views/PhoneScreen.tsx";
+import BroadcastScreen from './views/BroadcastScreen';
+import ControlScreen from './views/ControlScreen';
+import PhoneScreen from "./views/PhoneScreen";
 
 export default function App() {
   return (

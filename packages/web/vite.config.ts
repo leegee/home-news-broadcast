@@ -37,6 +37,7 @@ const localIp = getLocalNetworkAddress();
 const port = 5173;
 
 export default defineConfig({
+  base: './',
   build: {
     outDir: 'dist',
   },

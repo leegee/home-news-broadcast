@@ -1,5 +1,11 @@
 ## Synopsis
 
+    bun run it
+
+### Dev
+
+    bun dev
+    bun electron:dev
 
 ## Installation
 

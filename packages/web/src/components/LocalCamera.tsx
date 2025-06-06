@@ -1,6 +1,6 @@
 import { createEffect, createSignal, Show } from "solid-js";
-import { STREAM_TYPES } from '../lib/stores/ui.ts';
-import { changeMedia } from "../lib/inter-tab-comms.ts";
+import { STREAM_TYPES } from '../lib/stores/ui';
+import { changeMedia } from "../lib/inter-tab-comms";
 
 export default function ShowLocalCamera() {
     const [canAccessCamera, setCanAccessCamera] = createSignal(false);

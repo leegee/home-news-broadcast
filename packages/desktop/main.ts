@@ -1,21 +1,27 @@
 import os from 'os';
 import path from 'path';
-import { app, BrowserWindow } from 'electron';
+import { app, BrowserWindow, ipcMain } from 'electron';
+import { fork } from 'child_process';
 import { spawn } from 'child_process';
-import { fileURLToPath } from 'url';
+// import { fileURLToPath } from 'url';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+// const __filename = fileURLToPath(import.meta.url);
+// const __dirname = path.dirname(__filename);
 
-let peerJsProcess;
-let streamServerProcess;
+const isDev = !app.isPackaged;
+let peerJsProcess: ReturnType<typeof spawnServer>;
+let streamServerProcess: ReturnType<typeof forkServer>;
 
 function getLocalNetworkAddress() {
     const nets = os.networkInterfaces();
-    for (const name of Object.keys(nets)) {
-        for (const net of nets[name]) {
-            if (net.family === 'IPv4' && !net.internal) {
-                return net.address;
+    if (nets) {
+        for (const name of Object.keys(nets)) {
+            if (nets[name]) {
+                for (const net of nets[name]!) {
+                    if (net.family === 'IPv4' && !net.internal) {
+                        return net.address;
+                    }
+                }
             }
         }
     }
@@ -25,7 +31,7 @@ function getLocalNetworkAddress() {
 function createWindow() {
     app.commandLine.appendSwitch('ignore-certificate-errors');
 
-    let preloadPath = path.join(__dirname, 'preload.js');
+    let preloadPath = isDev ? path.join(__dirname, 'preload.js') : path.join(__dirname, 'preload.js');
 
     // On Windows, remove leading slash if path looks like '\C:\...'
     if (process.platform === 'win32' && preloadPath.match(/^\\[A-Z]:\\/i)) {
@@ -37,28 +43,56 @@ function createWindow() {
         width: 1200,
         height: 800,
         webPreferences: {
-            preload: preloadPath,
-            contextIsolation: false,
+            contextIsolation: true,
             nodeIntegration: true,
+            preload: preloadPath,
         },
     });
 
     win.webContents.openDevTools({ mode: 'detach' });
 
     win.webContents.on('did-fail-load', (event, errorCode, errorDescription) => {
-        console.error('Page failed to load:', errorCode, errorDescription);
+        console.error('Page failed to load:', errorCode, errorDescription, event);
     });
 
     if (process.env.NODE_ENV === 'development') {
         const url = `https://${getLocalNetworkAddress()}:5173`;
-        console.log('Open', url);
+        console.log('Running in dev mode at', url);
         win.loadURL(url);
     } else {
-        win.loadFile(path.join(__dirname, '../web/dist/index.html'));
+        const url = path.join(__dirname, '..', '..', 'web/dist/index.html');
+        console.log('Running in production mode at', url);
+        win.loadFile(url);
     }
 }
 
-function spawnServer(scriptRelativePath, args = []) {
+function forkServer(scriptRelativePath: string, args = []) {
+    const scriptPath = path.resolve(__dirname, scriptRelativePath);
+    console.log('Forking', scriptRelativePath, 'at', scriptPath);
+
+    const child = fork(scriptPath, args, {
+        env: { ...process.env },
+        stdio: ['pipe', 'pipe', 'pipe', 'ipc'], // important for IPC
+    });
+
+    if (child) {
+        child.stdout?.on('data', (data) => {
+            console.log(`[${scriptRelativePath} stdout]: ${data}`);
+        });
+
+        child.stderr?.on('data', (data) => {
+            console.error(`[${scriptRelativePath} stderr]: ${data}`);
+        });
+
+        child.on('exit', (code, signal) => {
+            console.log(`[${scriptRelativePath}] exited with code ${code} and signal ${signal}`);
+        });
+    }
+
+    return child;
+}
+
+function spawnServer(scriptRelativePath: string, args = []) {
     const scriptPath = path.resolve(__dirname, scriptRelativePath);
     console.log('Spawn', scriptRelativePath, 'ie', scriptPath);
 
@@ -84,9 +118,16 @@ function spawnServer(scriptRelativePath, args = []) {
     return child;
 }
 
+ipcMain.on('update-stream-url', (_event, newUrl) => {
+    if (streamServerProcess && streamServerProcess.connected) {
+        streamServerProcess.send({ type: 'updateStreamUrl', url: newUrl });
+    }
+});
+
 app.whenReady().then(() => {
     peerJsProcess = spawnServer('../../servers/phone.js');
-    streamServerProcess = spawnServer('../../servers/streamer.js');
+    // streamServerProcess = spawnServer('../../servers/streamer.js');
+    streamServerProcess = forkServer('../../servers/streamer.js');
 
     createWindow();
 

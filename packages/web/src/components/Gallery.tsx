@@ -1,10 +1,10 @@
 import styles from './Gallery.module.scss';
 import { For, Show, createEffect, createSignal, onCleanup, onMount } from 'solid-js';
-import { playlist, selectedKey, movePlaylistItem, } from '../lib/stores/playlist.ts';
-import { getYoutubeThumbnail } from '../lib/youtube.ts';
-import { getMimeType, loadFile } from '../lib/stores/file-store.ts';
-import ThumbnailControl from './ThumbnailControl.tsx';
-import Help from './Help.tsx';
+import { playlist, selectedKey, movePlaylistItem, } from '../lib/stores/playlist';
+import { getYoutubeThumbnail } from '../lib/youtube';
+import { getMimeType, loadFile } from '../lib/stores/file-store';
+import ThumbnailControl from './ThumbnailControl';
+import Help from './Help';
 
 type GalleryProps = {
     onSelect: (keyOrUrl: string) => void;
