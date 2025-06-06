@@ -40,7 +40,7 @@ function createWindow() {
     console.log('Preload script absolute path:', preloadPath);
 
     const win = new BrowserWindow({
-        width: 1200,
+        width: 1000,
         height: 800,
         webPreferences: {
             contextIsolation: true,
@@ -56,9 +56,9 @@ function createWindow() {
     });
 
     if (process.env.NODE_ENV === 'development') {
-        const url = `https://${getLocalNetworkAddress()}:5173`;
-        console.log('Running in dev mode at', url);
-        win.loadURL(url);
+        const controlWindowUrl = `https://${getLocalNetworkAddress()}:5173`;
+        console.log('Running in dev mode at', controlWindowUrl);
+        win.loadURL(controlWindowUrl);
     } else {
         const url = path.join(__dirname, '..', '..', 'web/dist/index.html');
         console.log('Running in production mode at', url);
