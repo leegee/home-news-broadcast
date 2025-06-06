@@ -74,12 +74,22 @@ export default function Gallery(props: GalleryProps) {
         });
     }
 
+    const handleWheel = (e: WheelEvent) => {
+        if (!galleryInnerRef) return;
+        e.preventDefault();
+        galleryInnerRef.scrollLeft += e.deltaY;
+    };
+
     onMount(() => {
-        galleryInnerRef.addEventListener('scroll', () => {
-            updateScrollIndicators();
-        });
+        galleryInnerRef.addEventListener('scroll', updateScrollIndicators);
+        galleryInnerRef.addEventListener("wheel", handleWheel, { passive: false });
+
         updateScrollIndicators();
-        onCleanup(() => galleryInnerRef?.removeEventListener('scroll', updateScrollIndicators));
+
+        onCleanup(() => {
+            galleryInnerRef?.removeEventListener("wheel", handleWheel);
+            galleryInnerRef?.removeEventListener('scroll', updateScrollIndicators)
+        });
     });
 
     createEffect(async () => {
