@@ -6,6 +6,9 @@ import { execSync } from 'child_process';
 import { defineConfig } from 'vite'
 import solid from 'vite-plugin-solid'
 
+import { STREAMER_PORT } from '../servers/streamer.js';
+import { PHONE_PORT } from '../servers/phone.js';
+
 function getLocalNetworkAddress() {
   const nets = os.networkInterfaces();
   for (const name of Object.keys(nets)) {
@@ -57,8 +60,8 @@ export default defineConfig({
   define: {
     __DESKTOP_WEBRTC_ADDRESS__: JSON.stringify(`https://${localIp}:5173`),
     __LOCAL_IP__: JSON.stringify(localIp),
-    __RTC_PORT__: JSON.stringify(9000),
+    __RTC_PORT__: JSON.stringify(PHONE_PORT),
     __WS_IP__: JSON.stringify('localhost'),
-    __WS_PORT__: JSON.stringify(3000),
+    __WS_PORT__: JSON.stringify(STREAMER_PORT),
   },
 })

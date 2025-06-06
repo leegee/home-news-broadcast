@@ -1,21 +1,21 @@
 ## Synopsis
 
-    bun run it
+    bun it
 
-### Dev
+    # Or in dev:
 
     bun dev
-    bun electron:dev
+
+    bun electron:dev # either
+    bun servers      # or
 
 ## Installation
 
     bun install
 
-## Environment
+## Dependencies
 
-    YOUTUBE_KEY
-
-### Dependencies
+    export YOUTUBE_URL=... # Default stream URL for non-Electron servers
 
     bun run make-certs # Or put yours in ./certs/
 

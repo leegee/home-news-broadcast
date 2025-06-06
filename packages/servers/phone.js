@@ -8,6 +8,8 @@ import { ExpressPeerServer } from 'peer';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+export const PHONE_PORT = 9000;
+
 const certPath = path.join(__dirname, '../certs/cert.pem');
 const keyPath = path.join(__dirname, '../certs/key.pem');
 
@@ -24,8 +26,8 @@ function main() {
         path: '/',
     }));
 
-    server.listen(9000, () => { // __RTC_PORT__
-        console.log('HTTPS Server listening on port 9000');
+    server.listen(PHONE_PORT, () => { // __RTC_PORT__
+        console.log(`HTTPS Server listening on port ${PHONE_PORT}`);
     });
 }
 

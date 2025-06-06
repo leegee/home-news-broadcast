@@ -2,6 +2,8 @@ import { WebSocketServer } from 'ws';
 import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 
+export const STREAMER_PORT = 3000;
+
 function main() {
     let streamUrl = process.env.YOUTUBE_KEY
         ? 'rtmp://a.rtmp.youtube.com/live2/' + process.env.YOUTUBE_KEY
@@ -66,8 +68,8 @@ function main() {
             console.warn('WebSocket server already started.');
             return;
         }
-        wss = new WebSocketServer({ port: 3000 });
-        console.log('RTMP WebSocket server running at ws://localhost:3000');
+        wss = new WebSocketServer({ port: STREAMER_PORT });
+        console.log(`RTMP WebSocket server started for ws://localhost:${STREAMER_PORT}`);
 
         wss.on('connection', (ws) => {
             if (currentClient) {

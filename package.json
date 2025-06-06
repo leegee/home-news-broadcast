@@ -13,7 +13,7 @@
     "electron:dev": "tsc -p packages/desktop && cross-env NODE_ENV=development electron packages/desktop/dist/main.js",
     "electron:build": "tsx packages/desktop/build-electron.ts",
     "it": "bun run build && bun --cwd packages/web build && electron packages/desktop/dist/main.js",
-    "dev:all": "concurrently \"bun servers/phone.js\" \"bun servers/streamer.js\" \"bun --cwd packages/web dev\""
+    "servers": "concurrently \"bun servers/phone.js\" \"bun servers/streamer.js\""
   },
   "dependencies": {
     "concurrently": "^9.1.2",
