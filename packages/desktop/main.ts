@@ -1,18 +1,19 @@
 import os from 'os';
 import path from 'path';
 import { app, BrowserWindow } from 'electron';
-import { fileURLToPath, pathToFileURL } from 'url';
+import { spawn } from 'child_process';
+import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-let peerJsServer;
-let streamServer;
+let peerJsProcess;
+let streamServerProcess;
 
 function getLocalNetworkAddress() {
     const nets = os.networkInterfaces();
     for (const name of Object.keys(nets)) {
-        for (const net of nets[name]!) {
+        for (const net of nets[name]) {
             if (net.family === 'IPv4' && !net.internal) {
                 return net.address;
             }
@@ -24,11 +25,19 @@ function getLocalNetworkAddress() {
 function createWindow() {
     app.commandLine.appendSwitch('ignore-certificate-errors');
 
+    let preloadPath = path.join(__dirname, 'preload.js');
+
+    // On Windows, remove leading slash if path looks like '\C:\...'
+    if (process.platform === 'win32' && preloadPath.match(/^\\[A-Z]:\\/i)) {
+        preloadPath = preloadPath.slice(1);
+    }
+    console.log('Preload script absolute path:', preloadPath);
+
     const win = new BrowserWindow({
         width: 1200,
         height: 800,
         webPreferences: {
-            preload: path.join(__dirname, 'preload.js'),
+            preload: preloadPath,
             contextIsolation: false,
             nodeIntegration: true,
         },
@@ -49,23 +58,43 @@ function createWindow() {
     }
 }
 
-app.whenReady().then(async () => {
-    const peerJsUrl = pathToFileURL(path.resolve(__dirname, '../../servers/phone.js')).href;
-    const streamServerUrl = pathToFileURL(path.resolve(__dirname, '../../servers/streamer.js')).href;
+function spawnServer(scriptRelativePath, args = []) {
+    const scriptPath = path.resolve(__dirname, scriptRelativePath);
+    console.log('Spawn', scriptRelativePath, 'ie', scriptPath);
 
-    const { default: startPeerJsServer } = await import(peerJsUrl);
-    const { default: startStreamServer } = await import(streamServerUrl);
+    const child = spawn(process.execPath, [scriptPath, ...args], {
+        stdio: ['ignore', 'pipe', 'pipe'],
+        env: process.env,
+        cwd: path.dirname(scriptPath),
+        windowsHide: true,
+    });
 
-    peerJsServer = startPeerJsServer();
-    streamServer = startStreamServer();
+    child.stdout.on('data', (data) => {
+        console.log(`[${path.basename(scriptRelativePath)} stdout]: ${data.toString()}`);
+    });
+
+    child.stderr.on('data', (data) => {
+        console.error(`[${path.basename(scriptRelativePath)} stderr]: ${data.toString()}`);
+    });
+
+    child.on('exit', (code, signal) => {
+        console.log(`[${path.basename(scriptRelativePath)} exited] code: ${code} signal: ${signal}`);
+    });
+
+    return child;
+}
+
+app.whenReady().then(() => {
+    peerJsProcess = spawnServer('../../servers/phone.js');
+    streamServerProcess = spawnServer('../../servers/streamer.js');
+
     createWindow();
 
     app.on('window-all-closed', () => {
         if (process.platform !== 'darwin') {
-            peerJsServer?.close?.();
-            streamServer?.close?.();
+            peerJsProcess?.kill();
+            streamServerProcess?.kill();
             app.quit();
         }
     });
 });
-

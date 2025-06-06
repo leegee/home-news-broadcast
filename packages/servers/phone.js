@@ -5,8 +5,11 @@ import path from 'path';
 import { fileURLToPath } from 'node:url';
 import { ExpressPeerServer } from 'peer';
 
-const certPath = path.resolve('./packages/certs/cert.pem');
-const keyPath = path.resolve('./packages/certs/key.pem');
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const certPath = path.join(__dirname, '../certs/cert.pem');
+const keyPath = path.join(__dirname, '../certs/key.pem');
 
 function main() {
     const app = express();
@@ -27,9 +30,6 @@ function main() {
 }
 
 // Run the server if this file is called directly
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
 if (process.argv[1] === __filename) {
     main();
 }
