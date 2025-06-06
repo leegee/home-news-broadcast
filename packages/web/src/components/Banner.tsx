@@ -18,7 +18,7 @@ export default function Banner() {
 
     let preEditTextContent = '';
 
-    const hasCurrentItem = createMemo(() => !!currentPlaylistItem());
+    // const hasCurrentItem = createMemo(() => !!currentPlaylistItem());
 
     const displayHeadline = createMemo(() => {
         if (isEditingHeadline()) return editingHeadline();

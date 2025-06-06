@@ -1,9 +1,5 @@
 ## Synopsis
 
-    # This will be combined
-    bun dev               # UI
-    bun node/server.js    # WebRTC exchange
-    bun node/streamer.js  # Streams to YT
 
 ## Installation
 
@@ -11,7 +7,7 @@
 
 ## Environment
 
-    YOUTUBEO_KEY
+    YOUTUBE_KEY
 
 ### Dependencies
 

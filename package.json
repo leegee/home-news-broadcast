@@ -3,30 +3,26 @@
   "private": true,
   "version": "0.2.0",
   "type": "module",
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
-    "dev": "vite --host",
-    "setup": "node certs/make-certs.js",
-    "build": "tsc -b && vite build",
-    "preview": "vite preview",
-    "all": "concurrently \"bun node/server.js\" \"bun node/streamer.js\" \"bun dev\""
+    "build": "tsc -b",
+    "setup": "bun --cwd packages/certs make-certs",
+    "dev": "bun --cwd packages/web dev",
+    "electron:dev": "tsc -p packages/desktop && cross-env NODE_ENV=development electron packages/desktop/dist/main.js",
+    "electron:build": "tsx packages/desktop/build-electron.ts",
+    "dev:all": "concurrently \"bun servers/phone.js\" \"bun servers/streamer.js\" \"bun --cwd packages/web dev\""
   },
   "dependencies": {
-    "@solid-primitives/storage": "^4.3.2",
-    "@solidjs/router": "^0.15.3",
-    "@types/qrcode": "^1.5.5",
     "concurrently": "^9.1.2",
-    "html5-qrcode": "^2.3.8",
-    "lz-string": "^1.5.0",
-    "peer": "^1.0.2",
-    "qrcode": "^1.5.4",
-    "solid-js": "^1.9.5",
-    "ws": "^8.18.2"
+    "electron": "",
+    "peer": "^1.0.2"
   },
   "devDependencies": {
+    "@types/electron": "^1.6.12",
     "@types/peerjs": "^1.1.0",
-    "sass-embedded": "^1.89.0",
-    "typescript": "~5.7.2",
-    "vite": "^6.3.0",
-    "vite-plugin-solid": "^2.11.6"
+    "cross-env": "^7.0.3",
+    "typescript": "~5.7.2"
   }
 }

@@ -1,3 +1,7 @@
+## 0.2.0 2025-06-06
+
+Monorepo to add optional Electron build to simplify server start up for the kids
+
 ## 0.2.0 2025-06-02
 
 Finished title/subtitle display and editing. Renamed history to playlist

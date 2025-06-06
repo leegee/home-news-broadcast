@@ -1,0 +1,16 @@
+{
+    "name": "desktop",
+    "main": "main.js",
+    "type": "module",
+    "scripts": {
+        "start": "electron .",
+        "build": "electron-builder"
+    },
+    "devDependencies": {
+        "@types/electron": "^1.6.12",
+        "@types/node": "^22.15.30",
+        "electron": "^25.0.0",
+        "electron-builder": "^23.6.0",
+        "vite-plugin-electron": "^0.29.0"
+    }
+}

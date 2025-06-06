@@ -1,4 +1,3 @@
-import { createSignal } from 'solid-js';
 import { qrCode, setStreamSource, STREAM_TYPES, streamSource } from '../lib/stores/ui';
 import { changeMedia, sendEndCallRequest } from '../lib/inter-tab-comms';
 
