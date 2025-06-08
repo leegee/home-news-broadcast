@@ -19,6 +19,7 @@ const CHANNEL_NAME = 'cap-channel';
 export const channel = new BroadcastChannel(CHANNEL_NAME);
 
 export const changeMedia = (params: { url: string; type: StreamType }) => {
+    console.log('SEND changeMedia', params);
     const message: MediaChangeMessage = { class: 'media-change', ...params };
     channel.postMessage(message);
 };
@@ -28,6 +29,7 @@ export const onMediaChange = (
 ) => {
     const handler = (event: MessageEvent<MediaChangeMessage>) => {
         if (event.data.class === 'media-change') {
+            console.log('ON MEDIA CHANGE', event.data, callback);
             callback({ url: event.data.url, type: event.data.type });
         }
     };
