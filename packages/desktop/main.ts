@@ -3,14 +3,12 @@ import path from 'path';
 import { app, BrowserWindow, ipcMain } from 'electron';
 import { fork } from 'child_process';
 import { spawn } from 'child_process';
-// import { fileURLToPath } from 'url';
-
-// const __filename = fileURLToPath(import.meta.url);
-// const __dirname = path.dirname(__filename);
 
 const isDev = !app.isPackaged;
 let peerJsProcess: ReturnType<typeof spawnServer>;
 let streamServerProcess: ReturnType<typeof forkServer>;
+let broadcastWindow: BrowserWindow;
+let controlWindow: BrowserWindow;
 
 const url = process.env.NODE_ENV === 'development'
     ? `https://${getLocalNetworkAddress()}:5173`
@@ -42,7 +40,7 @@ function createWControlWindow() {
     }
     console.log('Preload script absolute path:', preloadPath);
 
-    const win = new BrowserWindow({
+    controlWindow = new BrowserWindow({
         width: 1000,
         height: 800,
         webPreferences: {
@@ -54,50 +52,50 @@ function createWControlWindow() {
 
     // win.webContents.openDevTools({ mode: 'detach' });
 
-    win.webContents.on('did-fail-load', (event, errorCode, errorDescription) => {
+    controlWindow.webContents.on('did-fail-load', (event, errorCode, errorDescription) => {
         console.error('Page failed to load:', errorCode, errorDescription, event);
     });
 
     if (process.env.NODE_ENV === 'development') {
-        win.loadURL(url);
+        controlWindow.loadURL(url);
     } else {
-        win.loadFile(url);
+        controlWindow.loadFile(url);
     }
 }
 
-// @ts-ignore: for now
-function createWBroadcastWindow() {
-    app.commandLine.appendSwitch('ignore-certificate-errors');
+// // @ts-ignore: for now
+// function createWBroadcastWindow() {
+//     app.commandLine.appendSwitch('ignore-certificate-errors');
 
-    let preloadPath = isDev ? path.join(__dirname, 'preload.js') : path.join(__dirname, 'preload.js');
+//     let preloadPath = isDev ? path.join(__dirname, 'preload.js') : path.join(__dirname, 'preload.js');
 
-    if (process.platform === 'win32' && preloadPath.match(/^\\[A-Z]:\\/i)) {
-        preloadPath = preloadPath.slice(1);
-    }
-    console.log('Preload script absolute path:', preloadPath);
+//     if (process.platform === 'win32' && preloadPath.match(/^\\[A-Z]:\\/i)) {
+//         preloadPath = preloadPath.slice(1);
+//     }
+//     console.log('Preload script absolute path:', preloadPath);
 
-    const win = new BrowserWindow({
-        width: 1000,
-        height: 800,
-        webPreferences: {
-            contextIsolation: true,
-            nodeIntegration: true,
-            preload: preloadPath,
-        },
-    });
+//     broadcastWindow = new BrowserWindow({
+//         width: 1000,
+//         height: 800,
+//         webPreferences: {
+//             contextIsolation: true,
+//             nodeIntegration: true,
+//             preload: preloadPath,
+//         },
+//     });
 
-    win.webContents.openDevTools({ mode: 'detach' });
+//     broadcastWindow.webContents.openDevTools({ mode: 'detach' });
 
-    win.webContents.on('did-fail-load', (event, errorCode, errorDescription) => {
-        console.error('Page failed to load:', errorCode, errorDescription, event);
-    });
+//     broadcastWindow.webContents.on('did-fail-load', (event, errorCode, errorDescription) => {
+//         console.error('Page failed to load:', errorCode, errorDescription, event);
+//     });
 
-    if (process.env.NODE_ENV === 'development') {
-        win.loadURL(url);
-    } else {
-        win.loadFile(url);
-    }
-}
+//     if (process.env.NODE_ENV === 'development') {
+//         broadcastWindow.loadURL(url);
+//     } else {
+//         broadcastWindow.loadFile(url);
+//     }
+// }
 
 function forkServer(scriptRelativePath: string, args = []) {
     const scriptPath = path.resolve(__dirname, scriptRelativePath);
@@ -153,10 +151,12 @@ function spawnServer(scriptRelativePath: string, args = []) {
 
 ipcMain.on('open-broadcast-window', (event, route) => {
     console.log(event);
-    const newWin = new BrowserWindow({
+    broadcastWindow = new BrowserWindow({
         width: 1024,
         height: 576,
         autoHideMenuBar: true,
+        fullscreen: true,
+        show: false,               // create hidden; we’ll reveal later
         webPreferences: {
             preload: path.join(__dirname, 'preload.js'),
             contextIsolation: true,
@@ -166,13 +166,20 @@ ipcMain.on('open-broadcast-window', (event, route) => {
 
     if (process.env.NODE_ENV === 'development') {
         console.log('load url  in dev mode', url + route)
-        newWin.loadURL(url + route);
+        broadcastWindow.loadURL(url + route);
     } else {
         console.log('load  file  in prod mode', url + route)
-        newWin.loadFile(url).then(() => {
-            newWin.webContents.executeJavaScript(`location.hash = "${route}"`);
+        broadcastWindow.loadFile(url).then(() => {
+            broadcastWindow.webContents.executeJavaScript(`location.hash = "${route}"`);
         });
     }
+
+    broadcastWindow.once('ready-to-show', () => {
+        // Shows behind the current active window
+        broadcastWindow.showInactive();
+        // Re-focus parent
+        controlWindow.focus();
+    });
 });
 
 ipcMain.on('update-stream-url', (_event, newUrl) => {
