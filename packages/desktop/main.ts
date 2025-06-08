@@ -100,6 +100,35 @@ async function main() {
   connect-src 'self' ${wsUrls} ${streamUrl};
 `.replace(/\s+/g, ' ').trim();
 
+    function openBroadcastWindow(route: string) {
+        broadcastWindow = new BrowserWindow({
+            width: 1024,
+            height: 576,
+            autoHideMenuBar: true,
+            fullscreen: true,
+            show: false,               // create hidden; we’ll reveal later
+            webPreferences: {
+                preload: path.join(__dirname, 'preload.js'),
+                contextIsolation: true,
+                nodeIntegration: false,
+            },
+        });
+
+        if (process.env.NODE_ENV === 'development') {
+            console.log('load url  in dev mode', url + route)
+            broadcastWindow.loadURL(url + route);
+        } else {
+            console.log('load  file  in prod mode', url + route)
+            broadcastWindow.loadFile(url).then(() => {
+                broadcastWindow.webContents.executeJavaScript(`location.hash = "${route}"`);
+            });
+        }
+
+        broadcastWindow.once('ready-to-show', () => {
+            broadcastWindow.showInactive(); // Shows behind the current active window
+            controlWindow.focus();          // Re-focus parent
+        });
+    }
     function createWControlWindow() {
         app.commandLine.appendSwitch('ignore-certificate-errors');
 
@@ -138,33 +167,11 @@ async function main() {
     }
 
     ipcMain.on('open-broadcast-window', (_event, route) => {
-        broadcastWindow = new BrowserWindow({
-            width: 1024,
-            height: 576,
-            autoHideMenuBar: true,
-            fullscreen: true,
-            show: false,               // create hidden; we’ll reveal later
-            webPreferences: {
-                preload: path.join(__dirname, 'preload.js'),
-                contextIsolation: true,
-                nodeIntegration: false,
-            },
-        });
-
-        if (process.env.NODE_ENV === 'development') {
-            console.log('load url  in dev mode', url + route)
-            broadcastWindow.loadURL(url + route);
+        if (route.match('phone')) {
+            console.warn('***** Request for phone window should be made to the phone server')
         } else {
-            console.log('load  file  in prod mode', url + route)
-            broadcastWindow.loadFile(url).then(() => {
-                broadcastWindow.webContents.executeJavaScript(`location.hash = "${route}"`);
-            });
+            openBroadcastWindow(route);
         }
-
-        broadcastWindow.once('ready-to-show', () => {
-            broadcastWindow.showInactive(); // Shows behind the current active window
-            controlWindow.focus();          // Re-focus parent
-        });
     });
 
     ipcMain.on('update-stream-url', (_event, newUrl) => {
@@ -184,6 +191,7 @@ async function main() {
         });
 
         createWControlWindow();
+        openBroadcastWindow('#output');
 
         app.on('window-all-closed', () => {
             if (process.platform !== 'darwin') {

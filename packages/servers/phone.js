@@ -16,6 +16,17 @@ const keyPath = path.join(__dirname, '../certs/key.pem');
 function main() {
     const app = express();
 
+    const solidDistPath = path.join(__dirname, '../../web/dist');
+
+    app.use(express.static(solidDistPath));
+
+    app.get('*', (req, res, next) => {
+        if (req.path.startsWith('/peerjs')) {
+            return next();
+        }
+        res.sendFile(path.join(solidDistPath, 'index.html'));
+    });
+
     const server = https.createServer({
         key: fs.readFileSync(keyPath),
         cert: fs.readFileSync(certPath),
@@ -26,8 +37,8 @@ function main() {
         path: '/',
     }));
 
-    server.listen(PHONE_PORT, () => { // __RTC_PORT__
-        console.log(`HTTPS WebRTC Server listening for PeerJS on port ${PHONE_PORT}`);
+    server.listen(PHONE_PORT, () => {
+        console.log(`HTTPS WebRTC & SolidJS Server listening for PeerJS on port ${PHONE_PORT}`);
     });
 }
 
