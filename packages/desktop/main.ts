@@ -88,8 +88,8 @@ async function main() {
         : path.join(__dirname, '..', '..', 'web/dist/index.html');
 
     const ip = getLocalNetworkAddress();
-    const wsUrl = `ws://${ip}:${PHONE_PORT}`;
-    const streamUrl = `http://localhost:${STREAMER_PORT}`;
+    const wsUrls = `ws://${ip}:${PHONE_PORT} wss://${ip}:${PHONE_PORT}`;
+    const streamUrl = `https://localhost:${STREAMER_PORT}`;
 
     const cspHeader = `
   default-src 'self'; 
@@ -97,7 +97,7 @@ async function main() {
   img-src 'self' data:; 
   script-src 'self'; 
   style-src 'self' 'unsafe-inline'; 
-  connect-src 'self' ${wsUrl} ${streamUrl};
+  connect-src 'self' ${wsUrls} ${streamUrl};
 `.replace(/\s+/g, ' ').trim();
 
     function createWControlWindow() {
@@ -137,8 +137,7 @@ async function main() {
         }
     }
 
-    ipcMain.on('open-broadcast-window', (event, route) => {
-        console.log(event);
+    ipcMain.on('open-broadcast-window', (_event, route) => {
         broadcastWindow = new BrowserWindow({
             width: 1024,
             height: 576,

@@ -30,6 +30,7 @@ export async function setupQRCodeFlow() {
 
     try {
         peer = new Peer(peerId, {
+            secure: true,
             host: __LOCAL_IP__,
             port: __RTC_PORT__,
             path: '/',
