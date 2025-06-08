@@ -27,7 +27,7 @@ function main() {
     }));
 
     server.listen(PHONE_PORT, () => { // __RTC_PORT__
-        console.log(`HTTPS Server listening on port ${PHONE_PORT}`);
+        console.log(`HTTPS WebRTC Server listening for PeerJS on port ${PHONE_PORT}`);
     });
 }
 
