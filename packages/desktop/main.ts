@@ -1,18 +1,8 @@
 import os from 'os';
 import path from 'path';
-import { app, BrowserWindow, ipcMain } from 'electron';
+import { app, BrowserWindow, ipcMain, session } from 'electron';
 import { fork } from 'child_process';
 import { spawn } from 'child_process';
-
-const isDev = !app.isPackaged;
-let peerJsProcess: ReturnType<typeof spawnServer>;
-let streamServerProcess: ReturnType<typeof forkServer>;
-let broadcastWindow: BrowserWindow;
-let controlWindow: BrowserWindow;
-
-const url = process.env.NODE_ENV === 'development'
-    ? `https://${getLocalNetworkAddress()}:5173`
-    : path.join(__dirname, '..', '..', 'web/dist/index.html');
 
 function getLocalNetworkAddress() {
     const nets = os.networkInterfaces();
@@ -29,73 +19,6 @@ function getLocalNetworkAddress() {
     }
     return 'localhost';
 }
-
-function createWControlWindow() {
-    app.commandLine.appendSwitch('ignore-certificate-errors');
-
-    let preloadPath = isDev ? path.join(__dirname, 'preload.js') : path.join(__dirname, 'preload.js');
-
-    if (process.platform === 'win32' && preloadPath.match(/^\\[A-Z]:\\/i)) {
-        preloadPath = preloadPath.slice(1);
-    }
-    console.log('Preload script absolute path:', preloadPath);
-
-    controlWindow = new BrowserWindow({
-        width: 1000,
-        height: 800,
-        webPreferences: {
-            contextIsolation: true,
-            nodeIntegration: true,
-            preload: preloadPath,
-        },
-    });
-
-    // win.webContents.openDevTools({ mode: 'detach' });
-
-    controlWindow.webContents.on('did-fail-load', (event, errorCode, errorDescription) => {
-        console.error('Page failed to load:', errorCode, errorDescription, event);
-    });
-
-    if (process.env.NODE_ENV === 'development') {
-        controlWindow.loadURL(url);
-    } else {
-        controlWindow.loadFile(url);
-    }
-}
-
-// // @ts-ignore: for now
-// function createWBroadcastWindow() {
-//     app.commandLine.appendSwitch('ignore-certificate-errors');
-
-//     let preloadPath = isDev ? path.join(__dirname, 'preload.js') : path.join(__dirname, 'preload.js');
-
-//     if (process.platform === 'win32' && preloadPath.match(/^\\[A-Z]:\\/i)) {
-//         preloadPath = preloadPath.slice(1);
-//     }
-//     console.log('Preload script absolute path:', preloadPath);
-
-//     broadcastWindow = new BrowserWindow({
-//         width: 1000,
-//         height: 800,
-//         webPreferences: {
-//             contextIsolation: true,
-//             nodeIntegration: true,
-//             preload: preloadPath,
-//         },
-//     });
-
-//     broadcastWindow.webContents.openDevTools({ mode: 'detach' });
-
-//     broadcastWindow.webContents.on('did-fail-load', (event, errorCode, errorDescription) => {
-//         console.error('Page failed to load:', errorCode, errorDescription, event);
-//     });
-
-//     if (process.env.NODE_ENV === 'development') {
-//         broadcastWindow.loadURL(url);
-//     } else {
-//         broadcastWindow.loadFile(url);
-//     }
-// }
 
 function forkServer(scriptRelativePath: string, args = []) {
     const scriptPath = path.resolve(__dirname, scriptRelativePath);
@@ -149,57 +72,128 @@ function spawnServer(scriptRelativePath: string, args = []) {
     return child;
 }
 
-ipcMain.on('open-broadcast-window', (event, route) => {
-    console.log(event);
-    broadcastWindow = new BrowserWindow({
-        width: 1024,
-        height: 576,
-        autoHideMenuBar: true,
-        fullscreen: true,
-        show: false,               // create hidden; we’ll reveal later
-        webPreferences: {
-            preload: path.join(__dirname, 'preload.js'),
-            contextIsolation: true,
-            nodeIntegration: false,
-        },
-    });
+async function main() {
+    const serversPath = path.resolve(__dirname, '../../servers');
+    const { PHONE_PORT } = await import(path.join(serversPath, 'phone.js'));
+    const { STREAMER_PORT } = await import(path.join(serversPath, 'streamer.js'));
 
-    if (process.env.NODE_ENV === 'development') {
-        console.log('load url  in dev mode', url + route)
-        broadcastWindow.loadURL(url + route);
-    } else {
-        console.log('load  file  in prod mode', url + route)
-        broadcastWindow.loadFile(url).then(() => {
-            broadcastWindow.webContents.executeJavaScript(`location.hash = "${route}"`);
+    const isDev = !app.isPackaged;
+    let peerJsProcess: ReturnType<typeof spawnServer>;
+    let streamServerProcess: ReturnType<typeof forkServer>;
+    let broadcastWindow: BrowserWindow;
+    let controlWindow: BrowserWindow;
+
+    const url = process.env.NODE_ENV === 'development'
+        ? `https://${getLocalNetworkAddress()}:5173`
+        : path.join(__dirname, '..', '..', 'web/dist/index.html');
+
+    const ip = getLocalNetworkAddress();
+    const wsUrl = `ws://${ip}:${PHONE_PORT}`;
+    const streamUrl = `http://localhost:${STREAMER_PORT}`;
+
+    const cspHeader = `
+  default-src 'self'; 
+  media-src 'self' blob:; 
+  img-src 'self' data:; 
+  script-src 'self'; 
+  style-src 'self' 'unsafe-inline'; 
+  connect-src 'self' ${wsUrl} ${streamUrl};
+`.replace(/\s+/g, ' ').trim();
+
+    function createWControlWindow() {
+        app.commandLine.appendSwitch('ignore-certificate-errors');
+
+        let preloadPath = isDev ? path.join(__dirname, 'preload.js') : path.join(__dirname, 'preload.js');
+
+        if (process.platform === 'win32' && preloadPath.match(/^\\[A-Z]:\\/i)) {
+            preloadPath = preloadPath.slice(1);
+        }
+        console.log('Preload script absolute path:', preloadPath);
+
+        controlWindow = new BrowserWindow({
+            width: 1000,
+            height: 800,
+            webPreferences: {
+                contextIsolation: true,
+                nodeIntegration: true,
+                preload: preloadPath,
+            },
         });
+
+        // win.webContents.openDevTools({ mode: 'detach' });
+
+        controlWindow.webContents.on('did-fail-load', (event, errorCode, errorDescription) => {
+            console.error('Page failed to load:', errorCode, errorDescription, event);
+        });
+
+        controlWindow.on('closed', () => {
+            broadcastWindow?.close();
+        });
+
+        if (process.env.NODE_ENV === 'development') {
+            controlWindow.loadURL(url);
+        } else {
+            controlWindow.loadFile(url);
+        }
     }
 
-    broadcastWindow.once('ready-to-show', () => {
-        // Shows behind the current active window
-        broadcastWindow.showInactive();
-        // Re-focus parent
-        controlWindow.focus();
+    ipcMain.on('open-broadcast-window', (event, route) => {
+        console.log(event);
+        broadcastWindow = new BrowserWindow({
+            width: 1024,
+            height: 576,
+            autoHideMenuBar: true,
+            fullscreen: true,
+            show: false,               // create hidden; we’ll reveal later
+            webPreferences: {
+                preload: path.join(__dirname, 'preload.js'),
+                contextIsolation: true,
+                nodeIntegration: false,
+            },
+        });
+
+        if (process.env.NODE_ENV === 'development') {
+            console.log('load url  in dev mode', url + route)
+            broadcastWindow.loadURL(url + route);
+        } else {
+            console.log('load  file  in prod mode', url + route)
+            broadcastWindow.loadFile(url).then(() => {
+                broadcastWindow.webContents.executeJavaScript(`location.hash = "${route}"`);
+            });
+        }
+
+        broadcastWindow.once('ready-to-show', () => {
+            broadcastWindow.showInactive(); // Shows behind the current active window
+            controlWindow.focus();          // Re-focus parent
+        });
     });
-});
 
-ipcMain.on('update-stream-url', (_event, newUrl) => {
-    if (streamServerProcess && streamServerProcess.connected) {
-        streamServerProcess.send({ type: 'updateStreamUrl', url: newUrl });
-    }
-});
-
-app.whenReady().then(() => {
-    peerJsProcess = spawnServer('../../servers/phone.js');
-    streamServerProcess = forkServer('../../servers/streamer.js');
-
-    createWControlWindow();
-    // createWBroadcastWindow();
-
-    app.on('window-all-closed', () => {
-        if (process.platform !== 'darwin') {
-            peerJsProcess?.kill();
-            streamServerProcess?.kill();
-            app.quit();
+    ipcMain.on('update-stream-url', (_event, newUrl) => {
+        if (streamServerProcess && streamServerProcess.connected) {
+            streamServerProcess.send({ type: 'updateStreamUrl', url: newUrl });
         }
     });
-});
+
+    app.whenReady().then(() => {
+        peerJsProcess = spawnServer('../../servers/phone.js');
+        streamServerProcess = forkServer('../../servers/streamer.js');
+
+        session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
+            const headers = details.responseHeaders || {};
+            headers['Content-Security-Policy'] = [cspHeader];
+            callback({ responseHeaders: headers });
+        });
+
+        createWControlWindow();
+
+        app.on('window-all-closed', () => {
+            if (process.platform !== 'darwin') {
+                peerJsProcess?.kill();
+                streamServerProcess?.kill();
+                app.quit();
+            }
+        });
+    });
+}
+
+main();
