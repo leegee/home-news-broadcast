@@ -151,7 +151,7 @@ function spawnServer(scriptRelativePath: string, args = []) {
     return child;
 }
 
-ipcMain.on('open-window', (event, route) => {
+ipcMain.on('open-broadcast-window', (event, route) => {
     console.log(event);
     const newWin = new BrowserWindow({
         width: 800,
@@ -163,7 +163,6 @@ ipcMain.on('open-window', (event, route) => {
         },
     });
 
-    // newWin.loadURL(`file://${__dirname}/index.html${route}`);
     if (process.env.NODE_ENV === 'development') {
         console.log('load url  in dev mode', url + route)
         newWin.loadURL(url + route);

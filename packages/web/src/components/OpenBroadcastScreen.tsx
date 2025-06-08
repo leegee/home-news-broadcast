@@ -1,9 +1,9 @@
 export default function OpenBroadcastScreen() {
     function open() {
         // window.open('/#output', '_blank');
-        if (window.electronAPI?.openWindow) {
+        if (window.electronAPI?.openBroadcastWindow) {
             console.log('electron');
-            window.electronAPI.openWindow('#output');
+            window.electronAPI.openBroadcastWindow('#output');
         } else {
             console.log('not electron');
             window.open(`${window.location.origin}/#output`, '_blank');
