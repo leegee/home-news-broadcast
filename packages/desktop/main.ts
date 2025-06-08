@@ -154,8 +154,9 @@ function spawnServer(scriptRelativePath: string, args = []) {
 ipcMain.on('open-broadcast-window', (event, route) => {
     console.log(event);
     const newWin = new BrowserWindow({
-        width: 800,
-        height: 600,
+        width: 1024,
+        height: 576,
+        autoHideMenuBar: true,
         webPreferences: {
             preload: path.join(__dirname, 'preload.js'),
             contextIsolation: true,
