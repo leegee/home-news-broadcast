@@ -5,7 +5,6 @@
     # Or in dev:
 
     bun dev
-
     bun electron:dev # either
     bun servers      # or
 

@@ -4,8 +4,8 @@ export { };
 declare global {
     interface Window {
         electronAPI?: {
+            openWindow?: (url: string) => void;
             updateStreamUrl?: (url: string) => void;
-            // Add other methods as needed
         };
     }
 }
