@@ -253,7 +253,7 @@ export default function BroadcastScreen() {
                             </Show>
                         </Match>
 
-                        <Match when={mediaSource().type === STREAM_TYPES.LIVE_EXTERNAL || mediaSource().type === STREAM_TYPES.LIVE_LOCAL}>
+                        <Match when={mediaSource().type === STREAM_TYPES.VIDEO || mediaSource().type === STREAM_TYPES.LIVE_EXTERNAL || mediaSource().type === STREAM_TYPES.LIVE_LOCAL}>
                             <video
                                 class={styles['broadcast-video']}
                                 ref={el => setVideoRef(el)}
