@@ -37,7 +37,7 @@ if (!fs.existsSync(keyPath) || !fs.existsSync(certPath)) {
 }
 
 const localIp = getLocalNetworkAddress();
-const port = 5173;
+const vite_port = 5173;
 
 export default defineConfig({
   base: './',
@@ -45,7 +45,7 @@ export default defineConfig({
     outDir: 'dist',
   },
   server: {
-    port,
+    port: vite_port,
     host: true,
     https: {
       key: fs.readFileSync(path.resolve(__dirname, '..', 'certs/key.pem')),
@@ -58,9 +58,10 @@ export default defineConfig({
   ],
 
   define: {
-    __DESKTOP_WEBRTC_ADDRESS__: JSON.stringify(`https://${localIp}:5173`),
+    __DESKTOP_SOLIDJS_ADDRESS__: JSON.stringify(`https://${localIp}:${vite_port}`),
     __LOCAL_IP__: JSON.stringify(localIp),
     __RTC_PORT__: JSON.stringify(PHONE_PORT),
+    __DEV_HTTP_PORT__: JSON.stringify(vite_port),
     __WS_IP__: JSON.stringify('localhost'),
     __WS_PORT__: JSON.stringify(STREAMER_PORT),
   },
