@@ -100,7 +100,7 @@ export default function Gallery(props: GalleryProps) {
         await Promise.all(
             keys.map(async ({ key }) => {
                 const hasKey = previous.hasOwnProperty(key);
-                console.log(`Checking key ${key}, already loaded? ${hasKey}`);
+                // console.debug(`Checking key ${key}, already loaded? ${hasKey}`);
 
                 if (key.startsWith('local:') && !hasKey) {
                     try {
@@ -114,7 +114,7 @@ export default function Gallery(props: GalleryProps) {
                                 url: URL.createObjectURL(blob),
                                 type: mimeType,
                             };
-                            console.log(`Loaded local media for ${key}`, mimeType);
+                            // console.debug(`Loaded local media for ${key}`, mimeType);
                         } else {
                             console.error('Failed to load local file or mime type', key, blob, mimeType);
                         }
