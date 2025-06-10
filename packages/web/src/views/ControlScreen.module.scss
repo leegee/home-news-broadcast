@@ -17,13 +17,27 @@
     }
 
     .button-strip {
-        margin: 1em;
-        margin-bottom: 0;
-        gap: 1em;
         display: flex;
-        margin-bottom: 1em;
-        justify-content: center;
+        position: fixed;
+        gap: 1em;
+        top: 0;
+        width: 100%;
+        justify-content: flex-start;
         align-items: center;
+        background-color: #4d54c783;
+
+        button {
+            padding: 4pt;
+            background-color: unset;
+            border: 0;
+            border-radius: 0;
+            margin: 0;
+            font-weight: normal;
+
+            &:hover {
+                background-color: navy;
+            }
+        }
     }
 
     .drop-message {

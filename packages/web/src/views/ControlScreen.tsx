@@ -208,6 +208,6 @@ export default function ControlScreen() {
             <div class={styles['drop-message']}>
                 Drop an image, video, or YouTube link into this window.
             </div>
-        </main>
+        </main >
     );
 }
