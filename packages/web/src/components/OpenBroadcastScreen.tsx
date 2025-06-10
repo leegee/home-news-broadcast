@@ -10,7 +10,8 @@ export default function OpenBroadcastScreen() {
         }
     }
 
-    return (
+
+    return window.electronAPI?.openBroadcastWindow ? null : (
         <button onClick={open} title="Opens the broadcast window that will be streamed">Broadcast Display</button>
     );
 }
