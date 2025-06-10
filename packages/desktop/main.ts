@@ -101,6 +101,11 @@ async function main() {
 `.replace(/\s+/g, ' ').trim();
 
     function openBroadcastWindow(route: string) {
+        if (broadcastWindow && !broadcastWindow.isDestroyed()) {
+            // broadcastWindow.focus();
+            return;
+        }
+
         broadcastWindow = new BrowserWindow({
             width: 1024,
             height: 576,
@@ -112,6 +117,13 @@ async function main() {
                 contextIsolation: true,
                 nodeIntegration: false,
             },
+        });
+
+        broadcastWindow.on('closed', () => {
+            console.log('Broadcast window closed');
+            if (controlWindow && !controlWindow.isDestroyed()) {
+                openBroadcastWindow(route);
+            }
         });
 
         if (process.env.NODE_ENV === 'development') {
