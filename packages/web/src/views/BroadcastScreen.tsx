@@ -117,6 +117,28 @@ export default function BroadcastScreen() {
         && mediaStream() !== null
     );
 
+    const handleKeyDown = (event: KeyboardEvent) => {
+        switch (event.key) {
+            case 'ArrowLeft':
+            case 'ArrowUp':
+                event.preventDefault();
+                navigatePlaylist(-1);
+                break;
+            case 'ArrowRight':
+            case 'ArrowDown':
+                event.preventDefault();
+                navigatePlaylist(1);
+                break;
+            case 'Space':
+                event.preventDefault();
+                toggleVideoPlayback();
+                break;
+            case 'Escape':
+                reset();
+                break;
+        }
+    };
+
     createEffect(() => {
         const stream = mediaStream();
         const video = videoRef();
@@ -158,64 +180,31 @@ export default function BroadcastScreen() {
                 console.log('Loaded local file from file-store:', key, type);
                 setMedia({ url, type });
             } else {
-                console.warn('Unrecognized mime type in Broadcast tab:', mime);
+                console.warn('Unrecognized mime type in Broadcast screen:', mime);
             }
         } else {
-            console.warn("No blob or mime found for key in Broadcast tab:", key);
+            console.warn("No blob or mime found for key in Broadcast screen:", key);
         }
-    });
-
-    createEffect(() => {
-        console.log('[DEBUG] mediaSource:', mediaSource());
-        console.log('[DEBUG] mediaStream:', mediaStream());
     });
 
     onMount(() => {
         document.title = windowTitle;
-
-        const handleKeyDown = (event: KeyboardEvent) => {
-            switch (event.key) {
-                case 'ArrowLeft':
-                case 'ArrowUp':
-                    event.preventDefault();
-                    navigatePlaylist(-1);
-                    break;
-                case 'ArrowRight':
-                case 'ArrowDown':
-                    event.preventDefault();
-                    navigatePlaylist(1);
-                    break;
-                case 'Space':
-                    event.preventDefault();
-                    toggleVideoPlayback();
-                    break;
-                case 'Escape':
-                    reset();
-                    break;
-            }
-        };
-
         window.addEventListener('keydown', handleKeyDown);
-
         registerOnEndCallHandler();
-
-        const cleanupOnMediaChange = onMediaChange(async ({ url, type }) => {
-            setMedia({ url, type });
-        });
-
-        onCleanup(() => {
-            cleanupOnMediaChange();
-            window.removeEventListener('keydown', handleKeyDown);
-        });
+        const cleanupOnMediaChange = onMediaChange(async ({ url, type }) => setMedia({ url, type }));
+        onCleanup(() => cleanupOnMediaChange());
     });
 
     onCleanup(() => {
+        window.removeEventListener('keydown', handleKeyDown);
         setQrCode('');
+        if (videoRef() !== null) {
+            videoRef()!.srcObject = null
+        };
         if (mediaStream() && (currentMediaType() === MEDIA_TYPES.LIVE_LOCAL || currentMediaType() === MEDIA_TYPES.LIVE_EXTERNAL)) {
             mediaStream()?.getTracks().forEach(track => track.stop());
             setMediaStream(null);
         }
-        if (videoRef() !== null) videoRef()!.srcObject = null;
     });
 
     return (
