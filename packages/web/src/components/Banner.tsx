@@ -1,6 +1,6 @@
 import styles from './Banner.module.scss';
 import { createMemo, createSignal } from 'solid-js';
-import { playlist, selectedKey, updateCurrentPlaylistItem } from '../stores/playlist';
+import { playlist, playlistSelectedKey, updateCurrentPlaylistItem } from '../stores/playlist';
 import { banner, setBanner } from '../stores/ui';
 import BannerImage from './BannerImage';
 import BannerClock from './BannerClock';
@@ -12,7 +12,7 @@ export default function Banner() {
     const [isEditingStandfirst, setIsEditingStandfirst] = createSignal(false);
 
     const currentPlaylistItem = createMemo(() => {
-        const key = selectedKey();
+        const key = playlistSelectedKey();
         return playlist().find(item => item.key === key);
     });
 

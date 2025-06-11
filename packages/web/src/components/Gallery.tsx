@@ -1,6 +1,6 @@
 import styles from './Gallery.module.scss';
 import { For, Show, createEffect, createSignal, onCleanup, onMount } from 'solid-js';
-import { playlist, selectedKey, movePlaylistItem, } from '../stores/playlist';
+import { playlist, playlistSelectedKey, movePlaylistItem, } from '../stores/playlist';
 import { getYoutubeThumbnail } from '../lib/youtube';
 import { getMimeType, loadFile } from '../stores/file-store';
 import ThumbnailControl from './ThumbnailControl';
@@ -50,12 +50,12 @@ export default function Gallery(props: GalleryProps) {
             case 'ArrowLeft':
             case 'ArrowUp':
                 e.preventDefault();
-                moveThumb(selectedKey(), -1);
+                moveThumb(playlistSelectedKey(), -1);
                 break;
             case 'ArrowRight':
             case 'ArrowDown':
                 e.preventDefault();
-                moveThumb(selectedKey(), 1);
+                moveThumb(playlistSelectedKey(), 1);
                 break;
         }
     }
@@ -163,7 +163,7 @@ export default function Gallery(props: GalleryProps) {
                     {(playlistItem, index) => {
                         const isLocal = playlistItem.key.startsWith('local:');
                         const mediaInfo = () => isLocal ? localMedia()[playlistItem.key] : null;
-                        const isActive = () => selectedKey() === playlistItem.key;
+                        const isActive = () => playlistSelectedKey() === playlistItem.key;
 
                         return (
                             <li tabIndex={index() + 1}

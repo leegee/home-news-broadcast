@@ -15,7 +15,7 @@ import {
     MEDIA_TYPES,
     setError,
 } from '../stores/ui';
-import { navigatePlaylist, playlist, selectedKey, setSelectedKey } from '../stores/playlist';
+import { navigatePlaylist, playlist, playlistSelectedKey, setPlaylistSelectedKey } from '../stores/playlist';
 
 let peerSetup = false;
 let previousObjectUrl: string | null = null;
@@ -83,7 +83,7 @@ export default function BroadcastScreen() {
         if (video && !video.paused) {
             video.pause();
         }
-        setSelectedKey('');
+        setPlaylistSelectedKey('');
         setMedia({ url: '', type: MEDIA_TYPES.NONE });
         setError('');
     };
@@ -135,7 +135,7 @@ export default function BroadcastScreen() {
     });
 
     createEffect(async () => {
-        const key = selectedKey();
+        const key = playlistSelectedKey();
         if (!key || !key.startsWith("local:")) return;
 
         const [blob, mime] = await getFileAndType(key);

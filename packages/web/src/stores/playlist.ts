@@ -9,7 +9,7 @@ export type PlaylistItem = {
 const MAX_ITEMS = 30;
 
 export const [playlist, setPlaylist] = createSyncedPersistedSignal<PlaylistItem[]>('cap-playlist', []);
-export const [selectedKey, setSelectedKey] = createSyncedPersistedSignal<string>('cap-selected-key', '');
+export const [playlistSelectedKey, setPlaylistSelectedKey] = createSyncedPersistedSignal<string>('cap-selected-key', '');
 
 export function getPlaylistList(key: string): PlaylistItem {
     const item = playlist().find(item => item.key === key);
@@ -28,7 +28,7 @@ export function savePlaylistItem(item: PlaylistItem) {
 }
 
 export function updateCurrentPlaylistItem(updates: Partial<Pick<PlaylistItem, 'headline' | 'standfirst'>>) {
-    const key = selectedKey();
+    const key = playlistSelectedKey();
     if (!key) return;
 
     const updated = playlist().map(item =>
@@ -53,12 +53,12 @@ export function movePlaylistItem(current: string, direction: number) {
     [updated[currentIndex], updated[newIndex]] = [updated[newIndex], updated[currentIndex]];
 
     setPlaylist(updated);
-    setSelectedKey(updated[newIndex].key);
+    setPlaylistSelectedKey(updated[newIndex].key);
 }
 
 export const navigatePlaylist = (direction: number) => {
     const items = playlist();
-    const currentKey = selectedKey();
+    const currentKey = playlistSelectedKey();
     if (items.length === 0) return;
 
     let index = items.findIndex(item => item.key === currentKey);
@@ -67,10 +67,10 @@ export const navigatePlaylist = (direction: number) => {
     }
 
     const newIndex = (index + direction + items.length) % items.length;
-    setSelectedKey(items[newIndex].key);
+    setPlaylistSelectedKey(items[newIndex].key);
 };
 
 
 export function initPlaylistStorage() {
-    setSelectedKey('');
+    setPlaylistSelectedKey('');
 }

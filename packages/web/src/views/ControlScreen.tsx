@@ -2,7 +2,7 @@ import styles from './ControlScreen.module.scss';
 import { createSignal, onMount, Show } from 'solid-js';
 import { getYoutubeEmbedUrl, isYoutubeUrl } from '../lib/youtube';
 import { MEDIA_TYPES } from '../stores/ui';
-import { removeFromPlaylist, savePlaylistItem, selectedKey, setSelectedKey, } from '../stores/playlist';
+import { removeFromPlaylist, savePlaylistItem, playlistSelectedKey, setPlaylistSelectedKey, } from '../stores/playlist';
 import { saveFile, deleteFile, getFileAndType } from '../stores/file-store';
 import { changeMedia } from '../lib/inter-tab-comms';
 import { ErrorDisplay } from '../components/ErrorDisplay';
@@ -22,9 +22,9 @@ let lastUrl: string | null = null;
 export const showItem = async (keyOrUrl: string) => {
     console.log('showItem called with:', keyOrUrl);
 
-    if (keyOrUrl === selectedKey()) return;
+    if (keyOrUrl === playlistSelectedKey()) return;
 
-    setSelectedKey(keyOrUrl);
+    setPlaylistSelectedKey(keyOrUrl);
 
     if (lastUrl) {
         URL.revokeObjectURL(lastUrl);
@@ -149,9 +149,9 @@ export default function ControlScreen() {
 
     onMount(async () => {
         document.title = "Control Window";
-        if (selectedKey()) {
-            console.info('First media', selectedKey())
-            showItem(selectedKey()).catch(console.error);
+        if (playlistSelectedKey()) {
+            console.info('First media', playlistSelectedKey())
+            showItem(playlistSelectedKey()).catch(console.error);
         }
 
         document.body.addEventListener("paste", pasteHandler);
