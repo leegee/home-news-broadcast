@@ -78,7 +78,7 @@ export default function BroadcastScreen() {
         }
     };
 
-    const escape = () => {
+    const reset = () => {
         const video = videoRef();
         if (video && !video.paused) {
             video.pause();
@@ -190,7 +190,7 @@ export default function BroadcastScreen() {
                     toggleVideoPlayback();
                     break;
                 case 'Escape':
-                    escape();
+                    reset();
                     break;
             }
         };
