@@ -1,4 +1,5 @@
 import { createSyncedPersistedSignal } from './base';
+import { MEDIA_TYPES, setError } from './ui';
 
 export type PlaylistItem = {
     key: string;
@@ -55,6 +56,20 @@ export function movePlaylistItem(current: string, direction: number) {
     setPlaylist(updated);
     setSelectedKey(updated[newIndex].key);
 }
+
+export const navigatePlaylist = (direction: number) => {
+    const items = playlist();
+    const currentKey = selectedKey();
+    if (items.length === 0) return;
+
+    let index = items.findIndex(item => item.key === currentKey);
+    if (index === -1) {
+        index = direction > 0 ? -1 : 0;
+    }
+
+    const newIndex = (index + direction + items.length) % items.length;
+    setSelectedKey(items[newIndex].key);
+};
 
 
 export function initPlaylistStorage() {

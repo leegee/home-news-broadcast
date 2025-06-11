@@ -15,7 +15,7 @@ import {
     MEDIA_TYPES,
     setError,
 } from '../stores/ui';
-import { playlist, selectedKey, setSelectedKey } from '../stores/playlist';
+import { navigatePlaylist, playlist, selectedKey, setSelectedKey } from '../stores/playlist';
 
 let peerSetup = false;
 let previousObjectUrl: string | null = null;
@@ -76,20 +76,6 @@ export default function BroadcastScreen() {
                 break;
             }
         }
-    };
-
-    const navigatePlaylist = (direction: number) => {
-        const items = playlist();
-        const currentKey = selectedKey();
-        if (items.length === 0) return;
-
-        let index = items.findIndex(item => item.key === currentKey);
-        if (index === -1) {
-            index = direction > 0 ? -1 : 0;
-        }
-
-        const newIndex = (index + direction + items.length) % items.length;
-        setSelectedKey(items[newIndex].key);
     };
 
     const escape = () => {
