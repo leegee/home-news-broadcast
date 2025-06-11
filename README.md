@@ -50,6 +50,21 @@ To use the camera/mic from an external device, you will need to
 either used a trusted CA or use `mkcert -CAROOT` to locate the
 root CA and install it on the device with a `crt` extension.
 
+### Dev
+
+    bun electron:dev
+    bun dev
+
+The above runs Electron pointing to the Vite dev server on the secure port an LAN IP.
+
+To run outside of Electron (as was originally intended):
+
+    bun servers
+    bun dev
+
+That will run both the streaming relay server and the WebRTC PeerJS server that otherwise
+are started inside Electron.
+
 ## Use
 
 1. Drag and drop video files or images  into the control window.
