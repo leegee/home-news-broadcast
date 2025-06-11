@@ -93,8 +93,8 @@ async function main() {
 
     const cspHeader = `
   default-src 'self'; 
-  media-src 'self' blob:; 
-  img-src 'self' data:; 
+  media-src 'self' data: blob:; 
+  img-src 'self' data: blob:; 
   script-src 'self'; 
   style-src 'self' 'unsafe-inline'; 
   connect-src 'self' ${wsUrls} ${streamUrl};
