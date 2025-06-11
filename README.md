@@ -67,7 +67,7 @@ are started inside Electron.
 
 ## Use
 
-![screenshot.png](screenshot.png)
+![Control screen](screenshot.png)
 
 1. Drag and drop into the Control Window video files, images, or YouTube video pages.
 1. Banner text and ticker can be edited in the Control Screen or on the Broadcast Sreen.
@@ -77,3 +77,4 @@ are started inside Electron.
 1. Connect a remote phone camera using the QR code shown through  the Control Screen menu.
 1. Initiate broadcast to YouTube after setting the stream key using the Control Screen menu.
 
+![Link a phone camera for live straeming](screenshot-qr.png)
