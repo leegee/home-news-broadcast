@@ -1,12 +1,20 @@
+# `home-news-broadcast`
+
+A fun package to make it easy to produce YouTube streams of life at home
+for my daughter at college. 
+
+Drop in videos and images or YouTube links, edit the on-screen headlines 
+and news ticker, add a stream key, and click to broadcast.
+
+Can be run through Vite or Electron.
+
 ## Synopsis
 
-    bun it
-
-    # Or in dev:
-
-    bun dev
-    bun electron:dev # either
-    bun servers      # or
+    # Either
+    bun it           # Starts Electron including all services
+    # Or
+    bun dev          # Starts Vite
+    bun servers      # and the servers
 
 ## Installation
 
