@@ -5,7 +5,7 @@ import { createSignal, onCleanup, Show } from 'solid-js';
 import { ErrorDisplay, reportError } from '../components/ErrorDisplay';
 import { createSilentAudioStream } from '../lib/media';
 import { changeMedia } from '../lib/inter-tab-comms';
-import { STREAM_TYPES } from '../stores/ui';
+import { MEDIA_TYPES } from '../stores/ui';
 
 async function getMediaStream(facing: 'user' | 'environment'): Promise<MediaStream> {
     try {
@@ -82,7 +82,7 @@ export default function PhoneScreen() {
                     setLocalLog('Call closed');
                     setConnected(false);
                     setStream(undefined);
-                    changeMedia({ url: '', type: STREAM_TYPES.NONE })
+                    changeMedia({ url: '', type: MEDIA_TYPES.NONE })
                 });
 
                 call.on('error', (err) => {

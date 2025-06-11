@@ -10,9 +10,9 @@ import {
     mediaStream,
     setMediaStream,
     setQrCode,
-    setStreamSource,
-    streamSource,
-    STREAM_TYPES,
+    setCurrentMediaType,
+    currentMediaType,
+    MEDIA_TYPES,
     setError,
 } from '../stores/ui';
 import { playlist, selectedKey, setSelectedKey } from '../stores/playlist';
@@ -25,7 +25,7 @@ export const windowTitle = "Broadcast Window";
 export default function BroadcastScreen() {
     const [videoRef, setVideoRef] = createSignal<HTMLVideoElement | null>(null);
     const [showPlayButton, setShowPlayButton] = createSignal(false);
-    const [mediaSource, setMediaSource] = createSignal<{ url: string; type: string }>({ url: '', type: STREAM_TYPES.NONE });
+    const [mediaSource, setMediaSource] = createSignal<{ url: string; type: string }>({ url: '', type: MEDIA_TYPES.NONE });
 
 
     const setMedia = async ({ url, type }: MediaChangeParams) => {
@@ -34,16 +34,16 @@ export default function BroadcastScreen() {
         setShowPlayButton(false);
         setMediaSource({ url, type });
 
-        if (mediaStream() && streamSource() === STREAM_TYPES.LIVE_EXTERNAL) {
+        if (mediaStream() && currentMediaType() === MEDIA_TYPES.LIVE_EXTERNAL) {
             endCurrentCall();
         }
 
         switch (type) {
-            case STREAM_TYPES.LIVE_LOCAL: {
+            case MEDIA_TYPES.LIVE_LOCAL: {
                 try {
                     const localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
                     setMediaStream(localStream);
-                    setStreamSource(STREAM_TYPES.LIVE_LOCAL);
+                    setCurrentMediaType(MEDIA_TYPES.LIVE_LOCAL);
                 } catch (err) {
                     console.error('Failed to get local media stream:', err);
                     setError('Camera/mic access failed.');
@@ -51,7 +51,7 @@ export default function BroadcastScreen() {
                 break;
             }
 
-            case STREAM_TYPES.LIVE_EXTERNAL: {
+            case MEDIA_TYPES.LIVE_EXTERNAL: {
                 if (!peerSetup) {
                     peerSetup = true;
                     setupQRCodeFlow();
@@ -59,19 +59,19 @@ export default function BroadcastScreen() {
                 break;
             }
 
-            case STREAM_TYPES.IMAGE:
-            case STREAM_TYPES.VIDEO:
-            case STREAM_TYPES.YOUTUBE: {
+            case MEDIA_TYPES.IMAGE:
+            case MEDIA_TYPES.VIDEO:
+            case MEDIA_TYPES.YOUTUBE: {
                 setMediaStream(null);
-                setStreamSource(type);
+                setCurrentMediaType(type);
                 setQrCode('');
                 break;
             }
 
-            case STREAM_TYPES.NONE:
+            case MEDIA_TYPES.NONE:
             default: {
                 setMediaStream(null);
-                setStreamSource(null);
+                setCurrentMediaType(null);
                 setQrCode('');
                 break;
             }
@@ -98,7 +98,7 @@ export default function BroadcastScreen() {
             video.pause();
         }
         setSelectedKey('');
-        setMedia({ url: '', type: STREAM_TYPES.NONE });
+        setMedia({ url: '', type: MEDIA_TYPES.NONE });
         setError('');
     };
 
@@ -115,7 +115,7 @@ export default function BroadcastScreen() {
         }
     };
 
-    const getPlayButtonLabel = () => mediaSource().type === STREAM_TYPES.LIVE_LOCAL ? "Click To Connect Camera" : "Click To Play Video";
+    const getPlayButtonLabel = () => mediaSource().type === MEDIA_TYPES.LIVE_LOCAL ? "Click To Connect Camera" : "Click To Play Video";
 
     const tryPlayManually = () => {
         const video = videoRef();
@@ -127,7 +127,7 @@ export default function BroadcastScreen() {
     };
 
     const showLiveStream = createMemo(() =>
-        (mediaSource().type === STREAM_TYPES.LIVE_LOCAL || mediaSource().type === STREAM_TYPES.LIVE_EXTERNAL)
+        (mediaSource().type === MEDIA_TYPES.LIVE_LOCAL || mediaSource().type === MEDIA_TYPES.LIVE_EXTERNAL)
         && mediaStream() !== null
     );
 
@@ -165,8 +165,8 @@ export default function BroadcastScreen() {
             previousObjectUrl = url;
 
             const type = mime.startsWith("image/")
-                ? STREAM_TYPES.IMAGE
-                : mime.startsWith("video/") ? STREAM_TYPES.VIDEO : '';
+                ? MEDIA_TYPES.IMAGE
+                : mime.startsWith("video/") ? MEDIA_TYPES.VIDEO : '';
 
             if (type) {
                 console.log('Loaded local file from file-store:', key, type);
@@ -225,7 +225,7 @@ export default function BroadcastScreen() {
 
     onCleanup(() => {
         setQrCode('');
-        if (mediaStream() && (streamSource() === STREAM_TYPES.LIVE_LOCAL || streamSource() === STREAM_TYPES.LIVE_EXTERNAL)) {
+        if (mediaStream() && (currentMediaType() === MEDIA_TYPES.LIVE_LOCAL || currentMediaType() === MEDIA_TYPES.LIVE_EXTERNAL)) {
             mediaStream()?.getTracks().forEach(track => track.stop());
             setMediaStream(null);
         }
@@ -236,8 +236,8 @@ export default function BroadcastScreen() {
         <main class={styles['broadcast-screen-component']} >
             <ErrorDisplay />
 
-            <div class={`${styles['broadcast-pane']} ${(mediaSource().type === STREAM_TYPES.NONE || mediaStream() === null) ? styles['without-media'] : ''}`}>
-                <Show when={mediaSource().type !== STREAM_TYPES.NONE}>
+            <div class={`${styles['broadcast-pane']} ${(mediaSource().type === MEDIA_TYPES.NONE || mediaStream() === null) ? styles['without-media'] : ''}`}>
+                <Show when={mediaSource().type !== MEDIA_TYPES.NONE}>
 
                     <Switch fallback={<div>No matching stream type for: {mediaSource().type}</div>}>
 
@@ -254,7 +254,7 @@ export default function BroadcastScreen() {
                             </Show>
                         </Match>
 
-                        <Match when={mediaSource().type === STREAM_TYPES.VIDEO || mediaSource().type === STREAM_TYPES.LIVE_EXTERNAL || mediaSource().type === STREAM_TYPES.LIVE_LOCAL}>
+                        <Match when={mediaSource().type === MEDIA_TYPES.VIDEO || mediaSource().type === MEDIA_TYPES.LIVE_EXTERNAL || mediaSource().type === MEDIA_TYPES.LIVE_LOCAL}>
                             <video
                                 class={styles['broadcast-video']}
                                 ref={el => setVideoRef(el)}
@@ -265,7 +265,7 @@ export default function BroadcastScreen() {
                             />
                         </Match>
 
-                        <Match when={mediaSource().type === STREAM_TYPES.IMAGE}>
+                        <Match when={mediaSource().type === MEDIA_TYPES.IMAGE}>
                             <div class={styles['broadcast-image-wrapper']}>
                                 <div
                                     class={styles['broadcast-image-background']}
@@ -281,7 +281,7 @@ export default function BroadcastScreen() {
                             </div>
                         </Match>
 
-                        <Match when={mediaSource().type === STREAM_TYPES.YOUTUBE}>
+                        <Match when={mediaSource().type === MEDIA_TYPES.YOUTUBE}>
                             <iframe
                                 class={styles['broadcast-iframe']}
                                 src={mediaSource().url}

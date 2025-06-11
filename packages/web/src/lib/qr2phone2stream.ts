@@ -1,6 +1,6 @@
 import Peer, { MediaConnection } from 'peerjs';
 import QRCode from 'qrcode';
-import { setQrCode, setMediaStream, setStreamSource, STREAM_TYPES, mediaStream } from '../stores/ui';
+import { setQrCode, setMediaStream, setCurrentMediaType, MEDIA_TYPES, mediaStream } from '../stores/ui';
 import { reportError } from '../components/ErrorDisplay';
 import { changeMedia } from './inter-tab-comms';
 import { createSilentAudioStream } from './media';
@@ -101,8 +101,8 @@ export async function setupQRCodeFlow() {
             call.on('stream', (remoteStream) => {
                 console.log('Received remote media stream from phone');
                 setMediaStream(remoteStream);
-                setStreamSource('peer');
-                changeMedia({ url: '', type: STREAM_TYPES.LIVE_EXTERNAL });
+                setCurrentMediaType('peer');
+                changeMedia({ url: '', type: MEDIA_TYPES.LIVE_EXTERNAL });
                 setQrCode('');
             });
 
@@ -110,8 +110,8 @@ export async function setupQRCodeFlow() {
                 console.log('Call closed');
                 currentCall = null;
                 setMediaStream(null);
-                setStreamSource(null);
-                changeMedia({ url: '', type: STREAM_TYPES.NONE });
+                setCurrentMediaType(null);
+                changeMedia({ url: '', type: MEDIA_TYPES.NONE });
             });
 
             call.on('error', (err) => {
@@ -133,8 +133,8 @@ export function endCurrentCall() {
         currentCall = null;
         mediaStream()?.getTracks().forEach(track => track.stop());
         setMediaStream(null);
-        setStreamSource(STREAM_TYPES.NONE);
-        changeMedia({ url: '', type: STREAM_TYPES.NONE });
+        setCurrentMediaType(MEDIA_TYPES.NONE);
+        changeMedia({ url: '', type: MEDIA_TYPES.NONE });
         setQrCode('');
 
     } else {

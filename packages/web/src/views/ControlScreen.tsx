@@ -1,7 +1,7 @@
 import styles from './ControlScreen.module.scss';
 import { createSignal, onMount, Show } from 'solid-js';
 import { getYoutubeEmbedUrl, isYoutubeUrl } from '../lib/youtube';
-import { STREAM_TYPES } from '../stores/ui';
+import { MEDIA_TYPES } from '../stores/ui';
 import { removeFromPlaylist, savePlaylistItem, selectedKey, setSelectedKey, } from '../stores/playlist';
 import { saveFile, deleteFile, getFileAndType } from '../stores/file-store';
 import { changeMedia } from '../lib/inter-tab-comms';
@@ -31,8 +31,8 @@ export const showItem = async (keyOrUrl: string) => {
         lastUrl = null;
     }
 
-    if (keyOrUrl === STREAM_TYPES.LIVE_LOCAL) {
-        changeMedia({ url: '', type: STREAM_TYPES.LIVE_LOCAL });
+    if (keyOrUrl === MEDIA_TYPES.LIVE_LOCAL) {
+        changeMedia({ url: '', type: MEDIA_TYPES.LIVE_LOCAL });
     }
     else if (keyOrUrl.startsWith('local:')) {
         const key = keyOrUrl.slice(6); // remove 'local:' prefix
@@ -41,7 +41,7 @@ export const showItem = async (keyOrUrl: string) => {
             if (blob) {
                 const url = URL.createObjectURL(blob);
                 lastUrl = url;
-                const type = mime?.startsWith('image/') ? STREAM_TYPES.IMAGE : STREAM_TYPES.VIDEO;
+                const type = mime?.startsWith('image/') ? MEDIA_TYPES.IMAGE : MEDIA_TYPES.VIDEO;
                 changeMedia({ url, type });
             } else {
                 console.warn('Blob load failed for', keyOrUrl);
@@ -53,14 +53,14 @@ export const showItem = async (keyOrUrl: string) => {
     else if (isYoutubeUrl(keyOrUrl)) {
         const embed = getYoutubeEmbedUrl(keyOrUrl);
         if (embed) {
-            changeMedia({ url: embed, type: STREAM_TYPES.YOUTUBE });
+            changeMedia({ url: embed, type: MEDIA_TYPES.YOUTUBE });
         }
     }
-    else if (keyOrUrl === STREAM_TYPES.NONE) {
+    else if (keyOrUrl === MEDIA_TYPES.NONE) {
         changeMedia({ url: '', type: keyOrUrl });
     }
     else {
-        const type = /\.(jpe?g|png|gif|webp|bmp|ico|avif|svg)$/i.test(keyOrUrl) ? STREAM_TYPES.IMAGE : STREAM_TYPES.VIDEO;
+        const type = /\.(jpe?g|png|gif|webp|bmp|ico|avif|svg)$/i.test(keyOrUrl) ? MEDIA_TYPES.IMAGE : MEDIA_TYPES.VIDEO;
         changeMedia({ url: keyOrUrl, type });
     }
 };

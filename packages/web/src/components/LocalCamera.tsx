@@ -1,5 +1,5 @@
 import { createEffect, createSignal, Show } from "solid-js";
-import { STREAM_TYPES } from '../stores/ui';
+import { MEDIA_TYPES } from '../stores/ui';
 import { changeMedia } from "../lib/inter-tab-comms";
 
 export default function ShowLocalCamera() {
@@ -9,7 +9,7 @@ export default function ShowLocalCamera() {
     const handleClick = () => {
         changeMedia({
             url: '',
-            type: STREAM_TYPES.LIVE_LOCAL
+            type: MEDIA_TYPES.LIVE_LOCAL
         });
     };
 

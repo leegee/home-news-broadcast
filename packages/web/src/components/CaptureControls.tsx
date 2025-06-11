@@ -2,7 +2,7 @@ import styles from './CaptureControls.module.scss';
 import { onCleanup, onMount, Show } from 'solid-js';
 import { startScreenCapture, stopScreenCapture } from '../lib/screen-capture';
 import { initRTMPConnection, sendToRTMP } from '../lib/rtmp-stream';
-import { isCapturing, setIsCapturing, STREAM_TYPES } from '../stores/ui';
+import { isCapturing, setIsCapturing, MEDIA_TYPES } from '../stores/ui';
 import { onMediaChange } from '../lib/inter-tab-comms';
 
 export default function CaptureControls() {
@@ -35,7 +35,7 @@ export default function CaptureControls() {
 
     onMount(() => {
         const cleanupOnMediaChange = onMediaChange(async ({ type }) => {
-            if (type === STREAM_TYPES.NONE) {
+            if (type === MEDIA_TYPES.NONE) {
                 stopCapture();
             }
         });
