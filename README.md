@@ -67,13 +67,13 @@ are started inside Electron.
 
 ## Use
 
-1. Drag and drop video files or images  into the control window.
-1. Drag and drop or paste YouTube video pages into the control window
-1. Click the button to open the broadcast widow
-1. Edit the banner text by clicking it
-1. Edit the news ticker by clicking it
-1. Set the banner image by dragging or pasting an image into the broadcast window
-1. In the broadcast window, switch between the images in the gallery using the cursor keys
-1. If you connect a remote camera via the QR code in the control window, init streaming by clicking a button on the broadcast screen
-1. Initiate broadcast to YouTube after setting the environment varible `YOUTUBE_KEY` with your stream key
+![screenshot.png](screenshot.png)
+
+1. Drag and drop into the Control Window video files, images, or YouTube video pages.
+1. Banner text and ticker can be edited in the Control Screen or on the Broadcast Sreen.
+1. Change the banner image by dragging or pasting an image into the Broadcast Window
+1. Re-arrange media in the gallery, and edit their title/subitle, using the controls shown when hovering.
+1. In the broadcast window, switch between the images in real-time using the cursor keys
+1. Connect a remote phone camera using the QR code shown through  the Control Screen menu.
+1. Initiate broadcast to YouTube after setting the stream key using the Control Screen menu.
 
