@@ -1,5 +1,4 @@
 import { createSyncedPersistedSignal } from './base';
-import { MEDIA_TYPES, setError } from './ui';
 
 export type PlaylistItem = {
     key: string;
