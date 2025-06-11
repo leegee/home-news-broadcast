@@ -1,7 +1,7 @@
 import styles from './Banner.module.scss';
 import { createMemo, createSignal } from 'solid-js';
-import { playlist, selectedKey, updateCurrentPlaylistItem } from '../lib/stores/playlist';
-import { banner, setBanner } from '../lib/stores/ui';
+import { playlist, selectedKey, updateCurrentPlaylistItem } from '../stores/playlist';
+import { banner, setBanner } from '../stores/ui';
 import BannerImage from './BannerImage';
 import BannerClock from './BannerClock';
 

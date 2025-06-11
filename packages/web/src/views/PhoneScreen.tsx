@@ -5,7 +5,7 @@ import { createSignal, onCleanup, Show } from 'solid-js';
 import { ErrorDisplay, reportError } from '../components/ErrorDisplay';
 import { createSilentAudioStream } from '../lib/media';
 import { changeMedia } from '../lib/inter-tab-comms';
-import { STREAM_TYPES } from '../lib/stores/ui';
+import { STREAM_TYPES } from '../stores/ui';
 
 async function getMediaStream(facing: 'user' | 'environment'): Promise<MediaStream> {
     try {

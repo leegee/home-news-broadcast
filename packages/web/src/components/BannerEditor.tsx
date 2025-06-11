@@ -1,6 +1,6 @@
 import styles from './BannerEditor.module.scss';
 import { createEffect, createSignal } from 'solid-js';
-import { banner, setBanner } from '../lib/stores/ui';
+import { banner, setBanner } from '../stores/ui';
 import Help from './Help';
 
 export default function BannerEditor() {

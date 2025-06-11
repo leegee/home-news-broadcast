@@ -1,9 +1,9 @@
 import styles from './ControlScreen.module.scss';
 import { createSignal, onMount, Show } from 'solid-js';
 import { getYoutubeEmbedUrl, isYoutubeUrl } from '../lib/youtube';
-import { STREAM_TYPES } from '../lib/stores/ui';
-import { removeFromPlaylist, savePlaylistItem, selectedKey, setSelectedKey, } from '../lib/stores/playlist';
-import { saveFile, deleteFile, getFileAndType } from '../lib/stores/file-store';
+import { STREAM_TYPES } from '../stores/ui';
+import { removeFromPlaylist, savePlaylistItem, selectedKey, setSelectedKey, } from '../stores/playlist';
+import { saveFile, deleteFile, getFileAndType } from '../stores/file-store';
 import { changeMedia } from '../lib/inter-tab-comms';
 import { ErrorDisplay } from '../components/ErrorDisplay';
 import StreamUrl from '../components/StreamUrl';

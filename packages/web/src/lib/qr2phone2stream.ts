@@ -1,6 +1,6 @@
 import Peer, { MediaConnection } from 'peerjs';
 import QRCode from 'qrcode';
-import { setQrCode, setMediaStream, setStreamSource, STREAM_TYPES, mediaStream } from './stores/ui';
+import { setQrCode, setMediaStream, setStreamSource, STREAM_TYPES, mediaStream } from '../stores/ui';
 import { reportError } from '../components/ErrorDisplay';
 import { changeMedia } from './inter-tab-comms';
 import { createSilentAudioStream } from './media';

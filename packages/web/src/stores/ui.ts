@@ -1,5 +1,5 @@
 import { createSignal } from 'solid-js';
-import defatulCatImage from '../default-banner-image';
+import defatulCatImage from '../lib/default-banner-image';
 import { createSyncedPersistedSignal } from './base';
 
 export const STREAM_TYPES = {

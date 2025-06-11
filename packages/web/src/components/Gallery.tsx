@@ -1,8 +1,8 @@
 import styles from './Gallery.module.scss';
 import { For, Show, createEffect, createSignal, onCleanup, onMount } from 'solid-js';
-import { playlist, selectedKey, movePlaylistItem, } from '../lib/stores/playlist';
+import { playlist, selectedKey, movePlaylistItem, } from '../stores/playlist';
 import { getYoutubeThumbnail } from '../lib/youtube';
-import { getMimeType, loadFile } from '../lib/stores/file-store';
+import { getMimeType, loadFile } from '../stores/file-store';
 import ThumbnailControl from './ThumbnailControl';
 import Help from './Help';
 

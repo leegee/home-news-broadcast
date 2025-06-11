@@ -1,6 +1,6 @@
 import { createSignal, onMount } from 'solid-js';
 import styles from './MetadataModal.module.scss';
-import { getPlaylistList } from '../lib/stores/playlist';
+import { getPlaylistList } from '../stores/playlist';
 
 interface MetadataModalProps {
     key: string;

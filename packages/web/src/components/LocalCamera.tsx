@@ -1,5 +1,5 @@
 import { createEffect, createSignal, Show } from "solid-js";
-import { STREAM_TYPES } from '../lib/stores/ui';
+import { STREAM_TYPES } from '../stores/ui';
 import { changeMedia } from "../lib/inter-tab-comms";
 
 export default function ShowLocalCamera() {

@@ -3,7 +3,7 @@ import { createEffect, createMemo, createSignal, Match, onCleanup, onMount, Show
 import Ticker from '../components/Ticker';
 import Banner from '../components/Banner';
 import { ErrorDisplay } from '../components/ErrorDisplay';
-import { getFileAndType } from '../lib/stores/file-store';
+import { getFileAndType } from '../stores/file-store';
 import { endCurrentCall, setupQRCodeFlow } from '../lib/qr2phone2stream';
 import { MediaChangeParams, registerOnEndCallHandler, onMediaChange } from '../lib/inter-tab-comms';
 import {
@@ -14,8 +14,8 @@ import {
     streamSource,
     STREAM_TYPES,
     setError,
-} from '../lib/stores/ui';
-import { playlist, selectedKey, setSelectedKey } from '../lib/stores/playlist';
+} from '../stores/ui';
+import { playlist, selectedKey, setSelectedKey } from '../stores/playlist';
 
 let peerSetup = false;
 let previousObjectUrl: string | null = null;
@@ -229,6 +229,7 @@ export default function BroadcastScreen() {
             mediaStream()?.getTracks().forEach(track => track.stop());
             setMediaStream(null);
         }
+        if (videoRef() !== null) videoRef()!.srcObject = null;
     });
 
     return (

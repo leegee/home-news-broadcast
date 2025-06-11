@@ -1,6 +1,6 @@
 import styles from './ShowQRCode.module.scss';
 import { createEffect, Show } from "solid-js";
-import { qrCode } from "../lib/stores/ui";
+import { qrCode } from "../stores/ui";
 
 export default function ShowQRCode() {
 

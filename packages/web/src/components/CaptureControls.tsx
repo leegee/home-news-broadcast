@@ -2,7 +2,7 @@ import styles from './CaptureControls.module.scss';
 import { onCleanup, onMount, Show } from 'solid-js';
 import { startScreenCapture, stopScreenCapture } from '../lib/screen-capture';
 import { initRTMPConnection, sendToRTMP } from '../lib/rtmp-stream';
-import { isCapturing, setIsCapturing, STREAM_TYPES } from '../lib/stores/ui';
+import { isCapturing, setIsCapturing, STREAM_TYPES } from '../stores/ui';
 import { onMediaChange } from '../lib/inter-tab-comms';
 
 export default function CaptureControls() {

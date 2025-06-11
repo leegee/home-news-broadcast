@@ -1,6 +1,6 @@
 import styles from './Ticker.module.css';
 import { createEffect, onCleanup, onMount } from 'solid-js';
-import { ticker, setTicker } from '../lib/stores/ui';
+import { ticker, setTicker } from '../stores/ui';
 
 const speed = 100;
 

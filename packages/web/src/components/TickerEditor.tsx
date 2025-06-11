@@ -1,6 +1,6 @@
 import styles from './TickerEditor.module.scss';
 import { For, createEffect, createSignal } from 'solid-js';
-import { ticker, setTicker } from '../lib/stores/ui';
+import { ticker, setTicker } from '../stores/ui';
 import Help from './Help';
 
 const DELIMITER = ' · ';

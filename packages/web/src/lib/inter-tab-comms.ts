@@ -1,5 +1,5 @@
 import { endCurrentCall } from './qr2phone2stream';
-import type { StreamType } from './stores/ui';
+import type { StreamType } from '../stores/ui';
 
 export type MediaChangeParams = {
     url: string;
