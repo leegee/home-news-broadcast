@@ -1,4 +1,4 @@
-import { test, expect, describe, vi, it } from "vitest";
+import { test, expect, describe, vi } from "vitest";
 import { render, screen } from "@solidjs/testing-library";
 
 vi.mock('../components/Ticker', () => ({
