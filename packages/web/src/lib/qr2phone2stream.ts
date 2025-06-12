@@ -75,7 +75,7 @@ export async function setupQRCodeFlow() {
                     setupQRCodeFlow();
                 }, delay);
             } else {
-                reportError(`Unable to connect after ${MAX_RETRIES} attempts.`);
+                reportError(`Unable to connect after ${MAX_RETRIES} attempts. Is this WebRTC phone service running?`);
             }
         });
 
