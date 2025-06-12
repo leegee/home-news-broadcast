@@ -1,4 +1,4 @@
-import { test, expect, describe, vi, it, afterEach } from "vitest";
+import { expect, describe, vi, it, afterEach } from "vitest";
 import { cleanup, render, screen, waitFor } from "@solidjs/testing-library";
 
 // Mock to prevent hashing of class names:
@@ -25,29 +25,35 @@ import { MEDIA_TYPES } from "../stores/ui";
 afterEach(cleanup);
 
 describe("BroadcastScreen", () => {
-    test("Without media selected, shows no media", async () => {
+    it("shows no media by deafult", async () => {
         render(() => <BroadcastScreen />);
 
         const el = screen.getByTestId('broadcast-pane');
         expect(el.classList.contains('without-media')).toBe(true);
     });
 
-    test("Show an image", async () => {
+    it("shows an image", async () => {
         const mockUrl = 'http://foobar/';
         render(() => <BroadcastScreen />);
         changeMedia({ url: mockUrl, type: MEDIA_TYPES.IMAGE });
 
         await waitFor(() => {
-            const div = document.querySelector('.broadcast-image-background') as HTMLElement;
-            expect(div).toHaveClass('broadcast-image-background');
-            expect(div.style.backgroundImage).toBe(`url("${mockUrl}")`);
+            const bgDiv = document.querySelector('.broadcast-image-background') as HTMLElement;
+            expect(bgDiv).toHaveClass('broadcast-image-background');
+            expect(bgDiv.style.backgroundImage).toBe(`url("${mockUrl}")`);
+
+            const fgDiv = document.querySelector('.broadcast-image-foreground') as HTMLElement;
+            expect(fgDiv).toHaveClass('broadcast-image-foreground');
+
+            const img = fgDiv.querySelector('img') as HTMLImageElement;
+            expect(img.src).toBe(mockUrl);
 
             screen.debug();
         });
     });
 
 
-    test("Show a video", async () => {
+    it("shows a video", async () => {
         const mockSrc = 'http://foobar/';
         render(() => <BroadcastScreen />);
         changeMedia({ url: mockSrc, type: MEDIA_TYPES.VIDEO });
@@ -59,7 +65,7 @@ describe("BroadcastScreen", () => {
         });
     });
 
-    test("Show a live video", async () => {
+    it("shows a live video", async () => {
         const mockSrc = 'http://foobar/';
         render(() => <BroadcastScreen />);
         changeMedia({ url: mockSrc, type: MEDIA_TYPES.REMOTE_CAMERA });
@@ -67,6 +73,18 @@ describe("BroadcastScreen", () => {
         await waitFor(() => {
             const div = document.querySelector('video.broadcast-video') as HTMLVideoElement;
             expect(div).toHaveClass('broadcast-video');
+            expect(div.src).toBe(mockSrc);
+        });
+    });
+
+    it("shows a YT video", async () => {
+        const mockSrc = 'https://www.youtube.com/watch?v=NuftLQTA974';
+        render(() => <BroadcastScreen />);
+        changeMedia({ url: mockSrc, type: MEDIA_TYPES.YOUTUBE });
+
+        await waitFor(() => {
+            const div = document.querySelector('iframe.broadcast-iframe') as HTMLVideoElement;
+            expect(div).toHaveClass('broadcast-iframe');
             expect(div.src).toBe(mockSrc);
         });
     });
