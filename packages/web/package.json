@@ -7,7 +7,8 @@
         "dev": "vite",
         "build": "tsc -b && vite build",
         "preview": "vite preview",
-        "panic": "rm -rf node_modules/.vite; rm -rf packages/web/node_modules/.vite"
+        "panic": "rm -rf node_modules/.vite; rm -rf packages/web/node_modules/.vite",
+        "test": "vitest --mode test --config vitest.config.ts"
     },
     "dependencies": {
         "@solid-primitives/storage": "^4.3.2",
@@ -22,10 +23,17 @@
         "ws": "^8.18.2"
     },
     "devDependencies": {
+        "@juggle/resize-observer": "^3.4.0",
+        "@solidjs/testing-library": "^0.8.10",
+        "@testing-library/jest-dom": "^6.6.3",
+        "@testing-library/user-event": "^14.6.1",
         "@types/peerjs": "^1.1.0",
+        "fake-indexeddb": "^6.0.1",
+        "jsdom": "^26.1.0",
         "sass-embedded": "^1.89.0",
         "typescript": "~5.7.2",
         "vite": "^6.3.0",
-        "vite-plugin-solid": "^2.11.6"
+        "vite-plugin-solid": "^2.11.6",
+        "vitest": "^3.2.3"
     }
 }

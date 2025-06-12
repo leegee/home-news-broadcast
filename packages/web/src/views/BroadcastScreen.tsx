@@ -211,7 +211,7 @@ export default function BroadcastScreen() {
         <main class={styles['broadcast-screen-component']} >
             <ErrorDisplay />
 
-            <div class={`${styles['broadcast-pane']} ${(mediaSource().type === MEDIA_TYPES.NONE || mediaStream() === null) ? styles['without-media'] : ''}`}>
+            <div data-testid="broadcast-pane" class={`${styles['broadcast-pane']} ${(mediaSource().type === MEDIA_TYPES.NONE || mediaStream() === null) ? styles['without-media'] : ''}`}>
                 <Show when={mediaSource().type !== MEDIA_TYPES.NONE}>
 
                     <Switch fallback={<div>No matching stream type for: {mediaSource().type}</div>}>
