@@ -228,7 +228,11 @@ export default function BroadcastScreen() {
                             </Show>
                         </Match>
 
-                        <Match when={mediaSource().type === MEDIA_TYPES.VIDEO || mediaSource().type === MEDIA_TYPES.LIVE_REMOTE_CAMERA || mediaSource().type === MEDIA_TYPES.LIVE_LOCAL_CAMERA}>
+                        <Match when={
+                            mediaSource().type === MEDIA_TYPES.VIDEO
+                            || mediaSource().type === MEDIA_TYPES.LIVE_REMOTE_CAMERA
+                            || mediaSource().type === MEDIA_TYPES.LIVE_LOCAL_CAMERA
+                        }>
                             <video
                                 class={styles['broadcast-video']}
                                 ref={el => setVideoRef(el)}
