@@ -33,13 +33,29 @@ describe("BroadcastScreen", () => {
     });
 
     test("Show an image", async () => {
+        const mockUrl = 'http://foobar/';
         render(() => <BroadcastScreen />);
-        changeMedia({ url: 'http://foobar', type: MEDIA_TYPES.IMAGE });
+        changeMedia({ url: mockUrl, type: MEDIA_TYPES.IMAGE });
 
         await waitFor(() => {
             const div = document.querySelector('.broadcast-image-background') as HTMLElement;
             expect(div).toHaveClass('broadcast-image-background');
-            expect(div.style.backgroundImage).toBe('url("http://foobar")');
+            expect(div.style.backgroundImage).toBe(`url("${mockUrl}")`);
+
+            screen.debug();
+        });
+    });
+
+
+    test("Show a video", async () => {
+        const mockSrc = 'http://foobar/';
+        render(() => <BroadcastScreen />);
+        changeMedia({ url: mockSrc, type: MEDIA_TYPES.VIDEO });
+
+        await waitFor(() => {
+            const div = document.querySelector('video.broadcast-video') as HTMLVideoElement;
+            expect(div).toHaveClass('broadcast-video');
+            expect(div.src).toBe(mockSrc);
 
             screen.debug();
         });
