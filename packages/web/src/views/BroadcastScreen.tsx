@@ -27,7 +27,6 @@ export default function BroadcastScreen() {
     const [showPlayButton, setShowPlayButton] = createSignal(false);
     const [mediaSource, setMediaSource] = createSignal<{ url: string; type: string }>({ url: '', type: MEDIA_TYPES.NONE });
 
-
     const setMedia = async ({ url, type }: MediaChangeParams) => {
         console.log('Media changed to:', url, 'with type:', type);
         console.log('Playlist', playlist());
