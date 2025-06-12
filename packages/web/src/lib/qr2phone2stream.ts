@@ -102,7 +102,7 @@ export async function setupQRCodeFlow() {
                 console.log('Received remote media stream from phone');
                 setMediaStream(remoteStream);
                 setCurrentMediaType('peer');
-                changeMedia({ url: '', type: MEDIA_TYPES.REMOTE_CAMERA });
+                changeMedia({ url: '', type: MEDIA_TYPES.LIVE_REMOTE_CAMERA });
                 setQrCode('');
             });
 

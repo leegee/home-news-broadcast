@@ -31,8 +31,8 @@ export const showItem = async (keyOrUrl: string) => {
         lastUrl = null;
     }
 
-    if (keyOrUrl === MEDIA_TYPES.LIVE_LOCAL) {
-        changeMedia({ url: '', type: MEDIA_TYPES.LIVE_LOCAL });
+    if (keyOrUrl === MEDIA_TYPES.LIVE_LOCAL_CAMERA) {
+        changeMedia({ url: '', type: MEDIA_TYPES.LIVE_LOCAL_CAMERA });
     }
     else if (keyOrUrl.startsWith('local:')) {
         const key = keyOrUrl.slice(6); // remove 'local:' prefix

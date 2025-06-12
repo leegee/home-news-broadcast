@@ -3,8 +3,8 @@ import defatulCatImage from '../lib/default-banner-image';
 import { createSyncedPersistedSignal } from './base';
 
 export const MEDIA_TYPES = {
-    LIVE_LOCAL: 'live_local',
-    REMOTE_CAMERA: 'REMOTE_CAMERA',
+    LIVE_LOCAL_CAMERA: 'LIVE_LOCAL_CAMERA',
+    LIVE_REMOTE_CAMERA: 'LIVE_REMOTE_CAMERA',
     VIDEO: 'video',
     IMAGE: 'image',
     YOUTUBE: 'youtube',

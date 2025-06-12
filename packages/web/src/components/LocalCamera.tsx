@@ -9,7 +9,7 @@ export default function ShowLocalCamera() {
     const handleClick = () => {
         changeMedia({
             url: '',
-            type: MEDIA_TYPES.LIVE_LOCAL
+            type: MEDIA_TYPES.LIVE_LOCAL_CAMERA
         });
     };
 

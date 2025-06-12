@@ -68,7 +68,7 @@ describe("BroadcastScreen", () => {
     it("shows a live video", async () => {
         const mockSrc = 'http://foobar/';
         render(() => <BroadcastScreen />);
-        changeMedia({ url: mockSrc, type: MEDIA_TYPES.REMOTE_CAMERA });
+        changeMedia({ url: mockSrc, type: MEDIA_TYPES.LIVE_REMOTE_CAMERA });
 
         await waitFor(() => {
             const div = document.querySelector('video.broadcast-video') as HTMLVideoElement;

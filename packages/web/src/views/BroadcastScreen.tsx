@@ -33,16 +33,16 @@ export default function BroadcastScreen() {
         setShowPlayButton(false);
         setMediaSource({ url, type });
 
-        if (mediaStream() && currentMediaType() === MEDIA_TYPES.REMOTE_CAMERA) {
+        if (mediaStream() && currentMediaType() === MEDIA_TYPES.LIVE_REMOTE_CAMERA) {
             endCurrentCall();
         }
 
         switch (type) {
-            case MEDIA_TYPES.LIVE_LOCAL: {
+            case MEDIA_TYPES.LIVE_LOCAL_CAMERA: {
                 try {
                     const localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
                     setMediaStream(localStream);
-                    setCurrentMediaType(MEDIA_TYPES.LIVE_LOCAL);
+                    setCurrentMediaType(MEDIA_TYPES.LIVE_LOCAL_CAMERA);
                 } catch (err) {
                     console.error('Failed to get local media stream:', err);
                     setError('Camera/mic access failed.');
@@ -50,7 +50,7 @@ export default function BroadcastScreen() {
                 break;
             }
 
-            case MEDIA_TYPES.REMOTE_CAMERA: {
+            case MEDIA_TYPES.LIVE_REMOTE_CAMERA: {
                 if (!peerSetup) {
                     peerSetup = true;
                     setupQRCodeFlow();
@@ -100,7 +100,7 @@ export default function BroadcastScreen() {
         }
     };
 
-    const getPlayButtonLabel = () => mediaSource().type === MEDIA_TYPES.LIVE_LOCAL ? "Click To Connect Camera" : "Click To Play Video";
+    const getPlayButtonLabel = () => mediaSource().type === MEDIA_TYPES.LIVE_LOCAL_CAMERA ? "Click To Connect Camera" : "Click To Play Video";
 
     const tryPlayManually = () => {
         const video = videoRef();
@@ -112,7 +112,7 @@ export default function BroadcastScreen() {
     };
 
     const showLiveStream = createMemo(() =>
-        (mediaSource().type === MEDIA_TYPES.LIVE_LOCAL || mediaSource().type === MEDIA_TYPES.REMOTE_CAMERA)
+        (mediaSource().type === MEDIA_TYPES.LIVE_LOCAL_CAMERA || mediaSource().type === MEDIA_TYPES.LIVE_REMOTE_CAMERA)
         && mediaStream() !== null
     );
 
@@ -200,7 +200,7 @@ export default function BroadcastScreen() {
         if (videoRef() !== null) {
             videoRef()!.srcObject = null
         };
-        if (mediaStream() && (currentMediaType() === MEDIA_TYPES.LIVE_LOCAL || currentMediaType() === MEDIA_TYPES.REMOTE_CAMERA)) {
+        if (mediaStream() && (currentMediaType() === MEDIA_TYPES.LIVE_LOCAL_CAMERA || currentMediaType() === MEDIA_TYPES.LIVE_REMOTE_CAMERA)) {
             mediaStream()?.getTracks().forEach(track => track.stop());
             setMediaStream(null);
         }
@@ -228,7 +228,7 @@ export default function BroadcastScreen() {
                             </Show>
                         </Match>
 
-                        <Match when={mediaSource().type === MEDIA_TYPES.VIDEO || mediaSource().type === MEDIA_TYPES.REMOTE_CAMERA || mediaSource().type === MEDIA_TYPES.LIVE_LOCAL}>
+                        <Match when={mediaSource().type === MEDIA_TYPES.VIDEO || mediaSource().type === MEDIA_TYPES.LIVE_REMOTE_CAMERA || mediaSource().type === MEDIA_TYPES.LIVE_LOCAL_CAMERA}>
                             <video
                                 class={styles['broadcast-video']}
                                 ref={el => setVideoRef(el)}
