@@ -65,10 +65,22 @@ describe("BroadcastScreen", () => {
         });
     });
 
-    it("shows a live video", async () => {
+    it("shows a live video from remove device", async () => {
         const mockSrc = 'http://foobar/';
         render(() => <BroadcastScreen />);
         changeMedia({ url: mockSrc, type: MEDIA_TYPES.LIVE_REMOTE_CAMERA });
+
+        await waitFor(() => {
+            const div = document.querySelector('video.broadcast-video') as HTMLVideoElement;
+            expect(div).toHaveClass('broadcast-video');
+            expect(div.src).toBe(mockSrc);
+        });
+    });
+
+    it("shows a live video from this device", async () => {
+        const mockSrc = 'http://foobar/';
+        render(() => <BroadcastScreen />);
+        changeMedia({ url: mockSrc, type: MEDIA_TYPES.LIVE_LOCAL_CAMERA });
 
         await waitFor(() => {
             const div = document.querySelector('video.broadcast-video') as HTMLVideoElement;
