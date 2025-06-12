@@ -56,8 +56,18 @@ describe("BroadcastScreen", () => {
             const div = document.querySelector('video.broadcast-video') as HTMLVideoElement;
             expect(div).toHaveClass('broadcast-video');
             expect(div.src).toBe(mockSrc);
+        });
+    });
 
-            screen.debug();
+    test("Show a live video", async () => {
+        const mockSrc = 'http://foobar/';
+        render(() => <BroadcastScreen />);
+        changeMedia({ url: mockSrc, type: MEDIA_TYPES.REMOTE_CAMERA });
+
+        await waitFor(() => {
+            const div = document.querySelector('video.broadcast-video') as HTMLVideoElement;
+            expect(div).toHaveClass('broadcast-video');
+            expect(div.src).toBe(mockSrc);
         });
     });
 });

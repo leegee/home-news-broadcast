@@ -10,8 +10,8 @@ export default function ShowRemoteCamera() {
 
         if (currentSource !== 'peer' && !currentQr) {
             console.log('not peer/qr so make it so');
-            changeMedia({ url: '', type: MEDIA_TYPES.LIVE_EXTERNAL });
-            setCurrentMediaType(MEDIA_TYPES.LIVE_EXTERNAL);
+            changeMedia({ url: '', type: MEDIA_TYPES.REMOTE_CAMERA });
+            setCurrentMediaType(MEDIA_TYPES.REMOTE_CAMERA);
         } else {
             console.log('other');
             sendEndCallRequest();

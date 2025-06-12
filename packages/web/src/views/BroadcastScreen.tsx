@@ -33,7 +33,7 @@ export default function BroadcastScreen() {
         setShowPlayButton(false);
         setMediaSource({ url, type });
 
-        if (mediaStream() && currentMediaType() === MEDIA_TYPES.LIVE_EXTERNAL) {
+        if (mediaStream() && currentMediaType() === MEDIA_TYPES.REMOTE_CAMERA) {
             endCurrentCall();
         }
 
@@ -50,7 +50,7 @@ export default function BroadcastScreen() {
                 break;
             }
 
-            case MEDIA_TYPES.LIVE_EXTERNAL: {
+            case MEDIA_TYPES.REMOTE_CAMERA: {
                 if (!peerSetup) {
                     peerSetup = true;
                     setupQRCodeFlow();
@@ -112,7 +112,7 @@ export default function BroadcastScreen() {
     };
 
     const showLiveStream = createMemo(() =>
-        (mediaSource().type === MEDIA_TYPES.LIVE_LOCAL || mediaSource().type === MEDIA_TYPES.LIVE_EXTERNAL)
+        (mediaSource().type === MEDIA_TYPES.LIVE_LOCAL || mediaSource().type === MEDIA_TYPES.REMOTE_CAMERA)
         && mediaStream() !== null
     );
 
@@ -200,7 +200,7 @@ export default function BroadcastScreen() {
         if (videoRef() !== null) {
             videoRef()!.srcObject = null
         };
-        if (mediaStream() && (currentMediaType() === MEDIA_TYPES.LIVE_LOCAL || currentMediaType() === MEDIA_TYPES.LIVE_EXTERNAL)) {
+        if (mediaStream() && (currentMediaType() === MEDIA_TYPES.LIVE_LOCAL || currentMediaType() === MEDIA_TYPES.REMOTE_CAMERA)) {
             mediaStream()?.getTracks().forEach(track => track.stop());
             setMediaStream(null);
         }
@@ -228,7 +228,7 @@ export default function BroadcastScreen() {
                             </Show>
                         </Match>
 
-                        <Match when={mediaSource().type === MEDIA_TYPES.VIDEO || mediaSource().type === MEDIA_TYPES.LIVE_EXTERNAL || mediaSource().type === MEDIA_TYPES.LIVE_LOCAL}>
+                        <Match when={mediaSource().type === MEDIA_TYPES.VIDEO || mediaSource().type === MEDIA_TYPES.REMOTE_CAMERA || mediaSource().type === MEDIA_TYPES.LIVE_LOCAL}>
                             <video
                                 class={styles['broadcast-video']}
                                 ref={el => setVideoRef(el)}

@@ -4,7 +4,7 @@ import { createSyncedPersistedSignal } from './base';
 
 export const MEDIA_TYPES = {
     LIVE_LOCAL: 'live_local',
-    LIVE_EXTERNAL: 'live_external',
+    REMOTE_CAMERA: 'REMOTE_CAMERA',
     VIDEO: 'video',
     IMAGE: 'image',
     YOUTUBE: 'youtube',
